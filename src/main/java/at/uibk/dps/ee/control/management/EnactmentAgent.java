@@ -140,4 +140,14 @@ public class EnactmentAgent implements EnactmentFunction, ControlStateListener {
       wakeUp();
     }
   }
+  
+  @Override
+  public String getType() {
+    return "Main Agent";
+  }
+  
+  @Override
+  public String getId() {
+    return "Main";
+  }
 }
