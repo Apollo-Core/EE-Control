@@ -123,4 +123,18 @@ public class EnactmentQueuesTest {
     assertTrue(tested.launchableTasks.contains(task1));
     assertTrue(tested.launchableTasks.contains(task2));
   }
+
+  @Test
+  public void testPutTakeTransformTask() {
+    EnactmentQueues tested = new EnactmentQueues();
+    assertTrue(tested.awaitingTransform.isEmpty());
+    Task transformTask = new Task("transform");
+    tested.putTransformTask(transformTask);
+    assertFalse(tested.awaitingTransform.isEmpty());
+    try {
+      assertEquals(transformTask, tested.takeTransformTask());
+    } catch (InterruptedException e) {
+      fail();
+    }
+  }
 }
