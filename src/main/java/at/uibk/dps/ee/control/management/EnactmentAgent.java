@@ -1,5 +1,8 @@
 package at.uibk.dps.ee.control.management;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import com.google.gson.JsonObject;
@@ -140,14 +143,24 @@ public class EnactmentAgent implements EnactmentFunction, ControlStateListener {
       wakeUp();
     }
   }
-  
+
   @Override
-  public String getType() {
+  public String getTypeId() {
     return "Main Agent";
   }
-  
+
   @Override
-  public String getId() {
-    return "Main";
+  public String getEnactmentMode() {
+    return "Host";
+  }
+
+  @Override
+  public String getImplementationId() {
+    return "Apollo";
+  }
+
+  @Override
+  public Set<SimpleEntry<String, String>> getAdditionalAttributes() {
+    return new HashSet<>();
   }
 }
