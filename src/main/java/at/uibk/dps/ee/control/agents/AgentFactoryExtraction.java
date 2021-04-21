@@ -3,7 +3,7 @@ package at.uibk.dps.ee.control.agents;
 import java.util.Set;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
+import at.uibk.dps.ee.control.graph.GraphAccess;
 import at.uibk.dps.ee.control.graph.GraphAccess.EdgeTupleAppl;
 import at.uibk.dps.ee.control.management.EnactmentQueues;
 
@@ -16,6 +16,7 @@ import at.uibk.dps.ee.control.management.EnactmentQueues;
 public class AgentFactoryExtraction {
 
   protected final EnactmentQueues enactmentState;
+  protected final GraphAccess graphAccess;
 
   /**
    * The injection constructor.
@@ -24,8 +25,10 @@ public class AgentFactoryExtraction {
    *        queues)
    */
   @Inject
-  public AgentFactoryExtraction(final EnactmentQueues enactmentState) {
+  public AgentFactoryExtraction(final EnactmentQueues enactmentState,
+      final GraphAccess graphAccess) {
     this.enactmentState = enactmentState;
+    this.graphAccess = graphAccess;
   }
 
   /**
@@ -40,6 +43,6 @@ public class AgentFactoryExtraction {
   public AgentExtraction createExtractionAgent(final EdgeTupleAppl edgeTuple,
       final Set<AgentTaskListener> listeners) {
     return new AgentExtraction(edgeTuple.getSrc(), edgeTuple.getEdge(), edgeTuple.getDst(),
-        enactmentState, listeners);
+        enactmentState, listeners, graphAccess);
   }
 }

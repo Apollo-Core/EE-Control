@@ -4,13 +4,17 @@ import java.util.Set;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import at.uibk.dps.ee.control.graph.GraphAccess;
 import at.uibk.dps.ee.control.management.EnactmentQueues;
 import at.uibk.dps.ee.core.enactable.Enactable;
+import at.uibk.dps.ee.core.enactable.Enactable.State;
+import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceData.NodeType;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import net.sf.opendse.model.Dependency;
+import net.sf.opendse.model.Element;
 import net.sf.opendse.model.Task;
 
 /**
@@ -26,6 +30,7 @@ public class AgentExtraction extends AgentTask {
   protected final Dependency edge;
   protected final Task dataNode;
   protected final EnactmentQueues enactmentState;
+  protected final GraphAccess graphAccess;
 
   /**
    * Default constructor
@@ -37,13 +42,14 @@ public class AgentExtraction extends AgentTask {
    * @param listeners the {@link AgentTaskListener}s
    */
   public AgentExtraction(final Task finishedFunction, final Dependency edge, final Task dataNode,
-      final EnactmentQueues enactmentState, final Set<AgentTaskListener> listeners) {
+      final EnactmentQueues enactmentState, final Set<AgentTaskListener> listeners,
+      final GraphAccess graphAccess) {
     super(listeners);
     this.finishedFunction = finishedFunction;
     this.edge = edge;
     this.dataNode = dataNode;
     this.enactmentState = enactmentState;
-
+    this.graphAccess = graphAccess;
   }
 
   @Override
@@ -61,6 +67,15 @@ public class AgentExtraction extends AgentTask {
         dataNodeModelsSequentiality ? new JsonPrimitive(true) : enactmentResult.get(key);
     PropertyServiceData.setContent(dataNode, data);
     enactmentState.putAvailableData(dataNode);
+
+    graphAccess.writeOperationEdge(this::annotateExtractionEdge, edge);
+
+
+    // check whether all the edges of the function node are processed
+
+
+    // if so, revert the annotations and set the enactable to waiting
+
     return true;
   }
 
@@ -68,5 +83,25 @@ public class AgentExtraction extends AgentTask {
   protected String formulateExceptionMessage() {
     return ConstantsAgents.ExcMessageExtractionPrefix + finishedFunction.getId()
         + ConstantsAgents.ExcMessageExtractionSuffix + dataNode.getId();
+  }
+
+  /**
+   * Annotates that the extraction modeled by the given edge is finished.
+   * 
+   * @param graph the enactment graph
+   * @param extractionEdge the given edge
+   */
+  protected void annotateExtractionEdge(EnactmentGraph graph, final Dependency extractionEdge) {
+    PropertyServiceDependency.setExtractionDone(extractionEdge);
+    final Task process = graph.getSource(edge);
+    // check if extraction done for all out edges
+    if (graph.getOutEdges(process).stream()
+        .allMatch(outEdge -> PropertyServiceDependency.isExtractionDone(outEdge))) {
+      // reset the edge annotation
+      graph.getOutEdges(process)
+          .forEach(outEdge -> PropertyServiceDependency.resetExtractionDone(outEdge));
+      // reset the enactable state
+      PropertyServiceFunction.getEnactable(process).setState(State.WAITING);
+    }
   }
 }

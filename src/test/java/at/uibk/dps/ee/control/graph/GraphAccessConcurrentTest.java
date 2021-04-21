@@ -47,7 +47,7 @@ public class GraphAccessConcurrentTest {
       return true;
     }
 
-    protected void writeStuffInNode(EnactmentGraph graph, Task task) {
+    protected void writeStuffInNode(EnactmentGraph graph, Element task) {
       task.setAttribute(attrName, true);
       try {
         Thread.sleep(waitTime);

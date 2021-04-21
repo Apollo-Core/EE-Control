@@ -5,12 +5,16 @@ import org.junit.Test;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import at.uibk.dps.ee.control.graph.GraphAccess;
 import at.uibk.dps.ee.control.management.EnactmentQueues;
 import at.uibk.dps.ee.core.enactable.Enactable;
+import at.uibk.dps.ee.core.enactable.Enactable.State;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
+import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
+import edu.uci.ics.jung.graph.util.EdgeType;
 import net.sf.opendse.model.Communication;
 import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
@@ -19,9 +23,43 @@ import static org.mockito.Mockito.mock;
 
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 import java.util.HashSet;
 
 public class AgentExtractionTest {
+
+  @Test
+  public void testReset() {
+    Task finished = new Task("t");
+    Task c0 = new Communication("c0");
+    Task c1 = new Communication("c1");
+
+    Dependency d0 = new Dependency("d0");
+    Dependency d1 = new Dependency("d1");
+
+    EnactmentGraph graph = new EnactmentGraph();
+    graph.addEdge(d0, finished, c0, EdgeType.DIRECTED);
+    graph.addEdge(d1, finished, c1, EdgeType.DIRECTED);
+
+    Enactable mockEnactable = mock(Enactable.class);
+    when(mockEnactable.getState()).thenReturn(State.FINISHED);
+    PropertyServiceFunction.setEnactable(finished, mockEnactable);
+
+    GraphAccess gAccess = mock(GraphAccess.class);
+    EnactmentQueues mockQueues = mock(EnactmentQueues.class);
+
+    AgentExtraction tested0 =
+        new AgentExtraction(finished, d0, c0, mockQueues, new HashSet<>(), gAccess);
+
+    tested0.annotateExtractionEdge(graph, d0);
+    assertTrue(PropertyServiceDependency.isExtractionDone(d0));
+    verify(mockEnactable, never()).setState(State.WAITING);
+
+    tested0.annotateExtractionEdge(graph, d1);
+    assertFalse(PropertyServiceDependency.isExtractionDone(d0));
+    assertFalse(PropertyServiceDependency.isExtractionDone(d1));
+    verify(mockEnactable).setState(State.WAITING);
+  }
 
   @Test
   public void test() {
@@ -36,8 +74,9 @@ public class AgentExtractionTest {
     PropertyServiceFunction.setEnactable(finished, mockEnactable);
     EnactmentQueues mockState = mock(EnactmentQueues.class);
     PropertyServiceDependency.setJsonKey(dep, "key");
+    GraphAccess gAccess = mock(GraphAccess.class);
     AgentExtraction tested =
-        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>());
+        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>(), gAccess);
     String expectedMessage = ConstantsAgents.ExcMessageExtractionPrefix + finished.getId()
         + ConstantsAgents.ExcMessageExtractionSuffix + dataNode.getId();
     assertEquals(expectedMessage, tested.formulateExceptionMessage());
@@ -60,9 +99,10 @@ public class AgentExtractionTest {
     when(mockEnactable.getResult()).thenReturn(result);
     PropertyServiceFunction.setEnactable(finished, mockEnactable);
     EnactmentQueues mockState = mock(EnactmentQueues.class);
+    GraphAccess gAccess = mock(GraphAccess.class);
     PropertyServiceDependency.setJsonKey(dep, ConstantsEEModel.JsonKeySequentiality);
     AgentExtraction tested =
-        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>());
+        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>(), gAccess);
     try {
       tested.actualCall();
     } catch (Exception e) {
@@ -83,8 +123,9 @@ public class AgentExtractionTest {
     PropertyServiceFunction.setEnactable(finished, mockEnactable);
     EnactmentQueues mockState = mock(EnactmentQueues.class);
     PropertyServiceDependency.setJsonKey(dep, "key");
+    GraphAccess gAccess = mock(GraphAccess.class);
     AgentExtraction tested =
-        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>());
+        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>(), gAccess);
     String expectedMessage = ConstantsAgents.ExcMessageExtractionPrefix + finished.getId()
         + ConstantsAgents.ExcMessageExtractionSuffix + dataNode.getId();
     assertEquals(expectedMessage, tested.formulateExceptionMessage());

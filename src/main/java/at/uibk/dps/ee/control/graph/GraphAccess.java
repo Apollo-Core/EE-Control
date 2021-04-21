@@ -97,4 +97,13 @@ public interface GraphAccess {
    * @param task the given task
    */
   void writeOperationTask(BiConsumer<EnactmentGraph, Task> writeOperation, Task task);
+  
+  /**
+   * Applies the given write operation (relatively to the given edge) in
+   * thread-safe way.
+   * 
+   * @param writeOperation the write operation to apply
+   * @param task the given edge
+   */
+  void writeOperationEdge(BiConsumer<EnactmentGraph, Dependency> writeOperation, Dependency edge);
 }

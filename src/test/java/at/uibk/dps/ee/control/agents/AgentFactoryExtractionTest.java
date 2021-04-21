@@ -2,6 +2,7 @@ package at.uibk.dps.ee.control.agents;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import at.uibk.dps.ee.control.graph.GraphAccess;
 import at.uibk.dps.ee.control.graph.GraphAccess.EdgeTupleAppl;
 import at.uibk.dps.ee.control.management.EnactmentQueues;
 import net.sf.opendse.model.Dependency;
@@ -20,12 +21,14 @@ public class AgentFactoryExtractionTest {
     Dependency edge = new Dependency("dep");
     EdgeTupleAppl tuple = new EdgeTupleAppl(src, dst, edge);
     Set<AgentTaskListener> listeners = new HashSet<>();
+    GraphAccess mockAccess = mock(GraphAccess.class);
 
-    AgentFactoryExtraction tested = new AgentFactoryExtraction(stateMock);
+    AgentFactoryExtraction tested = new AgentFactoryExtraction(stateMock, mockAccess);
     AgentExtraction result = tested.createExtractionAgent(tuple, listeners);
     assertEquals(src, result.finishedFunction);
     assertEquals(dst, result.dataNode);
     assertEquals(edge, result.edge);
     assertEquals(stateMock, result.enactmentState);
+    assertEquals(mockAccess, result.graphAccess);
   }
 }
