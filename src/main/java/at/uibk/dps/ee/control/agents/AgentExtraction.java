@@ -85,7 +85,8 @@ public class AgentExtraction extends AgentTask {
    * @param graph the enactment graph
    * @param extractionEdge the given edge
    */
-  protected void annotateExtractionEdge(EnactmentGraph graph, final Dependency extractionEdge) {
+  protected void annotateExtractionEdge(final EnactmentGraph graph,
+      final Dependency extractionEdge) {
     PropertyServiceDependency.setExtractionDone(extractionEdge);
     final Task process = graph.getSource(edge);
     // check if extraction done for all out edges

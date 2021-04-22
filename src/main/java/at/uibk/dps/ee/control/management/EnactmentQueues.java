@@ -161,12 +161,11 @@ public class EnactmentQueues {
    * @return the log string used for the logging of the queue status
    */
   protected String queueStatus() {
-    StringBuffer buffer = new StringBuffer();
-    buffer.append("Launchable tasks: ").append(launchableTasks.size()).append('\n');
-    buffer.append("Finished tasks: ").append(finishedTasks.size()).append('\n');
-    buffer.append("Schedulable tasks: ").append(schedulableTasks.size()).append('\n');
-    buffer.append("Available Data: ").append(availableData.size()).append('\n');
-    buffer.append("Awaiting transform: ").append(awaitingTransform.size()).append('\n');
+    final StringBuffer buffer = new StringBuffer(100);
+    buffer.append("Launchable tasks: ").append(launchableTasks.size()).append("\nFinished tasks: ")
+        .append(finishedTasks.size()).append("\nSchedulable tasks: ")
+        .append(schedulableTasks.size()).append("\nAvailable Data: ").append(availableData.size())
+        .append("\nAwaiting transform: ").append(awaitingTransform.size()).append('\n');
     return buffer.toString();
   }
 

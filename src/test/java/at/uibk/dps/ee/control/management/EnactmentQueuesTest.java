@@ -16,6 +16,8 @@ import java.util.concurrent.Future;
 
 public class EnactmentQueuesTest {
 
+  protected static final int queueDurationTime = 100;
+  
   protected class PutRunnable implements Callable<Boolean> {
 
     protected final Task task;
@@ -87,7 +89,7 @@ public class EnactmentQueuesTest {
 
       long duration1 = Duration.between(start, finish1).toMillis();
       long duration2 = Duration.between(start, finish2).toMillis();
-      assertTrue(duration1 < 50);
+      assertTrue(duration1 < queueDurationTime);
       assertTrue(duration2 >= 500);
 
     } catch (InterruptedException | ExecutionException e) {
@@ -118,7 +120,7 @@ public class EnactmentQueuesTest {
 
     Instant end = Instant.now();
     long time = Duration.between(start, end).toMillis();
-    assertTrue(time < 50);
+    assertTrue(time < queueDurationTime);
     assertTrue(tested.launchableTasks.size() == 2);
     assertTrue(tested.launchableTasks.contains(task1));
     assertTrue(tested.launchableTasks.contains(task2));

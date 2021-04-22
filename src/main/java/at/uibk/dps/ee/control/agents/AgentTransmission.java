@@ -89,7 +89,7 @@ public class AgentTransmission extends AgentTask {
       // for all in-edges of the node as processed
       graph.getInEdges(functionNode).forEach(inEdge -> {
         PropertyServiceDependency.setDataConsumed(inEdge);
-        Task src = graph.getSource(inEdge);
+        final Task src = graph.getSource(inEdge);
         if (!PropertyServiceData.getNodeType(src).equals(NodeType.Constant)
             && graph.getOutEdges(src).stream()
                 .allMatch(outEdgeSrc -> PropertyServiceDependency.isDataConsumed(outEdgeSrc))) {

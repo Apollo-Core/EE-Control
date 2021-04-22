@@ -84,8 +84,8 @@ public class GraphAccessConcurrent implements GraphAccess {
   }
 
   @Override
-  public void writeOperationEdge(BiConsumer<EnactmentGraph, Dependency> writeOperation,
-      Dependency edge) {
+  public void writeOperationEdge(final BiConsumer<EnactmentGraph, Dependency> writeOperation,
+      final Dependency edge) {
     try {
       writeLock.lock();
       writeOperation.accept(graph, edge);
