@@ -11,10 +11,10 @@ import at.uibk.dps.ee.core.enactable.Enactable.State;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceData.NodeType;
+import at.uibk.dps.sc.core.ScheduleModel;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import net.sf.opendse.model.Dependency;
-import net.sf.opendse.model.Element;
 import net.sf.opendse.model.Task;
 
 /**
@@ -31,6 +31,7 @@ public class AgentExtraction extends AgentTask {
   protected final Task dataNode;
   protected final EnactmentQueues enactmentState;
   protected final GraphAccess graphAccess;
+  protected final ScheduleModel schedule;
 
   /**
    * Default constructor
@@ -43,13 +44,14 @@ public class AgentExtraction extends AgentTask {
    */
   public AgentExtraction(final Task finishedFunction, final Dependency edge, final Task dataNode,
       final EnactmentQueues enactmentState, final Set<AgentTaskListener> listeners,
-      final GraphAccess graphAccess) {
+      final GraphAccess graphAccess, final ScheduleModel schedule) {
     super(listeners);
     this.finishedFunction = finishedFunction;
     this.edge = edge;
     this.dataNode = dataNode;
     this.enactmentState = enactmentState;
     this.graphAccess = graphAccess;
+    this.schedule = schedule;
   }
 
   @Override
@@ -67,15 +69,7 @@ public class AgentExtraction extends AgentTask {
         dataNodeModelsSequentiality ? new JsonPrimitive(true) : enactmentResult.get(key);
     PropertyServiceData.setContent(dataNode, data);
     enactmentState.putAvailableData(dataNode);
-
     graphAccess.writeOperationEdge(this::annotateExtractionEdge, edge);
-
-
-    // check whether all the edges of the function node are processed
-
-
-    // if so, revert the annotations and set the enactable to waiting
-
     return true;
   }
 
@@ -102,6 +96,7 @@ public class AgentExtraction extends AgentTask {
           .forEach(outEdge -> PropertyServiceDependency.resetExtractionDone(outEdge));
       // reset the enactable state
       PropertyServiceFunction.getEnactable(process).setState(State.WAITING);
+      schedule.resetTaskSchedule(process);
     }
   }
 }

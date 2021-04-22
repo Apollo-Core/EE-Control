@@ -6,6 +6,7 @@ import com.google.inject.Singleton;
 import at.uibk.dps.ee.control.graph.GraphAccess;
 import at.uibk.dps.ee.control.graph.GraphAccess.EdgeTupleAppl;
 import at.uibk.dps.ee.control.management.EnactmentQueues;
+import at.uibk.dps.sc.core.ScheduleModel;
 
 /**
  * The default factory for the creation of {@link AgentExtraction}s.
@@ -17,6 +18,7 @@ public class AgentFactoryExtraction {
 
   protected final EnactmentQueues enactmentState;
   protected final GraphAccess graphAccess;
+  protected final ScheduleModel schedule;
 
   /**
    * The injection constructor.
@@ -25,10 +27,11 @@ public class AgentFactoryExtraction {
    *        queues)
    */
   @Inject
-  public AgentFactoryExtraction(final EnactmentQueues enactmentState,
-      final GraphAccess graphAccess) {
+  public AgentFactoryExtraction(final EnactmentQueues enactmentState, final GraphAccess graphAccess,
+      final ScheduleModel schedule) {
     this.enactmentState = enactmentState;
     this.graphAccess = graphAccess;
+    this.schedule = schedule;
   }
 
   /**
@@ -43,6 +46,6 @@ public class AgentFactoryExtraction {
   public AgentExtraction createExtractionAgent(final EdgeTupleAppl edgeTuple,
       final Set<AgentTaskListener> listeners) {
     return new AgentExtraction(edgeTuple.getSrc(), edgeTuple.getEdge(), edgeTuple.getDst(),
-        enactmentState, listeners, graphAccess);
+        enactmentState, listeners, graphAccess, schedule);
   }
 }

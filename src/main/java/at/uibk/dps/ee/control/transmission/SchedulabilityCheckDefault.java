@@ -29,7 +29,7 @@ public class SchedulabilityCheckDefault implements SchedulabilityCheck {
                 edge -> PropertyServiceDependency.getType(edge).equals(TypeDependency.ControlIf))
             .allMatch(controlEdge -> isIfEdgeActive(graph, controlEdge));
       } else {
-        // No in edges an all edges active
+        // No if edges and all edges active
         return true;
       }
     } else {

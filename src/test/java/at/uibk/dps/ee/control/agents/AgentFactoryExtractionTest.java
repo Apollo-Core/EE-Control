@@ -5,6 +5,7 @@ import org.junit.Test;
 import at.uibk.dps.ee.control.graph.GraphAccess;
 import at.uibk.dps.ee.control.graph.GraphAccess.EdgeTupleAppl;
 import at.uibk.dps.ee.control.management.EnactmentQueues;
+import at.uibk.dps.sc.core.ScheduleModel;
 import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
 import static org.mockito.Mockito.mock;
@@ -22,8 +23,9 @@ public class AgentFactoryExtractionTest {
     EdgeTupleAppl tuple = new EdgeTupleAppl(src, dst, edge);
     Set<AgentTaskListener> listeners = new HashSet<>();
     GraphAccess mockAccess = mock(GraphAccess.class);
+    ScheduleModel schedule = new ScheduleModel();
 
-    AgentFactoryExtraction tested = new AgentFactoryExtraction(stateMock, mockAccess);
+    AgentFactoryExtraction tested = new AgentFactoryExtraction(stateMock, mockAccess, schedule);
     AgentExtraction result = tested.createExtractionAgent(tuple, listeners);
     assertEquals(src, result.finishedFunction);
     assertEquals(dst, result.dataNode);

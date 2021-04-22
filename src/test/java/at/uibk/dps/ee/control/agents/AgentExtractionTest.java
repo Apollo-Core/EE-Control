@@ -14,6 +14,7 @@ import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
+import at.uibk.dps.sc.core.ScheduleModel;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import net.sf.opendse.model.Communication;
 import net.sf.opendse.model.Dependency;
@@ -47,9 +48,11 @@ public class AgentExtractionTest {
 
     GraphAccess gAccess = mock(GraphAccess.class);
     EnactmentQueues mockQueues = mock(EnactmentQueues.class);
-
+    ScheduleModel schedule = new ScheduleModel();
+    schedule.setTaskSchedule(finished, new HashSet<>());
+    assertTrue(schedule.isScheduled(finished));
     AgentExtraction tested0 =
-        new AgentExtraction(finished, d0, c0, mockQueues, new HashSet<>(), gAccess);
+        new AgentExtraction(finished, d0, c0, mockQueues, new HashSet<>(), gAccess, schedule);
 
     tested0.annotateExtractionEdge(graph, d0);
     assertTrue(PropertyServiceDependency.isExtractionDone(d0));
@@ -59,6 +62,7 @@ public class AgentExtractionTest {
     assertFalse(PropertyServiceDependency.isExtractionDone(d0));
     assertFalse(PropertyServiceDependency.isExtractionDone(d1));
     verify(mockEnactable).setState(State.WAITING);
+    assertFalse(schedule.isScheduled(finished));
   }
 
   @Test
@@ -75,8 +79,9 @@ public class AgentExtractionTest {
     EnactmentQueues mockState = mock(EnactmentQueues.class);
     PropertyServiceDependency.setJsonKey(dep, "key");
     GraphAccess gAccess = mock(GraphAccess.class);
+    ScheduleModel schedule = new ScheduleModel();
     AgentExtraction tested =
-        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>(), gAccess);
+        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>(), gAccess, schedule);
     String expectedMessage = ConstantsAgents.ExcMessageExtractionPrefix + finished.getId()
         + ConstantsAgents.ExcMessageExtractionSuffix + dataNode.getId();
     assertEquals(expectedMessage, tested.formulateExceptionMessage());
@@ -101,8 +106,9 @@ public class AgentExtractionTest {
     EnactmentQueues mockState = mock(EnactmentQueues.class);
     GraphAccess gAccess = mock(GraphAccess.class);
     PropertyServiceDependency.setJsonKey(dep, ConstantsEEModel.JsonKeySequentiality);
+    ScheduleModel schedule = new ScheduleModel();
     AgentExtraction tested =
-        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>(), gAccess);
+        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>(), gAccess, schedule);
     try {
       tested.actualCall();
     } catch (Exception e) {
@@ -124,8 +130,9 @@ public class AgentExtractionTest {
     EnactmentQueues mockState = mock(EnactmentQueues.class);
     PropertyServiceDependency.setJsonKey(dep, "key");
     GraphAccess gAccess = mock(GraphAccess.class);
+    ScheduleModel schedule = new ScheduleModel();
     AgentExtraction tested =
-        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>(), gAccess);
+        new AgentExtraction(finished, dep, dataNode, mockState, new HashSet<>(), gAccess, schedule);
     String expectedMessage = ConstantsAgents.ExcMessageExtractionPrefix + finished.getId()
         + ConstantsAgents.ExcMessageExtractionSuffix + dataNode.getId();
     assertEquals(expectedMessage, tested.formulateExceptionMessage());

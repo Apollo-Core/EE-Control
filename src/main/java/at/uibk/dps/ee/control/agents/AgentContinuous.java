@@ -38,6 +38,9 @@ public abstract class AgentContinuous implements Agent, ControlStateListener {
         operationOnTask(task);
       }
     }
+    // reset the state for a possible reexecution before exiting
+    stopped = false;
+    paused = false;
     return true;
   }
 
@@ -55,8 +58,8 @@ public abstract class AgentContinuous implements Agent, ControlStateListener {
   protected abstract Task getTaskFromBlockingQueue();
 
   @Override
-  public void reactToStateChange(final EnactmentState previousState, final EnactmentState currentState)
-      throws StopException {
+  public void reactToStateChange(final EnactmentState previousState,
+      final EnactmentState currentState) throws StopException {
     if (previousState.equals(EnactmentState.RUNNING)
         && currentState.equals(EnactmentState.PAUSED)) {
       // pausing

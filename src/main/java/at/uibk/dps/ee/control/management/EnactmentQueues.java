@@ -1,7 +1,8 @@
 package at.uibk.dps.ee.control.management;
 
 import java.util.concurrent.LinkedBlockingQueue;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -16,6 +17,8 @@ import net.sf.opendse.model.Task;
  */
 @Singleton
 public class EnactmentQueues {
+
+  protected final Logger queueLogger = LoggerFactory.getLogger(EnactmentQueues.class);
 
   protected final LinkedBlockingQueue<Task> launchableTasks;
   protected final LinkedBlockingQueue<Task> schedulableTasks;
@@ -147,7 +150,24 @@ public class EnactmentQueues {
    * @throws InterruptedException
    */
   protected Task takeFromQueue(final LinkedBlockingQueue<Task> queue) throws InterruptedException {
-    return queue.take();
+    final Task result = queue.take();
+    queueLogger.debug("\nTaken\nStatus\n{}", queueStatus());
+    return result;
+  }
+
+  /**
+   * Generates the log string used for the logging of the queue status
+   * 
+   * @return the log string used for the logging of the queue status
+   */
+  protected String queueStatus() {
+    StringBuffer buffer = new StringBuffer();
+    buffer.append("Launchable tasks: ").append(launchableTasks.size()).append('\n');
+    buffer.append("Finished tasks: ").append(finishedTasks.size()).append('\n');
+    buffer.append("Schedulable tasks: ").append(schedulableTasks.size()).append('\n');
+    buffer.append("Available Data: ").append(availableData.size()).append('\n');
+    buffer.append("Awaiting transform: ").append(awaitingTransform.size()).append('\n');
+    return buffer.toString();
   }
 
   /**
@@ -161,6 +181,7 @@ public class EnactmentQueues {
   protected void putInQueue(final LinkedBlockingQueue<Task> queue, final Task element) {
     try {
       queue.put(element);
+      queueLogger.debug("\nPut\nStatus\n{}", queueStatus());
     } catch (InterruptedException e) {
       throw new IllegalStateException("Interrupted exception when putting task in queue.", e);
     }

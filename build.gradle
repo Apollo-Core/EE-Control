@@ -50,11 +50,12 @@ dependencies {
   // gson to define the format of the exchanged messages
   implementation 'com.google.code.gson:gson:2.8.6'
 
+  // SLF4J and Logback for logging
+  implementation group: "ch.qos.logback", name: "logback-classic", version: "1.2.3"
+  
   // test dependencies
   testCompile group: 'junit', 		name: 'junit', 					version: '4.+'
   testCompile group: 'org.mockito',     name: 'mockito-core',     version: '3.4.4'
-  // dependency to local files
-  // compile files('libs/lib.jar')
 }
 
 jacocoTestReport {

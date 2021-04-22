@@ -11,6 +11,7 @@ import at.uibk.dps.ee.core.enactable.Enactable;
 import at.uibk.dps.ee.core.enactable.Enactable.State;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
+import at.uibk.dps.ee.model.properties.PropertyServiceData.NodeType;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import net.sf.opendse.model.Dependency;
@@ -81,9 +82,22 @@ public class AgentTransmission extends AgentTask {
   protected void annotateTransmission(final EnactmentGraph graph, final Task functionNode) {
     // annotate the dependency
     PropertyServiceDependency.annotateFinishedTransmission(edge);
+    // if all edges done with transmitting
     if (schedulabilityCheck.isTargetSchedulable(functionNode, graph)) {
       PropertyServiceFunction.getEnactable(functionNode).setState(State.SCHEDULABLE);
       enactmentState.putSchedulableTask(functionNode);
+      // for all in-edges of the node as processed
+      graph.getInEdges(functionNode).forEach(inEdge -> {
+        PropertyServiceDependency.setDataConsumed(inEdge);
+        Task src = graph.getSource(inEdge);
+        if (!PropertyServiceData.getNodeType(src).equals(NodeType.Constant)
+            && graph.getOutEdges(src).stream()
+                .allMatch(outEdgeSrc -> PropertyServiceDependency.isDataConsumed(outEdgeSrc))) {
+          PropertyServiceData.resetContent(src);
+          graph.getOutEdges(src)
+              .forEach(outEdgeSrc -> PropertyServiceDependency.resetTransmission(outEdgeSrc));
+        }
+      });
     }
   }
 
