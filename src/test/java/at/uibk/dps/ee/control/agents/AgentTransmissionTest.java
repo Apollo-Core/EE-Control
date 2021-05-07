@@ -9,13 +9,18 @@ import at.uibk.dps.ee.control.graph.GraphAccess;
 import at.uibk.dps.ee.control.management.EnactmentQueues;
 import at.uibk.dps.ee.control.transmission.SchedulabilityCheck;
 import at.uibk.dps.ee.control.transmission.SchedulabilityCheckDefault;
+import at.uibk.dps.ee.control.transmission.SchedulabilityCheckMuxer;
 import at.uibk.dps.ee.core.enactable.Enactable;
 import at.uibk.dps.ee.core.enactable.Enactable.State;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
+import at.uibk.dps.ee.model.properties.PropertyServiceDependencyControlIf;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
+import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlow;
 import at.uibk.dps.ee.model.properties.PropertyServiceData.DataType;
+import at.uibk.dps.ee.model.properties.PropertyServiceDependency.TypeDependency;
+import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlow.DataFlowType;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import net.sf.opendse.model.Communication;
 import net.sf.opendse.model.Dependency;
@@ -28,6 +33,61 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class AgentTransmissionTest {
+
+  @Test
+  public void testAnnotateTransmissionMuxerDecisionFirst() {
+    // Set up the graph
+    EnactmentGraph graph = new EnactmentGraph();
+
+    Task muxer =
+        PropertyServiceFunctionDataFlow.createDataFlowFunction("muxer", DataFlowType.Multiplexer);
+
+    Task decisionData = new Communication("decisionData");
+    PropertyServiceData.setContent(decisionData, new JsonPrimitive(true));
+    Dependency decisionDep =
+        PropertyServiceDependency.addDataDependency(decisionData, muxer, "ifDecision", graph);
+
+    Task dataTrue = new Communication("decisionTrue");
+    PropertyServiceData.setContent(dataTrue, new JsonPrimitive(3));
+    Dependency trueDep = PropertyServiceDependencyControlIf.addIfDependency(dataTrue, muxer,
+        "dataTrue", true, graph);
+
+    Task dataFalse = new Communication("decisionFalse");
+    Dependency falseDep = PropertyServiceDependencyControlIf.addIfDependency(dataFalse, muxer,
+        "dataFalse", false, graph);
+
+    // create the agent
+    EnactmentQueues queues = mock(EnactmentQueues.class);
+    GraphAccess access = mock(GraphAccess.class);
+    AgentTransmission agentDecision = new AgentTransmission(queues, decisionData, decisionDep,
+        muxer, access, new HashSet<>(), new SchedulabilityCheckMuxer());
+    AgentTransmission agentTrue = new AgentTransmission(queues, dataTrue, trueDep, muxer, access,
+        new HashSet<>(), new SchedulabilityCheckMuxer());
+
+    Enactable mockEnactable0 = mock(Enactable.class);
+    PropertyServiceFunction.setEnactable(muxer, mockEnactable0);
+
+    // Fire the decision edge
+    agentDecision.annotateTransmission(graph, muxer);
+    assertTrue(PropertyServiceData.isDataAvailable(decisionData));
+    assertFalse(PropertyServiceDependency.isDataConsumed(decisionDep));
+    assertTrue(PropertyServiceDependency.isTransmissionDone(decisionDep));
+
+    // Fire the data edge
+    agentTrue.annotateTransmission(graph, muxer);
+
+    assertFalse(PropertyServiceData.isDataAvailable(decisionData));
+    assertFalse(PropertyServiceDependency.isDataConsumed(decisionDep));
+    assertFalse(PropertyServiceDependency.isTransmissionDone(decisionDep));
+
+    assertFalse(PropertyServiceData.isDataAvailable(dataTrue));
+    assertFalse(PropertyServiceDependency.isDataConsumed(trueDep));
+    assertFalse(PropertyServiceDependency.isTransmissionDone(trueDep));
+
+    assertFalse(PropertyServiceData.isDataAvailable(dataFalse));
+    assertFalse(PropertyServiceDependency.isDataConsumed(falseDep));
+    assertFalse(PropertyServiceDependency.isTransmissionDone(falseDep));
+  }
 
   @Test
   public void testAnnotateTransmission() {
@@ -139,6 +199,7 @@ public class AgentTransmissionTest {
     JsonElement content = new JsonPrimitive(42);
     PropertyServiceData.setContent(dataNode, content);
     Dependency edge = new Dependency("dep");
+    PropertyServiceDependency.setType(edge, TypeDependency.Data);
     Task function = new Task("function");
     GraphAccess gMock = mock(GraphAccess.class);
     Set<AgentTaskListener> listeners = new HashSet<>();
@@ -153,6 +214,8 @@ public class AgentTransmissionTest {
 
     Dependency otherEdge1 = new Dependency("e1");
     Dependency otherEdge2 = new Dependency("e2");
+    PropertyServiceDependency.setType(otherEdge1, TypeDependency.Data);
+    PropertyServiceDependency.setType(otherEdge2, TypeDependency.Data);
     Set<Dependency> inEdges = new HashSet<>();
     inEdges.add(otherEdge2);
     inEdges.add(otherEdge1);

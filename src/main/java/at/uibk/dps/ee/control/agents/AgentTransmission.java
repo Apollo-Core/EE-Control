@@ -12,6 +12,7 @@ import at.uibk.dps.ee.core.enactable.Enactable.State;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceData.NodeType;
+import at.uibk.dps.ee.model.properties.PropertyServiceDependency.TypeDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import net.sf.opendse.model.Dependency;
@@ -88,14 +89,19 @@ public class AgentTransmission extends AgentTask {
       enactmentState.putSchedulableTask(functionNode);
       // for all in-edges of the node as processed
       graph.getInEdges(functionNode).forEach(inEdge -> {
-        PropertyServiceDependency.setDataConsumed(inEdge);
-        final Task src = graph.getSource(inEdge);
-        if (!PropertyServiceData.getNodeType(src).equals(NodeType.Constant)
-            && graph.getOutEdges(src).stream()
-                .allMatch(outEdgeSrc -> PropertyServiceDependency.isDataConsumed(outEdgeSrc))) {
-          PropertyServiceData.resetContent(src);
-          graph.getOutEdges(src)
-              .forEach(outEdgeSrc -> PropertyServiceDependency.resetTransmission(outEdgeSrc));
+        if (!inEdge.equals(edge)
+            && PropertyServiceDependency.getType(inEdge).equals(TypeDependency.ControlIf)) {
+          // the case of the other if edge which is not active and, therefore, ignored
+        } else {
+          PropertyServiceDependency.setDataConsumed(inEdge);
+          final Task src = graph.getSource(inEdge);
+          if (!PropertyServiceData.getNodeType(src).equals(NodeType.Constant)
+              && graph.getOutEdges(src).stream()
+                  .allMatch(outEdgeSrc -> PropertyServiceDependency.isDataConsumed(outEdgeSrc))) {
+            PropertyServiceData.resetContent(src);
+            graph.getOutEdges(src)
+                .forEach(outEdgeSrc -> PropertyServiceDependency.resetTransmission(outEdgeSrc));
+          }
         }
       });
     }
