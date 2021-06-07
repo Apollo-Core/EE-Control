@@ -63,7 +63,8 @@ public class AgentExtraction extends AgentTask {
     final String key = PropertyServiceDependency.getJsonKey(edge);
     if (!enactmentResult.has(key) && !dataNodeModelsSequentiality) {
       throw new IllegalStateException("The execution of the task " + finishedFunction.getId()
-          + " did not produce an entry named " + key);
+          + " did not produce an entry named " + key + " instead, we got "
+          + enactmentResult.toString());
     }
     final JsonElement data =
         dataNodeModelsSequentiality ? new JsonPrimitive(true) : enactmentResult.get(key);
