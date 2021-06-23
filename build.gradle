@@ -53,9 +53,15 @@ dependencies {
   // SLF4J and Logback for logging
   implementation group: "ch.qos.logback", name: "logback-classic", version: "1.2.3"
   
+  // VertX
+  implementation 'io.vertx:vertx-core:4.1.0'
+  
   // test dependencies
   testCompile group: 'junit', 		name: 'junit', 					version: '4.+'
   testCompile group: 'org.mockito',     name: 'mockito-core',     version: '3.4.4'
+  
+  // for the asynchronous VertX tests
+  testCompile 'io.vertx:vertx-unit:4.1.0'
 }
 
 jacocoTestReport {
