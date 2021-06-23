@@ -66,7 +66,7 @@ public class WorkerExtraction extends HandlerApollo<Task> {
           .forEach(outEdge -> PropertyServiceDependency.resetExtractionDone(outEdge));
       // reset the enactable state
       PropertyServiceFunction.getEnactable(process).setState(State.WAITING);
-      System.err.println("Schedule resetting still has to be implemented");
+      eBus.publish(ConstantsEventBus.addressResetScheduleTask, process.getId());
     }
   }
 
