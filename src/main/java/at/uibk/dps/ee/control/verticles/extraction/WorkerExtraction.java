@@ -19,12 +19,10 @@ import net.sf.opendse.model.Task;
 
 public class WorkerExtraction extends HandlerApollo<Task> {
 
-  protected final EnactmentGraph eGraph;
 
   public WorkerExtraction(EnactmentGraph eGraph, EventBus eBus) {
     super(ConstantsEventBus.addressEnactmentFinished, ConstantsEventBus.addressDataAvailable,
-        ConstantsEventBus.addressFailureAbort, eBus);
-    this.eGraph = eGraph;
+        ConstantsEventBus.addressFailureAbort, eBus, eGraph);
   }
 
   @Override

@@ -1,5 +1,6 @@
 package at.uibk.dps.ee.control.verticles;
 
+import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -18,6 +19,7 @@ public abstract class HandlerApollo<E extends Element> implements Handler<Messag
   protected final String failureAddress;
 
   protected final EventBus eBus;
+  protected final EnactmentGraph eGraph;
 
   /**
    * Standard constructor
@@ -28,11 +30,12 @@ public abstract class HandlerApollo<E extends Element> implements Handler<Messag
    * @param eBus the vertX event bus
    */
   public HandlerApollo(String triggerAddress, String successAddress, String failureAddress,
-      EventBus eBus) {
+      EventBus eBus, EnactmentGraph eGraph) {
     this.triggerAddress = triggerAddress;
     this.successAddress = successAddress;
     this.failureAddress = failureAddress;
     this.eBus = eBus;
+    this.eGraph = eGraph;
   }
 
   @Override
