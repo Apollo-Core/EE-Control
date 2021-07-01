@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Test;
-import at.uibk.dps.ee.core.enactable.Enactable.State;
+import at.uibk.dps.ee.core.function.Enactable.State;
 import at.uibk.dps.ee.enactables.EnactableAtomic;
 import at.uibk.dps.ee.enactables.EnactableFactory;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;

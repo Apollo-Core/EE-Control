@@ -33,16 +33,23 @@ public class ConstantsEventBus {
   // message body
   public static final String addressEnactmentFinished = "ENACTMENT_FINISHED";
 
+  // cast when a task results in a graph transformation
+  public static final String addressRequiredTransformation = "TRANSFORMATION_REQUIRED";
+
+  // cast when the result of the wf processing is available. Has the result JSON
+  // as message string
+  public static final String addressWorkflowResultAvailable = "WORKFLOW_RESULT";
+
 
   // failures
 
   public static final String addressFailureAbort = "FAILURE_ABORT";
 
-  
+
   // placeholder for handlers not using certain addresses
   public static final String addressPlaceholder = "404";
-  
-  
+
+
   /**
    * No constructor.
    */

@@ -1,6 +1,8 @@
 package at.uibk.dps.ee.control.enactment;
 
+import com.google.inject.ImplementedBy;
 import at.uibk.dps.ee.control.management.EnactmentQueues;
+import at.uibk.dps.ee.control.verticles.enactment.PostEnactmentDefault;
 import net.sf.opendse.model.Task;
 
 /**
@@ -10,6 +12,7 @@ import net.sf.opendse.model.Task;
  * 
  * @author Fedor Smirnov
  */
+@ImplementedBy(PostEnactmentDefault.class)
 public interface PostEnactment {
 
   /**

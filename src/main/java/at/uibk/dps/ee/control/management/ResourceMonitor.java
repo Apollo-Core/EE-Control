@@ -5,8 +5,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import at.uibk.dps.ee.core.enactable.Enactable;
-import at.uibk.dps.ee.core.enactable.Enactable.State;
+import at.uibk.dps.ee.core.function.Enactable;
+import at.uibk.dps.ee.core.function.EnactableStateListener;
+import at.uibk.dps.ee.core.function.Enactable.State;
 import at.uibk.dps.ee.enactables.EnactableAtomic;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.graph.ResourceGraphProvider;
@@ -16,7 +17,6 @@ import at.uibk.dps.ee.model.properties.PropertyServiceResource;
 import at.uibk.dps.sc.core.ScheduleModel;
 import net.sf.opendse.model.Resource;
 import net.sf.opendse.model.Task;
-import at.uibk.dps.ee.core.enactable.EnactableStateListener;
 
 /**
  * The {@link ResourceMonitor} monitors the state of the resources during the

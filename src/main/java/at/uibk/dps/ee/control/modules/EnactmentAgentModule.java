@@ -5,7 +5,6 @@ import org.opt4j.core.config.annotations.Order;
 import org.opt4j.core.start.Constant;
 import at.uibk.dps.ee.control.command.Control;
 import at.uibk.dps.ee.control.management.EnactmentAgentProvider;
-import at.uibk.dps.ee.core.EnactableProvider;
 import at.uibk.dps.ee.guice.modules.EeModule;
 
 /**

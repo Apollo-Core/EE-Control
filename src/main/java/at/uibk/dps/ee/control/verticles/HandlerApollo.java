@@ -1,7 +1,8 @@
 package at.uibk.dps.ee.control.verticles;
 
+import at.uibk.dps.ee.guice.HandlerString;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
-import io.vertx.core.Handler;
+import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
 import net.sf.opendse.model.Element;
@@ -12,7 +13,7 @@ import net.sf.opendse.model.Element;
  * @author Fedor Smirnov
  *
  */
-public abstract class HandlerApollo<E extends Element> implements Handler<Message<String>> {
+public abstract class HandlerApollo<E extends Element> implements HandlerString {
 
   protected final String triggerAddress;
   protected final String successAddress;
@@ -30,12 +31,12 @@ public abstract class HandlerApollo<E extends Element> implements Handler<Messag
    * @param eBus the vertX event bus
    */
   public HandlerApollo(String triggerAddress, String successAddress, String failureAddress,
-      EventBus eBus, EnactmentGraph eGraph) {
+      EventBus eBus, EnactmentGraphProvider eGraphProvider) {
     this.triggerAddress = triggerAddress;
     this.successAddress = successAddress;
     this.failureAddress = failureAddress;
     this.eBus = eBus;
-    this.eGraph = eGraph;
+    this.eGraph = eGraphProvider.getEnactmentGraph();
   }
 
   @Override
@@ -48,7 +49,7 @@ public abstract class HandlerApollo<E extends Element> implements Handler<Messag
     }
   }
 
-
+  @Override
   public String getTriggerAddress() {
     return triggerAddress;
   }

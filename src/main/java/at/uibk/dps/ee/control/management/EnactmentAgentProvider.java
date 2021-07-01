@@ -6,8 +6,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import at.uibk.dps.ee.core.EnactableProvider;
-import at.uibk.dps.ee.core.enactable.EnactableRoot;
-import at.uibk.dps.ee.core.enactable.EnactableStateListener;
+import at.uibk.dps.ee.core.function.EnactableRoot;
+import at.uibk.dps.ee.core.function.EnactableStateListener;
 
 /**
  * Guice interface to provide the enactment control classes based on agents to

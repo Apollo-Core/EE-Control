@@ -3,26 +3,25 @@ package at.uibk.dps.ee.control.verticles.extraction;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.inject.Inject;
 import at.uibk.dps.ee.control.verticles.ConstantsEventBus;
 import at.uibk.dps.ee.control.verticles.HandlerApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
-import at.uibk.dps.ee.core.enactable.Enactable;
-import at.uibk.dps.ee.core.enactable.Enactable.State;
-import at.uibk.dps.ee.model.graph.EnactmentGraph;
+import at.uibk.dps.ee.guice.starter.VertxProvider;
+import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceData.NodeType;
-import io.vertx.core.eventbus.EventBus;
 import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
 
 public class WorkerExtraction extends HandlerApollo<Task> {
 
-
-  public WorkerExtraction(EnactmentGraph eGraph, EventBus eBus) {
+  @Inject
+  public WorkerExtraction(EnactmentGraphProvider eGraphProvider, VertxProvider vertxProvider) {
     super(ConstantsEventBus.addressEnactmentFinished, ConstantsEventBus.addressDataAvailable,
-        ConstantsEventBus.addressFailureAbort, eBus, eGraph);
+        ConstantsEventBus.addressFailureAbort, vertxProvider.geteBus(), eGraphProvider);
   }
 
   @Override
@@ -37,8 +36,7 @@ public class WorkerExtraction extends HandlerApollo<Task> {
     Task dataNode = eGraph.getDest(outEdge);
     final boolean dataNodeModelsSequentiality =
         PropertyServiceData.getNodeType(dataNode).equals(NodeType.Sequentiality);
-    final Enactable finishedEnactable = PropertyServiceFunction.getEnactable(finishedFunction);
-    final JsonObject enactmentResult = finishedEnactable.getResult();
+    final JsonObject enactmentResult = PropertyServiceFunction.getOutput(finishedFunction);
     final String key = PropertyServiceDependency.getJsonKey(outEdge);
     if (!enactmentResult.has(key) && !dataNodeModelsSequentiality) {
       throw new WorkerException("The execution of the task " + finishedFunction.getId()
@@ -49,8 +47,8 @@ public class WorkerExtraction extends HandlerApollo<Task> {
         dataNodeModelsSequentiality ? new JsonPrimitive(true) : enactmentResult.get(key);
     PropertyServiceData.setContent(dataNode, data);
     annotateExtractionEdge(outEdge);
+    System.out.println("extracted");
     eBus.publish(successAddress, dataNode.getId());
-
   }
 
   protected void annotateExtractionEdge(Dependency extractionEdge) {
@@ -63,7 +61,6 @@ public class WorkerExtraction extends HandlerApollo<Task> {
       eGraph.getOutEdges(process)
           .forEach(outEdge -> PropertyServiceDependency.resetExtractionDone(outEdge));
       // reset the enactable state
-      PropertyServiceFunction.getEnactable(process).setState(State.WAITING);
       eBus.publish(ConstantsEventBus.addressResetScheduleTask, process.getId());
     }
   }

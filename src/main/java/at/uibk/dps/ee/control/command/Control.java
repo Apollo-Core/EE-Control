@@ -8,8 +8,8 @@ import com.google.inject.Singleton;
 
 import at.uibk.dps.ee.core.ControlStateListener;
 import at.uibk.dps.ee.core.EnactmentState;
-import at.uibk.dps.ee.core.enactable.EnactmentStateListener;
 import at.uibk.dps.ee.core.exception.StopException;
+import at.uibk.dps.ee.core.function.EnactmentStateListener;
 
 /**
  * Class implementing the reaction to external triggers, enabling a dynamic

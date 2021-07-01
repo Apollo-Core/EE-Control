@@ -1,5 +1,6 @@
 package at.uibk.dps.ee.control.graph;
 
+import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import net.sf.opendse.model.Task;
 
 /**
@@ -16,7 +17,7 @@ public interface GraphTransform {
    * @param graphAccess the graph access
    * @param taskNode the task triggering the modification
    */
-  void modifyEnactmentGraph(GraphAccess graphAccess, Task taskNode);
+  void modifyEnactmentGraph(EnactmentGraph graph, Task taskNode);
 
   /**
    * Returns the name of the performed modification (for logging/exception

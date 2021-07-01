@@ -3,8 +3,8 @@ package at.uibk.dps.ee.control.agents;
 import java.util.Set;
 
 import at.uibk.dps.ee.control.management.EnactmentQueues;
-import at.uibk.dps.ee.core.enactable.Enactable;
-import at.uibk.dps.ee.core.enactable.EnactmentFunction;
+import at.uibk.dps.ee.core.function.Enactable;
+import at.uibk.dps.ee.core.function.EnactmentFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.sc.core.ScheduleModel;
 import at.uibk.dps.sc.core.interpreter.ScheduleInterpreter;

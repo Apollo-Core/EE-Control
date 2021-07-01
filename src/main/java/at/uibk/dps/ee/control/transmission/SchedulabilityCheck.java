@@ -1,5 +1,7 @@
 package at.uibk.dps.ee.control.transmission;
 
+import com.google.inject.ImplementedBy;
+import at.uibk.dps.ee.control.verticles.transmission.SchedulabilityCheckMulti;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import net.sf.opendse.model.Task;
 
@@ -9,6 +11,7 @@ import net.sf.opendse.model.Task;
  * 
  * @author Fedor Smirnov
  */
+@ImplementedBy(SchedulabilityCheckMulti.class)
 public interface SchedulabilityCheck {
 
   /**

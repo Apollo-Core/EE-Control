@@ -3,7 +3,7 @@ package at.uibk.dps.ee.control.agents;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import at.uibk.dps.ee.control.enactment.PostEnactment;
-import at.uibk.dps.ee.core.enactable.Enactable;
+import at.uibk.dps.ee.core.function.Enactable;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import net.sf.opendse.model.Task;
 import static org.mockito.Mockito.mock;

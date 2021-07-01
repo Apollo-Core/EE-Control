@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import at.uibk.dps.ee.core.enactable.Enactable;
+import at.uibk.dps.ee.core.function.Enactable;
 import at.uibk.dps.ee.enactables.EnactableAtomic;
 import at.uibk.dps.ee.enactables.EnactableFactory;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
@@ -40,8 +40,8 @@ public class GraphTransformDistribution implements GraphTransform {
   }
 
   @Override
-  public void modifyEnactmentGraph(final GraphAccess graphAccess, final Task taskNode) {
-    graphAccess.writeOperationTask(this::applyDistributionReproduction, taskNode);
+  public void modifyEnactmentGraph(final EnactmentGraph graph, final Task taskNode) {
+    applyDistributionReproduction(graph, taskNode);
   }
 
   /**

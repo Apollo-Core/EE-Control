@@ -3,7 +3,7 @@ package at.uibk.dps.ee.control.graph;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import at.uibk.dps.ee.core.enactable.Enactable.State;
+import at.uibk.dps.ee.core.function.Enactable.State;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections;
@@ -24,8 +24,8 @@ public class GraphTransformAggregation implements GraphTransform {
 
 
   @Override
-  public void modifyEnactmentGraph(final GraphAccess graphAccess, final Task taskNode) {
-    graphAccess.writeOperationTask(this::revertDistributionReproduction, taskNode);
+  public void modifyEnactmentGraph(final EnactmentGraph graph, final Task taskNode) {
+    revertDistributionReproduction(graph, taskNode);
   }
 
   /**

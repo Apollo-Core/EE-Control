@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import at.uibk.dps.ee.core.enactable.Enactable;
+import at.uibk.dps.ee.core.function.Enactable;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceData.NodeType;

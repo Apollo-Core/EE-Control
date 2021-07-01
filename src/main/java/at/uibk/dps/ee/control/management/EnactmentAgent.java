@@ -18,8 +18,8 @@ import at.uibk.dps.ee.control.agents.PoisonPill;
 import at.uibk.dps.ee.control.command.Control;
 import at.uibk.dps.ee.core.ControlStateListener;
 import at.uibk.dps.ee.core.EnactmentState;
-import at.uibk.dps.ee.core.enactable.EnactmentFunction;
 import at.uibk.dps.ee.core.exception.StopException;
+import at.uibk.dps.ee.core.function.EnactmentFunction;
 
 /**
  * The {@link EnactmentAgent} is the main-thread agent for the enactment of the

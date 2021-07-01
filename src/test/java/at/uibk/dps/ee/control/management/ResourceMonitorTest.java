@@ -2,7 +2,7 @@ package at.uibk.dps.ee.control.management;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-import at.uibk.dps.ee.core.enactable.Enactable.State;
+import at.uibk.dps.ee.core.function.Enactable.State;
 import at.uibk.dps.ee.enactables.EnactableAtomic;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.graph.ResourceGraph;
