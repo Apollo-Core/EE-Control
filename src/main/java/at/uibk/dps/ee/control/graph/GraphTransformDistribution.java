@@ -4,13 +4,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import at.uibk.dps.ee.core.function.Enactable;
-import at.uibk.dps.ee.enactables.EnactableAtomic;
-import at.uibk.dps.ee.enactables.EnactableFactory;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
-import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections;
 import at.uibk.dps.ee.model.properties.PropertyServiceReproduction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections.OperationType;
@@ -26,18 +22,6 @@ import net.sf.opendse.model.properties.TaskPropertyService;
  * @author Fedor Smirnov
  */
 public class GraphTransformDistribution implements GraphTransform {
-
-  protected final EnactableFactory enactableFactory;
-
-  /**
-   * The default constructor
-   * 
-   * @param enactableFactory factory for the {@link Enactable}s (to create
-   *        enactables for the nodes created by reproduction)
-   */
-  public GraphTransformDistribution(final EnactableFactory enactableFactory) {
-    this.enactableFactory = enactableFactory;
-  }
 
   @Override
   public void modifyEnactmentGraph(final EnactmentGraph graph, final Task taskNode) {
@@ -79,12 +63,6 @@ public class GraphTransformDistribution implements GraphTransform {
             && scope.equals(PropertyServiceFunctionDataFlowCollections.getScope(task)))
         .collect(Collectors.toSet());
     newTasks.removeAll(aggregationNodes);
-    // adjust the enactable of the new function tasks
-    newTasks.forEach(task -> {
-      final Task parent = (Task) task.getParent();
-      enactableFactory.reproduceEnactable(task,
-          (EnactableAtomic) PropertyServiceFunction.getEnactable(parent));
-    });
   }
 
 
@@ -184,6 +162,10 @@ public class GraphTransformDistribution implements GraphTransform {
           TaskPropertyService.isCommunication(original) ? new Communication(offspringId)
               : new Task(offspringId);
       task.setParent(original);
+
+      original.getAttributeNames()
+          .forEach(attr -> task.setAttribute(attr, original.getAttribute(attr)));
+
       if (adjustScope) {
         String adjustedScope = PropertyServiceFunctionDataFlowCollections.getScope(original)
             + ConstantsEEModel.KeywordSeparator1 + reproductionIdx;

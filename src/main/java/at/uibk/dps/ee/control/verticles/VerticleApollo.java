@@ -1,27 +1,105 @@
 package at.uibk.dps.ee.control.verticles;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import at.uibk.dps.ee.model.graph.EnactmentGraph;
+import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import io.vertx.core.AbstractVerticle;
-import net.sf.opendse.model.Element;
+import io.vertx.core.eventbus.Message;
+import net.sf.opendse.model.Task;
 
 /**
- * The Apollo verticles. The agents are implemented as asynchronous handlers of
- * messages exchanged over the event bus.
+ * Parent class for the verticles which perform (effectively) non-blocking
+ * operations as part of the vertX event loop.
  * 
  * @author Fedor Smirnov
+ *
  */
-public class VerticleApollo extends AbstractVerticle {
+public abstract class VerticleApollo extends AbstractVerticle {
 
-  protected final Set<HandlerApollo<? extends Element>> handlers;
-  
-  public VerticleApollo(final Set<HandlerApollo<? extends Element>> handlers) {
-    this.handlers = handlers;
+  protected final String triggerAddress;
+  protected final String successAddress;
+  protected final String failureAddress;
+
+  protected final EnactmentGraph eGraph;
+
+  protected boolean paused = false;
+  protected final List<Task> queue = new ArrayList<>();
+
+  public VerticleApollo(String triggerAddress, String successAddress, String failureAddress,
+      EnactmentGraphProvider eProvider) {
+    this.triggerAddress = triggerAddress;
+    this.successAddress = successAddress;
+    this.failureAddress = failureAddress;
+    this.eGraph = eProvider.getEnactmentGraph();
   }
-  
+
+
   @Override
-    public void start() throws Exception {
-      handlers.forEach(handler -> {
-        this.vertx.eventBus().consumer(handler.getTriggerAddress(), handler);
-      });
+  public void start() throws Exception {
+    this.vertx.eventBus().consumer(ConstantsEventBus.addressControlPause, this::pauseHandler);
+    this.vertx.eventBus().consumer(ConstantsEventBus.addressControlResume, this::resumeHandler);
+    this.vertx.eventBus().consumer(triggerAddress, this::processTaskTrigger);
+  }
+
+  /**
+   * Processes the task trigger received via the event bus. Stores trigger in
+   * queue if currently paused.
+   * 
+   * @param taskMessage the message containing the task ID
+   */
+  protected void processTaskTrigger(Message<String> taskMessage) {
+    Task triggerTask = eGraph.getVertex(taskMessage.body());
+    if (!paused) {
+      processTask(triggerTask);
+    } else {
+      queue.add(triggerTask);
     }
+  }
+
+  /**
+   * Processes the trigger task, reporting failures if they occur.
+   * 
+   * @param triggerTask the trigger task
+   */
+  protected void processTask(Task triggerTask) {
+    try {
+      work(triggerTask);
+    } catch (WorkerException wExc) {
+      this.vertx.eventBus().publish(failureAddress, wExc.getMessage());
+    }
+  }
+
+  /**
+   * Resume handler
+   * 
+   * @param message empty message
+   */
+  protected void resumeHandler(Message<String> message) {
+    // process the triggers stored during the pause
+    while (!queue.isEmpty()) {
+      processTask(queue.remove(0));
+    }
+    paused = false;
+  }
+
+  /**
+   * Pause handler
+   * 
+   * @param message emtpy message
+   */
+  protected void pauseHandler(Message<String> message) {
+    this.paused = true;
+  }
+
+
+
+  /**
+   * Performs the work on the provided task
+   * 
+   * @param triggeringTask the task triggering the verticle action
+   * @throws WorkerException
+   */
+  protected abstract void work(Task triggeringTask) throws WorkerException;
+
 }

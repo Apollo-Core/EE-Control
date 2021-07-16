@@ -1,13 +1,18 @@
 package at.uibk.dps.ee.control.modules;
 
-import at.uibk.dps.ee.control.verticles.OutputDataHandler;
+import org.opt4j.core.config.annotations.Info;
+import org.opt4j.core.config.annotations.Order;
+import org.opt4j.core.start.Constant;
+import at.uibk.dps.ee.control.command.Control;
 import at.uibk.dps.ee.control.verticles.VerticleFunction;
+import at.uibk.dps.ee.control.verticles.VerticleManager;
 import at.uibk.dps.ee.control.verticles.enactment.WorkerEnactment;
 import at.uibk.dps.ee.control.verticles.extraction.WorkerExtraction;
 import at.uibk.dps.ee.control.verticles.scheduling.WorkerScheduling;
+import at.uibk.dps.ee.control.verticles.transformation.WorkerTransformation;
 import at.uibk.dps.ee.control.verticles.transmission.WorkerTransmission;
 import at.uibk.dps.ee.core.CoreFunction;
-import at.uibk.dps.ee.guice.modules.HandlerModule;
+import io.vertx.core.impl.cpu.CpuCoreSensor;
 
 /**
  * The {@link EnactmentVerticleModule} is used to configure the binding of the
@@ -15,21 +20,46 @@ import at.uibk.dps.ee.guice.modules.HandlerModule;
  * 
  * @author Fedor Smirnov
  */
-public class EnactmentVerticleModule extends HandlerModule {
+public class EnactmentVerticleModule extends VerticleModule {
+
+  @Order(1)
+  @Info("If checked, the EE will be initially in the PAUSED state.")
+  @Constant(namespace = Control.class, value = "pauseOnStart")
+  protected boolean pauseOnStart;
+  
+  @Order(2)
+  @Info("Number of verticles deployed for each verticle type.")
+  @Constant(namespace = VerticleManager.class, value = "deploymentNumber")
+  protected int deploymentNumber =  2 * CpuCoreSensor.availableProcessors();
+  
 
   @Override
   protected void config() {
-
     bind(CoreFunction.class).to(VerticleFunction.class);
-
     // worker handlers
-    addEBusMessageHandler(WorkerTransmission.class);
-    addEBusMessageHandler(WorkerScheduling.class);
-    addEBusMessageHandler(WorkerEnactment.class);
-    addEBusMessageHandler(WorkerExtraction.class);
+    addEBusVerticle(WorkerTransmission.class);
+    addEBusVerticle(WorkerScheduling.class);
+    addEBusVerticle(WorkerEnactment.class);
+    addEBusVerticle(WorkerExtraction.class);
+    addEBusVerticle(WorkerTransformation.class);
+    
+    // probably remove this and remove enactment listener
+    addEnactmentStateListener(Control.class);
+  }
 
-    // infrastructure handlers
-    addEBusMessageHandler(OutputDataHandler.class);
+  public boolean isPauseOnStart() {
+    return pauseOnStart;
+  }
 
+  public void setPauseOnStart(final boolean pauseOnStart) {
+    this.pauseOnStart = pauseOnStart;
+  }
+
+  public int getDeploymentNumber() {
+    return deploymentNumber;
+  }
+
+  public void setDeploymentNumber(int deploymentNumber) {
+    this.deploymentNumber = deploymentNumber;
   }
 }

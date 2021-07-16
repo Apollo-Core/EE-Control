@@ -13,7 +13,10 @@ public class ConstantsEventBus {
   // requests that the schedule of a task is reset, has task id as message body
   public static final String addressResetScheduleTask = "RESET_SCHEDULE_TASK";
 
-
+  // Control Addresses
+  public static final String addressControlPause = "PAUSE_ADDRESS";
+  public static final String addressControlResume = "RESUME_ADDRESS";
+  
   // worker addresses
 
   // normal procedures

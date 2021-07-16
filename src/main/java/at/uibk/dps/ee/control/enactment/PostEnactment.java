@@ -3,6 +3,7 @@ package at.uibk.dps.ee.control.enactment;
 import com.google.inject.ImplementedBy;
 import at.uibk.dps.ee.control.management.EnactmentQueues;
 import at.uibk.dps.ee.control.verticles.enactment.PostEnactmentDefault;
+import io.vertx.core.eventbus.EventBus;
 import net.sf.opendse.model.Task;
 
 /**
@@ -19,6 +20,7 @@ public interface PostEnactment {
    * Performs the required post enactment operation for the given task.
    * 
    * @param enactedTask the task which was just enacted.
+   * @param eBus reference to the event bus used by the correct verticle
    */
-  void postEnactmentTreatment(Task enactedTask);
+  void postEnactmentTreatment(Task enactedTask, EventBus eBus);
 }

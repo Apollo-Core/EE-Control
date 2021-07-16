@@ -36,7 +36,7 @@ public class InputDataHandler {
   public void processInput(JsonObject input) {
     getRootDataNodes().forEach(rootNode -> processRootNode(rootNode, input));
     getConstantDataNodes().forEach(
-        constantNode -> eBus.publish(ConstantsEventBus.addressDataAvailable, constantNode.getId()));
+        constantNode -> eBus.send(ConstantsEventBus.addressDataAvailable, constantNode.getId()));
   }
 
   /**
@@ -51,7 +51,7 @@ public class InputDataHandler {
         Optional.ofNullable(jsonInput.get(jsonKey)).orElseThrow(() -> new IllegalArgumentException(
             "No entry with the key " + jsonKey + " in the WF input."));
     PropertyServiceData.setContent(rootNode, content);
-    eBus.publish(ConstantsEventBus.addressDataAvailable, rootNode.getId());
+    eBus.send(ConstantsEventBus.addressDataAvailable, rootNode.getId());
   }
 
   // should go into "GraphOperations" or sth

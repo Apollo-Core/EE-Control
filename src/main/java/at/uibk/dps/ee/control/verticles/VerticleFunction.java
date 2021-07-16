@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.inject.Inject;
 import at.uibk.dps.ee.core.CoreFunction;
-import at.uibk.dps.ee.guice.HandlerString;
 import at.uibk.dps.ee.guice.starter.VertxProvider;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -20,34 +19,30 @@ import io.vertx.core.eventbus.EventBus;
  */
 public class VerticleFunction implements CoreFunction{
 
+  protected final VerticleManager vManager;
   protected final InputDataHandler dataHandler;
   protected final Promise<JsonObject> resultPromise;
-  
-  protected final EventBus eBus;
+  protected final EventBus eBus; 
+
   
   @Inject
-  public VerticleFunction(InputDataHandler dataHandler, VertxProvider vertxProvider, Set<HandlerString> stringHandlers) {
+  public VerticleFunction(InputDataHandler dataHandler, VerticleManager vManager, VertxProvider vProv) {
     super();
+    this.vManager = vManager;
     this.dataHandler = dataHandler;
+    this.eBus = vProv.geteBus();
     this.resultPromise = Promise.promise();
-    this.eBus = vertxProvider.geteBus();
     eBus.consumer(ConstantsEventBus.addressWorkflowResultAvailable, resultMessage ->{
       String messageString = resultMessage.body().toString();
       JsonObject jsonResult = (JsonObject) JsonParser.parseString(messageString);
       resultPromise.complete(jsonResult);
     });
-    
-    for (HandlerString stringhandler : stringHandlers) {
-      eBus.consumer(stringhandler.getTriggerAddress(), stringhandler);
-    }
-    
+    vManager.deployVerticles();
   }
 
   @Override
   public Future<JsonObject> processInput(JsonObject input) {
-    
     dataHandler.processInput(input);
-    
     return resultPromise.future();
   }
 
@@ -74,7 +69,4 @@ public class VerticleFunction implements CoreFunction{
     // TODO Auto-generated method stub
     return null;
   }
-
-  
-  
 }

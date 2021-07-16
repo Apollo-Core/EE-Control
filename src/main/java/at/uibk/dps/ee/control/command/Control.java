@@ -1,15 +1,13 @@
 package at.uibk.dps.ee.control.command;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.opt4j.core.start.Constant;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import at.uibk.dps.ee.core.ControlStateListener;
+import at.uibk.dps.ee.control.verticles.ConstantsEventBus;
 import at.uibk.dps.ee.core.EnactmentState;
-import at.uibk.dps.ee.core.exception.StopException;
 import at.uibk.dps.ee.core.function.EnactmentStateListener;
+import at.uibk.dps.ee.guice.starter.VertxProvider;
+import io.vertx.core.eventbus.EventBus;
 
 /**
  * Class implementing the reaction to external triggers, enabling a dynamic
@@ -21,10 +19,10 @@ import at.uibk.dps.ee.core.function.EnactmentStateListener;
 public class Control implements EnactmentStateListener {
 
   protected EnactmentState enactmentState = EnactmentState.PAUSED;
-  protected final Set<ControlStateListener> listeners = new HashSet<>();
   protected boolean init;
 
   protected final boolean pauseOnStart;
+  protected final EventBus eBus;
 
   /**
    * Injection constructor
@@ -33,18 +31,10 @@ public class Control implements EnactmentStateListener {
    *        in the paused state.
    */
   @Inject
-  public Control(
-      @Constant(namespace = Control.class, value = "pauseOnStart") final boolean pauseOnStart) {
+  public Control(@Constant(namespace = Control.class, value = "pauseOnStart") boolean pauseOnStart,
+      VertxProvider vertxProvider) {
     this.pauseOnStart = pauseOnStart;
-  }
-
-  /**
-   * Adds a {@link ControlStateListener}.
-   * 
-   * @param listener the listener to add
-   */
-  public void addListener(final ControlStateListener listener) {
-    listeners.add(listener);
+    this.eBus = vertxProvider.geteBus();
   }
 
   /**
@@ -55,7 +45,9 @@ public class Control implements EnactmentStateListener {
       throw new IllegalStateException("Control play triggerred before control initialization.");
     }
     if (enactmentState.equals(EnactmentState.PAUSED)) {
+      System.out.println("resume");
       setState(EnactmentState.RUNNING);
+      eBus.publish(ConstantsEventBus.addressControlResume, "resume");
     }
   }
 
@@ -63,8 +55,10 @@ public class Control implements EnactmentStateListener {
    * Pause if running. Otherwise nothing.
    */
   public void pause() {
+    System.out.println("pause");
     if (enactmentState.equals(EnactmentState.RUNNING)) {
       setState(EnactmentState.PAUSED);
+      eBus.publish(ConstantsEventBus.addressControlPause, "pause");
     }
   }
 
@@ -73,6 +67,7 @@ public class Control implements EnactmentStateListener {
    */
   public void stop() {
     setState(EnactmentState.STOPPED);
+    System.err.println("Stopping not yet properly implemented");
   }
 
   public boolean isInit() {
@@ -85,16 +80,7 @@ public class Control implements EnactmentStateListener {
    * @param stateToSet the state to set
    */
   protected void setState(final EnactmentState stateToSet) {
-    final EnactmentState previous = enactmentState;
-    final EnactmentState current = stateToSet;
     this.enactmentState = stateToSet;
-    for (final ControlStateListener listener : listeners) {
-      try {
-        listener.reactToStateChange(previous, current);
-      } catch (StopException stopExc) {
-        throw new IllegalStateException("Stop exception when changing the control state.", stopExc);
-      }
-    }
   }
 
   @Override
@@ -102,7 +88,7 @@ public class Control implements EnactmentStateListener {
     enactmentState = EnactmentState.RUNNING;
     init = true;
     if (pauseOnStart) {
-      setState(EnactmentState.PAUSED);
+      pause();
     }
   }
 

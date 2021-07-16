@@ -3,9 +3,7 @@ package at.uibk.dps.ee.control.graph;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import at.uibk.dps.ee.core.function.Enactable.State;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
-import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections;
 import at.uibk.dps.ee.model.properties.PropertyServiceReproduction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections.OperationType;
@@ -114,8 +112,8 @@ public class GraphTransformAggregation implements GraphTransform {
     if (task.getParent() == null) {
       return false;
     }
-    return PropertyServiceReproduction.belongsToDistributionNode((Task) task.getParent(), distributionNode)
-        && !isEndNodeInScope(task, scope);
+    return PropertyServiceReproduction.belongsToDistributionNode((Task) task.getParent(),
+        distributionNode) && !isEndNodeInScope(task, scope);
   }
 
   /**
@@ -200,8 +198,8 @@ public class GraphTransformAggregation implements GraphTransform {
         .filter(task -> PropertyServiceFunctionDataFlowCollections.isAggregationNode(task)
             && PropertyServiceFunctionDataFlowCollections.getScope(task).equals(scope))
         .collect(Collectors.toSet());
-    return aggregators.stream().allMatch(aggregator -> PropertyServiceFunction
-        .getEnactable(aggregator).getState().equals(State.FINISHED));
+    return aggregators.stream()
+        .allMatch(aggregator -> PropertyServiceFunctionDataFlowCollections.isFinished(aggregator));
   }
 
   @Override

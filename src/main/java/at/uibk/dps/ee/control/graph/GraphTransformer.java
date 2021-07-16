@@ -1,7 +1,5 @@
 package at.uibk.dps.ee.control.graph;
 
-import com.google.inject.Inject;
-import at.uibk.dps.ee.enactables.EnactableFactory;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections.OperationType;
 import net.sf.opendse.model.Task;
@@ -14,13 +12,6 @@ import net.sf.opendse.model.Task;
  */
 public class GraphTransformer {
 
-  protected final EnactableFactory enactableFactory;
-
-  @Inject
-  public GraphTransformer(EnactableFactory enactableFactory) {
-    this.enactableFactory = enactableFactory;
-  }
-
   /**
    * Returns the appropriate transform operation for the given function node.
    * 
@@ -30,7 +21,7 @@ public class GraphTransformer {
   public GraphTransform getTransformOperation(Task functionNode) {
     if (PropertyServiceFunctionDataFlowCollections.getOperationType(functionNode)
         .equals(OperationType.Distribution)) {
-      return new GraphTransformDistribution(enactableFactory);
+      return new GraphTransformDistribution();
     } else if (PropertyServiceFunctionDataFlowCollections.getOperationType(functionNode)
         .equals(OperationType.Aggregation)) {
       return new GraphTransformAggregation();

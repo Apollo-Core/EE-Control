@@ -1,10 +1,8 @@
 package at.uibk.dps.ee.control.verticles.enactment;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import at.uibk.dps.ee.control.enactment.PostEnactment;
 import at.uibk.dps.ee.control.verticles.ConstantsEventBus;
-import at.uibk.dps.ee.guice.starter.VertxProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlow;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction.UsageType;
@@ -22,20 +20,14 @@ import net.sf.opendse.model.Task;
 @Singleton
 public class PostEnactmentDefault implements PostEnactment {
 
-  protected final EventBus eBus;
-
-  @Inject
-  public PostEnactmentDefault(VertxProvider vertxProvider) {
-    this.eBus = vertxProvider.geteBus();
-  }
-
   @Override
-  public void postEnactmentTreatment(Task enactedTask) {
+  public void postEnactmentTreatment(Task enactedTask, EventBus eBus) {
     if (requiresTransformation(enactedTask)) {
-      eBus.publish(ConstantsEventBus.addressRequiredTransformation, enactedTask.getId());
+      eBus.send(ConstantsEventBus.addressRequiredTransformation, enactedTask.getId());
     } else {
-      System.out.println("enacted");
-      eBus.publish(ConstantsEventBus.addressEnactmentFinished, enactedTask.getId());
+      System.out.println(
+          "Thread " + Thread.currentThread().getId() + " " + enactedTask.getId() + " enacted");
+      eBus.send(ConstantsEventBus.addressEnactmentFinished, enactedTask.getId());
     }
   }
 

@@ -2,9 +2,6 @@ package at.uibk.dps.ee.control.graph;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-import at.uibk.dps.ee.core.function.Enactable.State;
-import at.uibk.dps.ee.enactables.EnactableAtomic;
-import at.uibk.dps.ee.enactables.EnactableFactory;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
@@ -16,9 +13,6 @@ import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollection
 import net.sf.opendse.model.Communication;
 import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class GraphTransformDistributionAggregationTest {
 
@@ -65,16 +59,10 @@ public class GraphTransformDistributionAggregationTest {
     Communication outsideInput = new Communication("outsideIn");
     String jsonKeyOutside = "outside";
     PropertyServiceDependency.addDataDependency(outsideInput, function, jsonKeyOutside, testInput);
-    GraphProviderEnactables mockProvider = mock(GraphProviderEnactables.class);
-    when(mockProvider.getEnactmentGraph()).thenReturn(testInput);
-    GraphAccessConcurrent gAccess = new GraphAccessConcurrent(mockProvider);
-    EnactableFactory factoryMock = mock(EnactableFactory.class);
-    GraphTransformDistribution tested = new GraphTransformDistribution(factoryMock);
-    EnactableAtomic mockEnactable = mock(EnactableAtomic.class);
-    PropertyServiceFunction.setEnactable(function, mockEnactable);
+    GraphTransformDistribution tested = new GraphTransformDistribution();
 
     // run the operation
-    tested.modifyEnactmentGraph(gAccess, distributionNode);
+    tested.modifyEnactmentGraph(testInput, distributionNode);
     GraphTransformAggregation testedAggregation = new GraphTransformAggregation();
     assertEquals(OperationType.Distribution.name(), tested.getTransformName());
     assertEquals(OperationType.Aggregation.name(), testedAggregation.getTransformName());
@@ -106,18 +94,14 @@ public class GraphTransformDistributionAggregationTest {
     assertEquals(functionResult, funcOut2.getParent());
 
     // test the reverse transformation
-    EnactableAtomic mockAggrEnactable = mock(EnactableAtomic.class);
-    when(mockAggrEnactable.getState()).thenReturn(State.SCHEDULABLE);
-    PropertyServiceFunction.setEnactable(aggregation, mockAggrEnactable);
 
     // run the tests
     // enactable not finished
-    testedAggregation.modifyEnactmentGraph(gAccess, aggregation);
+    testedAggregation.modifyEnactmentGraph(testInput, aggregation);
     assertEquals(14, testInput.getVertexCount());
     assertEquals(17, testInput.getEdgeCount());
-    when(mockAggrEnactable.getState()).thenReturn(State.FINISHED);
     // test the reverse operation when enactable finished
-    testedAggregation.modifyEnactmentGraph(gAccess, aggregation);
+    testedAggregation.modifyEnactmentGraph(testInput, aggregation);
     assertEquals(8, testInput.getVertexCount());
     assertEquals(7, testInput.getEdgeCount());
   }
