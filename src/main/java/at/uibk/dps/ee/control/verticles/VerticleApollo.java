@@ -26,6 +26,14 @@ public abstract class VerticleApollo extends AbstractVerticle {
   protected boolean paused = false;
   protected final List<Task> queue = new ArrayList<>();
 
+  /**
+   * Parent constructor
+   * 
+   * @param triggerAddress the address on the event bus to listen to
+   * @param successAddress the address to write on in case of success
+   * @param failureAddress the address to write to in case of failure
+   * @param eProvider the enactment graph provider
+   */
   public VerticleApollo(String triggerAddress, String successAddress, String failureAddress,
       EnactmentGraphProvider eProvider) {
     this.triggerAddress = triggerAddress;
@@ -37,8 +45,8 @@ public abstract class VerticleApollo extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-    this.vertx.eventBus().consumer(ConstantsEventBus.addressControlPause, this::pauseHandler);
-    this.vertx.eventBus().consumer(ConstantsEventBus.addressControlResume, this::resumeHandler);
+    this.vertx.eventBus().consumer(ConstantsVertX.addressControlPause, this::pauseHandler);
+    this.vertx.eventBus().consumer(ConstantsVertX.addressControlResume, this::resumeHandler);
     this.vertx.eventBus().consumer(triggerAddress, this::processTaskTrigger);
   }
 

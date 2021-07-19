@@ -35,11 +35,11 @@ dependencies {
     implementation project (':SC-Core')
   }else {
     // dependencies to other parts of the Apollo Core EE
-    implementation 'com.github.Apollo-Core:EE-Core:master-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Guice:main-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Model:main-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Enactables:master-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:SC-Core:main-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Core:vertx-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Guice:vertex-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Model:290b26ae6a'
+    implementation 'com.github.Apollo-Core:EE-Enactables:vertex-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:SC-Core:vertex-SNAPSHOT'
   }
 
   // dependency to Opt4J
@@ -57,8 +57,11 @@ dependencies {
   implementation 'io.vertx:vertx-core:4.1.0'
   
   // test dependencies
-  testCompile group: 'junit', 		name: 'junit', 					version: '4.+'
+  // mockito
   testCompile group: 'org.mockito',     name: 'mockito-core',     version: '3.4.4'
+  // JUnit 5 
+  testImplementation(platform('org.junit:junit-bom:5.7.2'))
+  testImplementation('org.junit.jupiter:junit-jupiter')
   
   // for the asynchronous VertX tests
   testCompile 'io.vertx:vertx-unit:4.1.0'
@@ -68,4 +71,8 @@ jacocoTestReport {
   reports {
     xml.enabled true
   }
+}
+
+test {
+  useJUnitPlatform()
 }

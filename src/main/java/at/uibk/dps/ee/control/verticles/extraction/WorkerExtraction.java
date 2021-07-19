@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.inject.Inject;
-import at.uibk.dps.ee.control.verticles.ConstantsEventBus;
+import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
@@ -24,8 +24,8 @@ public class WorkerExtraction extends VerticleApollo {
 
   @Inject
   public WorkerExtraction(EnactmentGraphProvider eGraphProvider) {
-    super(ConstantsEventBus.addressEnactmentFinished, ConstantsEventBus.addressDataAvailable,
-        ConstantsEventBus.addressFailureAbort, eGraphProvider);
+    super(ConstantsVertX.addressEnactmentFinished, ConstantsVertX.addressDataAvailable,
+        ConstantsVertX.addressFailureAbort, eGraphProvider);
     this.leafNodes = eGraph.getVertices().stream()
         .filter(
             node -> TaskPropertyService.isCommunication(node) && PropertyServiceData.isLeaf(node))
@@ -70,7 +70,7 @@ public class WorkerExtraction extends VerticleApollo {
         String key = PropertyServiceData.getJsonKey(leafNode);
         result.add(key, content);
       });
-      this.vertx.eventBus().publish(ConstantsEventBus.addressWorkflowResultAvailable,
+      this.vertx.eventBus().publish(ConstantsVertX.addressWorkflowResultAvailable,
           result.toString());
     }
   }

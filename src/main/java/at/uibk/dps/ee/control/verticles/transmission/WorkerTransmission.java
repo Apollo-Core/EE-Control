@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import at.uibk.dps.ee.control.transmission.SchedulabilityCheck;
-import at.uibk.dps.ee.control.verticles.ConstantsEventBus;
+import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
@@ -24,8 +24,8 @@ public class WorkerTransmission extends VerticleApollo {
   @Inject
   public WorkerTransmission(EnactmentGraphProvider eGraphProvider,
       SchedulabilityCheck schedulabilityCheck) {
-    super(ConstantsEventBus.addressDataAvailable, ConstantsEventBus.addressTaskSchedulable,
-        ConstantsEventBus.addressFailureAbort, eGraphProvider);
+    super(ConstantsVertX.addressDataAvailable, ConstantsVertX.addressTaskSchedulable,
+        ConstantsVertX.addressFailureAbort, eGraphProvider);
     this.schedulabilityCheck = schedulabilityCheck;
   }
 

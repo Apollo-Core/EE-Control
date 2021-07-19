@@ -1,8 +1,6 @@
 package at.uibk.dps.ee.control.verticles;
 
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
@@ -10,10 +8,9 @@ import at.uibk.dps.ee.guice.starter.VertxProvider;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
-import at.uibk.dps.ee.model.properties.PropertyServiceData.NodeType;
+import at.uibk.dps.ee.model.utils.EnactmentGraphUtils;
 import io.vertx.core.eventbus.EventBus;
 import net.sf.opendse.model.Task;
-import net.sf.opendse.model.properties.TaskPropertyService;
 
 /**
  * The {@link InputDataHandler} processes the input JSON by annotating the root
@@ -34,9 +31,10 @@ public class InputDataHandler {
   }
 
   public void processInput(JsonObject input) {
-    getRootDataNodes().forEach(rootNode -> processRootNode(rootNode, input));
-    getConstantDataNodes().forEach(
-        constantNode -> eBus.send(ConstantsEventBus.addressDataAvailable, constantNode.getId()));
+    EnactmentGraphUtils.getNonConstRootNodes(eGraph)
+        .forEach(rootNode -> processRootNode(rootNode, input));
+    EnactmentGraphUtils.getConstantDataNodes(eGraph).forEach(
+        constantNode -> eBus.send(ConstantsVertX.addressDataAvailable, constantNode.getId()));
   }
 
   /**
@@ -51,25 +49,6 @@ public class InputDataHandler {
         Optional.ofNullable(jsonInput.get(jsonKey)).orElseThrow(() -> new IllegalArgumentException(
             "No entry with the key " + jsonKey + " in the WF input."));
     PropertyServiceData.setContent(rootNode, content);
-    eBus.send(ConstantsEventBus.addressDataAvailable, rootNode.getId());
-  }
-
-  // should go into "GraphOperations" or sth
-
-  protected Set<Task> getConstantDataNodes() {
-    return eGraph.getVertices().stream().filter(task -> TaskPropertyService.isCommunication(task))
-        .filter(dataNode -> PropertyServiceData.getNodeType(dataNode).equals(NodeType.Constant))
-        .collect(Collectors.toSet());
-  }
-
-  protected Set<Task> getRootDataNodes() {
-    final Set<Task> result =
-        eGraph.getVertices().stream().filter(task -> eGraph.getInEdges(task).size() == 0)
-            .filter(task -> !PropertyServiceData.getNodeType(task).equals(NodeType.Constant))
-            .collect(Collectors.toSet());
-    if (result.stream().anyMatch(task -> !PropertyServiceData.isRoot(task))) {
-      throw new IllegalStateException("Non-root nodes without in edges present.");
-    }
-    return result;
+    eBus.send(ConstantsVertX.addressDataAvailable, rootNode.getId());
   }
 }

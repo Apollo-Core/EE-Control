@@ -3,7 +3,7 @@ package at.uibk.dps.ee.control.command;
 import org.opt4j.core.start.Constant;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import at.uibk.dps.ee.control.verticles.ConstantsEventBus;
+import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.core.EnactmentState;
 import at.uibk.dps.ee.core.function.EnactmentStateListener;
 import at.uibk.dps.ee.guice.starter.VertxProvider;
@@ -47,7 +47,7 @@ public class Control implements EnactmentStateListener {
     if (enactmentState.equals(EnactmentState.PAUSED)) {
       System.out.println("resume");
       setState(EnactmentState.RUNNING);
-      eBus.publish(ConstantsEventBus.addressControlResume, "resume");
+      eBus.publish(ConstantsVertX.addressControlResume, "resume");
     }
   }
 
@@ -58,7 +58,7 @@ public class Control implements EnactmentStateListener {
     System.out.println("pause");
     if (enactmentState.equals(EnactmentState.RUNNING)) {
       setState(EnactmentState.PAUSED);
-      eBus.publish(ConstantsEventBus.addressControlPause, "pause");
+      eBus.publish(ConstantsVertX.addressControlPause, "pause");
     }
   }
 

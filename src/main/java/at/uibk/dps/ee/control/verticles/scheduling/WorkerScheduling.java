@@ -2,7 +2,7 @@ package at.uibk.dps.ee.control.verticles.scheduling;
 
 import java.util.Set;
 import com.google.inject.Inject;
-import at.uibk.dps.ee.control.verticles.ConstantsEventBus;
+import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
@@ -20,8 +20,8 @@ public class WorkerScheduling extends VerticleApollo {
   @Inject
   public WorkerScheduling(EnactmentGraphProvider graphProvider, ScheduleModel schedule,
       Scheduler scheduler) {
-    super(ConstantsEventBus.addressTaskSchedulable, ConstantsEventBus.addressTaskLaunchable,
-        ConstantsEventBus.addressFailureAbort, graphProvider);
+    super(ConstantsVertX.addressTaskSchedulable, ConstantsVertX.addressTaskLaunchable,
+        ConstantsVertX.addressFailureAbort, graphProvider);
     this.schedule = schedule;
     this.scheduler = scheduler;
   }

@@ -1,141 +1,165 @@
 package at.uibk.dps.ee.control.verticles;
 
-import java.util.HashSet;
-import java.util.Set;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
+import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
-import net.sf.opendse.model.Element;
+import io.vertx.core.eventbus.Message;
 import net.sf.opendse.model.Task;
 
-@RunWith(VertxUnitRunner.class)
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.never;
+
 public class VerticleApolloTest {
 
-  protected class Trigger extends HandlerApollo<Task> {
+  protected class VerticleMock extends VerticleApollo {
 
-    public Trigger(String triggerAddress, String successAddress, String failureAddress,
-        EventBus eBus, EnactmentGraph graph) {
-      super(triggerAddress, successAddress, failureAddress, eBus, graph);
+    public VerticleMock(String triggerAddress, String successAddress, String failureAddress,
+        EnactmentGraphProvider eProvider) {
+      super(triggerAddress, successAddress, failureAddress, eProvider);
     }
 
     @Override
-    protected Task readMessage(String message) {
-      return new Task(message);
+    protected void work(Task triggeringTask) throws WorkerException {
+      if (triggeringTask.equals(task1)) {
+        // do nothing
+      } else {
+        throw new WorkerException("message");
+      }
     }
 
-    @Override
-    protected void work(Task graphElement) throws WorkerException {
-      eBus.publish(successAddress, Response.expectedMessage);
+    protected void setVertx(Vertx vertx) {
+      this.vertx = vertx;
     }
   }
 
-  protected class Response extends HandlerApollo<Task> {
+  String triggerAddress = "trigger";
+  String successAddress = "success";
+  String failureAddress = "failure";
 
-    protected final TestContext context;
-    protected static final String expectedMessage = "expected";
+  EventBus eBus;
 
-    public Response(String triggerAddress, String successAddress, String failureAddress,
-        EventBus eBus, TestContext context, EnactmentGraph graph) {
-      super(triggerAddress, successAddress, failureAddress, eBus, graph);
-      this.context = context;
-    }
+  VerticleMock tested;
 
-    @Override
-    protected Task readMessage(String message) {
-      return new Task(message);
-    }
+  Task task1;
+  Task task2;
 
-    @Override
-    protected void work(Task graphElement) throws WorkerException {
-      context.assertEquals(expectedMessage, graphElement.getId());
-      eBus.publish(successAddress, graphElement.getId());
-    }
+  Message<String> task1Message;
+  Message<String> task2Message;
+
+  @SuppressWarnings("unchecked")
+  @BeforeEach
+  public void setupVerticle() {
+    task1 = new Task("task1");
+    task2 = new Task("task2");
+
+    task1Message = mock(Message.class);
+    task2Message = mock(Message.class);
+    when(task1Message.body()).thenReturn("task1");
+    when(task2Message.body()).thenReturn("task2");
+
+    EnactmentGraph eGraph = new EnactmentGraph();
+    eGraph.addVertex(task1);
+    eGraph.addVertex(task2);
+    EnactmentGraphProvider eProv = mock(EnactmentGraphProvider.class);
+    when(eProv.getEnactmentGraph()).thenReturn(eGraph);
+    tested = new VerticleMock(triggerAddress, successAddress, failureAddress, eProv);
+
+    Vertx vertX = mock(Vertx.class);
+    eBus = mock(EventBus.class);
+    when(vertX.eventBus()).thenReturn(eBus);
+    tested.setVertx(vertX);
   }
 
-  protected class FailingHandler extends HandlerApollo<Task> {
-
-    protected static final String expectedExcMessage = "expected";
-
-    public FailingHandler(String triggerAddress, String successAddress, String failureAddress,
-        EventBus eBus, EnactmentGraph graph) {
-      super(triggerAddress, successAddress, failureAddress, eBus, graph);
-    }
-
-    @Override
-    protected Task readMessage(String message) {
-      return new Task(message);
-    }
-
-    @Override
-    protected void work(Task graphElement) throws WorkerException {
-      throw new WorkerException(expectedExcMessage);
-    }
-  }
-
+  /**
+   * Test that we process the queue tasks when resuming.
+   */
+  @SuppressWarnings("unchecked")
   @Test
-  public void testCorrect(TestContext context) {
-    Async async = context.async();
-
-    Vertx vertx = Vertx.vertx();
-    EventBus eBus = vertx.eventBus();
-
-    String triggerTrigger = "triggerTrigger";
-    String triggerSuccess = "triggerSuccess";
-    String responseTrigger = triggerSuccess;
-    String responseSuccess = "responseSuccess";
-
-    eBus.consumer(responseSuccess, res -> {
-      async.complete();
-    });
-
-    Trigger trigger =
-        new Trigger(triggerTrigger, triggerSuccess, "none", eBus, new EnactmentGraph());
-    Response response =
-        new Response(responseTrigger, responseSuccess, "none", eBus, context, new EnactmentGraph());
-
-    Set<HandlerApollo<? extends Element>> handlers = new HashSet<>();
-    handlers.add(trigger);
-    handlers.add(response);
-
-    VerticleApollo tested = new VerticleApollo(handlers);
-
-    vertx.deployVerticle(tested).onComplete(res -> {
-      eBus.publish(triggerTrigger, Response.expectedMessage);
-    });
+  public void testResume() {
+    VerticleMock spy = spy(tested);
+    spy.paused = true;
+    spy.queue.add(task1);
+    spy.resumeHandler(mock(Message.class));
+    assertFalse(spy.paused);
+    assertTrue(spy.queue.isEmpty());
+    verify(spy).processTask(task1);
+  }
+  
+  /**
+   * Test that we don't queue if not paused.
+   */
+  @Test
+  public void testTriggerNoPause() {
+    VerticleMock spy = spy(tested);
+    spy.processTaskTrigger(task1Message);
+    assertTrue(spy.queue.isEmpty());
+    verify(spy).processTask(task1);
+  }
+  
+  /**
+   * Test the publishing of the failure message.
+   */
+  @Test
+  public void testProcessException() {
+    tested.processTask(task2);
+    verify(eBus).publish(failureAddress, "message");
   }
 
+  /**
+   * Tests the normal task processing
+   */
   @Test
-  public void testFailure(TestContext context) {
-    Async async = context.async();
+  public void testProcessTask() {
+    VerticleMock spy = spy(tested);
+    spy.processTask(task1);
+    try {
+      verify(spy).work(task1);
+    } catch (WorkerException e) {
+      fail("work exception");
+    }
+  }
 
-    Vertx vertx = Vertx.vertx();
-    EventBus eBus = vertx.eventBus();
+  /**
+   * Tests that tasks are queued when verticle is paused.
+   */
+  @Test
+  public void testQueuing() {
+    VerticleMock spy = spy(tested);
+    spy.paused = true;
+    spy.processTaskTrigger(task1Message);
+    spy.processTaskTrigger(task2Message);
+    verify(spy, never()).processTask(task1);
+    verify(spy, never()).processTask(task2);
+    assertEquals(2, spy.queue.size());
+    assertTrue(spy.queue.contains(task1));
+    assertTrue(spy.queue.contains(task2));
+  }
 
-    String failureTrigger = "failureTrigger";
-    String failureSuccess = "none";
-    String failureFailure = "failureFailure";
+  /**
+   * Test the task pausing.
+   */
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testPausing() {
+    assertFalse(tested.paused);
+    tested.pauseHandler(mock(Message.class));
+    assertTrue(tested.paused);
+  }
 
-    eBus.consumer(failureFailure, message -> {
-      String messageString = message.body().toString();
-      context.assertEquals(FailingHandler.expectedExcMessage, messageString);
-      async.complete();
-    });
-
-    FailingHandler failing = new FailingHandler(failureTrigger, failureSuccess, failureFailure,
-        eBus, new EnactmentGraph());
-
-    Set<HandlerApollo<? extends Element>> handlers = new HashSet<>();
-    handlers.add(failing);
-
-    VerticleApollo tested = new VerticleApollo(handlers);
-
-    vertx.deployVerticle(tested).onComplete(res -> {
-      eBus.publish(failureTrigger, "message");
-    });
+  /**
+   * Test the address names.
+   */
+  @Test
+  public void testAddresses() {
+    assertEquals(triggerAddress, tested.triggerAddress);
+    assertEquals(successAddress, tested.successAddress);
+    assertEquals(failureAddress, tested.failureAddress);
   }
 }

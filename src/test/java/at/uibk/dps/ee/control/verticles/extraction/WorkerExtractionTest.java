@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import at.uibk.dps.ee.control.verticles.ConstantsEventBus;
+import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.core.function.Enactable;
 import at.uibk.dps.ee.core.function.Enactable.State;
@@ -72,7 +72,7 @@ public class WorkerExtractionTest {
       fail();
     }
     assertEquals(true, PropertyServiceData.getContent(dataNode).getAsBoolean());
-    verify(mockBus).publish(ConstantsEventBus.addressDataAvailable, dataNode.getId());
+    verify(mockBus).publish(ConstantsVertX.addressDataAvailable, dataNode.getId());
   }
 
   @Test
@@ -98,7 +98,7 @@ public class WorkerExtractionTest {
       fail();
     }
     assertEquals(content, PropertyServiceData.getContent(dataNode));
-    verify(mockBus).publish(ConstantsEventBus.addressDataAvailable, dataNode.getId());
+    verify(mockBus).publish(ConstantsVertX.addressDataAvailable, dataNode.getId());
   }
 
   @Test
@@ -156,13 +156,13 @@ public class WorkerExtractionTest {
     tested0.annotateExtractionEdge(d0);
     assertTrue(PropertyServiceDependency.isExtractionDone(d0));
     verify(mockEnactable, never()).setState(State.WAITING);
-    verify(mockBus, never()).publish(ConstantsEventBus.addressResetScheduleTask, finished.getId());
+    verify(mockBus, never()).publish(ConstantsVertX.addressResetScheduleTask, finished.getId());
 
     tested0.annotateExtractionEdge(d1);
     assertFalse(PropertyServiceDependency.isExtractionDone(d0));
     assertFalse(PropertyServiceDependency.isExtractionDone(d1));
     verify(mockEnactable).setState(State.WAITING);
-    verify(mockBus).publish(ConstantsEventBus.addressResetScheduleTask, finished.getId());
+    verify(mockBus).publish(ConstantsVertX.addressResetScheduleTask, finished.getId());
   }
 
 }

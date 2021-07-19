@@ -4,7 +4,7 @@ import java.util.Set;
 import com.google.inject.Inject;
 import at.uibk.dps.ee.control.graph.GraphTransform;
 import at.uibk.dps.ee.control.graph.GraphTransformer;
-import at.uibk.dps.ee.control.verticles.ConstantsEventBus;
+import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.core.ModelModificationListener;
@@ -20,8 +20,8 @@ public class WorkerTransformation extends VerticleApollo {
   @Inject
   public WorkerTransformation(EnactmentGraphProvider eGraphProv, GraphTransformer transformer,
       Set<ModelModificationListener> listeners) {
-    super(ConstantsEventBus.addressRequiredTransformation,
-        ConstantsEventBus.addressEnactmentFinished, ConstantsEventBus.addressFailureAbort,
+    super(ConstantsVertX.addressRequiredTransformation,
+        ConstantsVertX.addressEnactmentFinished, ConstantsVertX.addressFailureAbort,
         eGraphProv);
     this.transformer = transformer;
     this.listeners = listeners;

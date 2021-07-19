@@ -5,8 +5,15 @@ package at.uibk.dps.ee.control.verticles;
  * 
  * @author Fedor Smirnov
  */
-public class ConstantsEventBus {
+public class ConstantsVertX {
 
+  // Apollo Verticle logging ID
+  
+  // still have to figure our more sensible settings for these
+  public static final String typeId = "Apollo Instance";
+  public static final String enactmentMode = "enactment mode";
+  public static final String implId = "implId";
+  
 
   // Event bus addresses
 
@@ -56,7 +63,7 @@ public class ConstantsEventBus {
   /**
    * No constructor.
    */
-  private ConstantsEventBus() {}
+  private ConstantsVertX() {}
 
 
 }
