@@ -1,5 +1,8 @@
 package at.uibk.dps.ee.control.verticles.enactment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.google.gson.JsonObject;
 import com.google.inject.Inject;
 import at.uibk.dps.ee.control.enactment.PostEnactment;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
@@ -10,6 +13,7 @@ import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.sc.core.ScheduleModel;
 import at.uibk.dps.sc.core.interpreter.ScheduleInterpreter;
+import io.vertx.core.AsyncResult;
 import net.sf.opendse.model.Task;
 
 public class WorkerEnactment extends VerticleApollo {
@@ -18,6 +22,8 @@ public class WorkerEnactment extends VerticleApollo {
   protected final ScheduleModel scheduleModel;
   protected final ScheduleInterpreter interpreter;
 
+  protected final Logger logger = LoggerFactory.getLogger(WorkerEnactment.class);
+  
   @Inject
   public WorkerEnactment(EnactmentGraphProvider eGraphProvider, PostEnactment postEnactment,
       ScheduleModel scheduleModel, ScheduleInterpreter interpreter) {
@@ -32,12 +38,20 @@ public class WorkerEnactment extends VerticleApollo {
   protected void work(Task functionNode) throws WorkerException {
     EnactmentFunction function =
         interpreter.interpretSchedule(functionNode, scheduleModel.getTaskSchedule(functionNode));
-    System.out.println("before");
-    function.processInput(PropertyServiceFunction.getInput(functionNode)).onComplete(jsonResult -> {
-      System.out.println("after enactment");
-      PropertyServiceFunction.setOutput(functionNode, jsonResult.result());
-      postEnactment.postEnactmentTreatment(functionNode, this.vertx.eventBus());
-    });
-    System.out.println("after");
+    function.processInput(PropertyServiceFunction.getInput(functionNode))
+        .onComplete(jsonResult -> processResult(jsonResult, functionNode));
+  }
+
+  /**
+   * Process the result by calling the postEnactment and annotating the task
+   * output.
+   * 
+   * @param result the operation result
+   * @param functionNode the function node
+   */
+  protected void processResult(AsyncResult<JsonObject> result, Task functionNode) {
+    logger.debug("Enactment finished for task {}.", functionNode.getId());
+    PropertyServiceFunction.setOutput(functionNode, result.result());
+    postEnactment.postEnactmentTreatment(functionNode, this.vertx.eventBus());
   }
 }
