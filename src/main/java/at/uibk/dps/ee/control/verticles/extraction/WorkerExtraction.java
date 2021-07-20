@@ -2,6 +2,8 @@ package at.uibk.dps.ee.control.verticles.extraction;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -18,10 +20,24 @@ import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
 import net.sf.opendse.model.properties.TaskPropertyService;
 
+/**
+ * The {@link WorkerExtraction} is responsible for the extraction of the data
+ * from the finished function nodes.
+ * 
+ * @author Fedor Smirnov
+ *
+ */
 public class WorkerExtraction extends VerticleApollo {
 
   protected final Set<Task> leafNodes;
 
+  protected final Logger logger = LoggerFactory.getLogger(WorkerExtraction.class);
+
+  /**
+   * The injection constructor.
+   * 
+   * @param eGraphProvider provider of the enactment graph
+   */
   @Inject
   public WorkerExtraction(EnactmentGraphProvider eGraphProvider) {
     super(ConstantsVertX.addressEnactmentFinished, ConstantsVertX.addressDataAvailable,
@@ -39,6 +55,12 @@ public class WorkerExtraction extends VerticleApollo {
     }
   }
 
+  /**
+   * Processes the given out edge.
+   * 
+   * @param outEdge the given out edge
+   * @throws WorkerException exception thrown in case the extraction fails
+   */
   protected void processOutEdge(Dependency outEdge) throws WorkerException {
     Task finishedFunction = eGraph.getSource(outEdge);
     Task dataNode = eGraph.getDest(outEdge);
@@ -55,13 +77,18 @@ public class WorkerExtraction extends VerticleApollo {
         dataNodeModelsSequentiality ? new JsonPrimitive(true) : enactmentResult.get(key);
     PropertyServiceData.setContent(dataNode, data);
     annotateExtractionEdge(outEdge);
-    System.out.println(
-        "Thread " + Thread.currentThread().getId() + " " + dataNode.getId() + " available");
+    logger.debug("Thread {}; Data on node {} available.", Thread.currentThread().getId(),
+        dataNode.getId());
     this.vertx.eventBus().send(successAddress, dataNode.getId());
     // check whether done
     checkOverallResult();
   }
 
+  /**
+   * Check whether the overall result of the WF execution is complete. In case the
+   * WF execution is complete, a corresponding message is published on the event
+   * bus.
+   */
   protected void checkOverallResult() {
     if (leafNodes.stream().allMatch(leafNode -> PropertyServiceData.isDataAvailable(leafNode))) {
       JsonObject result = new JsonObject();
@@ -75,6 +102,11 @@ public class WorkerExtraction extends VerticleApollo {
     }
   }
 
+  /**
+   * Annotates that the extraction modeled by the given edge is finished.
+   * 
+   * @param extractionEdge the given edge.
+   */
   protected void annotateExtractionEdge(Dependency extractionEdge) {
     PropertyServiceDependency.setExtractionDone(extractionEdge);
     final Task process = eGraph.getSource(extractionEdge);
@@ -85,7 +117,7 @@ public class WorkerExtraction extends VerticleApollo {
       eGraph.getOutEdges(process)
           .forEach(outEdge -> PropertyServiceDependency.resetExtractionDone(outEdge));
       // reset the enactable state
-      System.err.println("Schedule reset still has to be implemented");
+      logger.error("Schedule reset still has to be implemented");
     }
   }
 }
