@@ -4,13 +4,13 @@ import org.opt4j.core.config.annotations.Info;
 import org.opt4j.core.config.annotations.Order;
 import org.opt4j.core.start.Constant;
 import at.uibk.dps.ee.control.command.Control;
+import at.uibk.dps.ee.control.enactment.WorkerEnactment;
+import at.uibk.dps.ee.control.extraction.WorkerExtraction;
+import at.uibk.dps.ee.control.scheduling.WorkerScheduling;
+import at.uibk.dps.ee.control.transformation.WorkerTransformation;
+import at.uibk.dps.ee.control.transmission.WorkerTransmission;
 import at.uibk.dps.ee.control.verticles.VerticleFunction;
 import at.uibk.dps.ee.control.verticles.VerticleManager;
-import at.uibk.dps.ee.control.verticles.enactment.WorkerEnactment;
-import at.uibk.dps.ee.control.verticles.extraction.WorkerExtraction;
-import at.uibk.dps.ee.control.verticles.scheduling.WorkerScheduling;
-import at.uibk.dps.ee.control.verticles.transformation.WorkerTransformation;
-import at.uibk.dps.ee.control.verticles.transmission.WorkerTransmission;
 import at.uibk.dps.ee.core.CoreFunction;
 import io.vertx.core.impl.cpu.CpuCoreSensor;
 
