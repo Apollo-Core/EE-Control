@@ -45,7 +45,7 @@ public class WorkerTransmission extends VerticleApollo {
 
   @Override
   protected void work(final Task dataNode) throws WorkerException {
-    for (Dependency transmissionEdge : eGraph.getOutEdges(dataNode)) {
+    for (final Dependency transmissionEdge : eGraph.getOutEdges(dataNode)) {
       processTransmissionEdge(transmissionEdge);
     }
   }
@@ -85,12 +85,10 @@ public class WorkerTransmission extends VerticleApollo {
       final JsonObject functionInput = new JsonObject();
       // for all in-edges of the node as processed
       eGraph.getInEdges(functionNode).forEach(inEdge -> {
-        if (!inEdge.equals(transmissionEdge)
-            && PropertyServiceDependency.getType(inEdge).equals(TypeDependency.ControlIf)) {
-          // the case of the other if edge which is not active and, therefore, ignored
-        } else {
+        if (inEdge.equals(transmissionEdge)
+            || !PropertyServiceDependency.getType(inEdge).equals(TypeDependency.ControlIf)) {
           final Task src = eGraph.getSource(inEdge);
-          JsonElement content = PropertyServiceData.getContent(src);
+          final JsonElement content = PropertyServiceData.getContent(src);
           final String key = PropertyServiceDependency.getJsonKey(inEdge);
           functionInput.add(key, content);
           PropertyServiceDependency.setDataConsumed(inEdge);
@@ -101,7 +99,10 @@ public class WorkerTransmission extends VerticleApollo {
             eGraph.getOutEdges(src)
                 .forEach(outEdgeSrc -> PropertyServiceDependency.resetTransmission(outEdgeSrc));
           }
+
         }
+        // in the "else" case of the other if edge which is not active and, therefore,
+        // ignored
       });
       PropertyServiceFunction.setInput(functionNode, functionInput);
       logger.debug("Thread {}; Task {} is schedulable.", Thread.currentThread().getId(),

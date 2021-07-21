@@ -35,8 +35,8 @@ public class VerticleFunction implements CoreFunction {
    * @param vProv vertX provider
    */
   @Inject
-  public VerticleFunction(InputDataHandler dataHandler, VerticleManager vManager,
-      VertxProvider vProv, PromiseProvider pProv) {
+  public VerticleFunction(final InputDataHandler dataHandler, final VerticleManager vManager,
+      final VertxProvider vProv, final PromiseProvider pProv) {
     super();
     this.vManager = vManager;
     this.dataHandler = dataHandler;
@@ -58,7 +58,7 @@ public class VerticleFunction implements CoreFunction {
   }
 
   @Override
-  public Future<JsonObject> processInput(JsonObject input) {
+  public Future<JsonObject> processInput(final JsonObject input) {
     dataHandler.processInput(input);
     return resultPromise.future();
   }

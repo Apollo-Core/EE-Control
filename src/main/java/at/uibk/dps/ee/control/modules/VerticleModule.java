@@ -6,6 +6,11 @@ import com.google.inject.multibindings.Multibinder;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.guice.modules.EeModule;
 
+/**
+ * Parent module for the modules used to configure Apollo's verticles.
+ * 
+ * @author Fedor Smirnov
+ */
 @Category("Vertex eBus Handlers")
 public abstract class VerticleModule extends EeModule {
 

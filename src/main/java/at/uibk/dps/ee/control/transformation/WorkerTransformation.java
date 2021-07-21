@@ -42,7 +42,7 @@ public class WorkerTransformation extends VerticleApollo {
 
   @Override
   protected void work(final Task transformNode) throws WorkerException {
-    GraphTransform transformOperation = transformer.getTransformOperation(transformNode);
+    final GraphTransform transformOperation = transformer.getTransformOperation(transformNode);
     transformOperation.modifyEnactmentGraph(eGraph, transformNode);
     logger.debug("Thread {}; Transform operation task {} completed.",
         Thread.currentThread().getId(), transformNode.getId());

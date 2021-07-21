@@ -20,7 +20,7 @@ import net.sf.opendse.model.Task;
 public class PostEnactmentDefault implements PostEnactment {
 
   @Override
-  public void postEnactmentTreatment(Task enactedTask, EventBus eBus) {
+  public void postEnactmentTreatment(final Task enactedTask, final EventBus eBus) {
     if (requiresTransformation(enactedTask)) {
       eBus.send(ConstantsVertX.addressRequiredTransformation, enactedTask.getId());
     } else {

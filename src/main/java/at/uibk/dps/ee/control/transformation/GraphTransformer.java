@@ -18,7 +18,7 @@ public class GraphTransformer {
    * @param functionNode the function node causing the transformation
    * @return the appropriate transform operation for the given function node
    */
-  public GraphTransform getTransformOperation(Task functionNode) {
+  public GraphTransform getTransformOperation(final Task functionNode) {
     if (PropertyServiceFunctionDataFlowCollections.getOperationType(functionNode)
         .equals(OperationType.Distribution)) {
       return new GraphTransformDistribution();

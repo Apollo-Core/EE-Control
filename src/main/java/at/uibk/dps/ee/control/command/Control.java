@@ -35,7 +35,8 @@ public class Control implements EnactmentStateListener {
    *        in the paused state.
    */
   @Inject
-  public Control(@Constant(namespace = Control.class, value = "pauseOnStart") boolean pauseOnStart,
+  public Control(
+      @Constant(namespace = Control.class, value = "pauseOnStart") final boolean pauseOnStart,
       final VertxProvider vertxProvider) {
     this.pauseOnStart = pauseOnStart;
     this.eBus = vertxProvider.geteBus();
@@ -71,7 +72,7 @@ public class Control implements EnactmentStateListener {
    */
   public void stop() {
     setState(EnactmentState.STOPPED);
-    System.err.println("Stopping not yet properly implemented");
+    logger.error("Stopping not yet properly implemented.");
   }
 
   public boolean isInit() {

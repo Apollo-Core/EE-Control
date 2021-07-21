@@ -52,7 +52,7 @@ public class VerticleManager {
    * method waiting until the deployment is finished.
    */
   public void deployVerticles() {
-    for (VerticleApollo verticleType : eventBusVerticles) {
+    for (final VerticleApollo verticleType : eventBusVerticles) {
       for (int i = 0; i < deploymentNumber; i++) {
         vertx.deployVerticle(verticleType, this::deployCallBack);
       }
@@ -70,7 +70,7 @@ public class VerticleManager {
    * 
    * @param result not used
    */
-  protected void deployCallBack(AsyncResult<String> result) {
+  protected void deployCallBack(final AsyncResult<String> result) {
     latch.countDown();
   }
 }

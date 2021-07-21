@@ -23,7 +23,7 @@ public abstract class VerticleApollo extends AbstractVerticle {
 
   protected final EnactmentGraph eGraph;
 
-  protected boolean paused = false;
+  protected boolean paused;
   protected final List<Task> queue = new ArrayList<>();
 
   /**
@@ -35,7 +35,7 @@ public abstract class VerticleApollo extends AbstractVerticle {
    * @param eProvider the enactment graph provider
    */
   public VerticleApollo(final String triggerAddress, final String successAddress,
-      final String failureAddress, EnactmentGraphProvider eProvider) {
+      final String failureAddress, final EnactmentGraphProvider eProvider) {
     this.triggerAddress = triggerAddress;
     this.successAddress = successAddress;
     this.failureAddress = failureAddress;
@@ -58,10 +58,10 @@ public abstract class VerticleApollo extends AbstractVerticle {
    */
   protected void processTaskTrigger(final Message<String> taskMessage) {
     final Task triggerTask = eGraph.getVertex(taskMessage.body());
-    if (!paused) {
-      processTask(triggerTask);
-    } else {
+    if (paused) {
       queue.add(triggerTask);
+    } else {
+      processTask(triggerTask);
     }
   }
 

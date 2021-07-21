@@ -39,7 +39,7 @@ public class WorkerExtraction extends VerticleApollo {
    * @param eGraphProvider provider of the enactment graph
    */
   @Inject
-  public WorkerExtraction(EnactmentGraphProvider eGraphProvider) {
+  public WorkerExtraction(final EnactmentGraphProvider eGraphProvider) {
     super(ConstantsVertX.addressEnactmentFinished, ConstantsVertX.addressDataAvailable,
         ConstantsVertX.addressFailureAbort, eGraphProvider);
     this.leafNodes = eGraph.getVertices().stream()
@@ -49,8 +49,8 @@ public class WorkerExtraction extends VerticleApollo {
   }
 
   @Override
-  protected void work(Task finishedTask) throws WorkerException {
-    for (Dependency outEdge : eGraph.getOutEdges(finishedTask)) {
+  protected void work(final Task finishedTask) throws WorkerException {
+    for (final Dependency outEdge : eGraph.getOutEdges(finishedTask)) {
       processOutEdge(outEdge);
     }
   }
@@ -61,9 +61,9 @@ public class WorkerExtraction extends VerticleApollo {
    * @param outEdge the given out edge
    * @throws WorkerException exception thrown in case the extraction fails
    */
-  protected void processOutEdge(Dependency outEdge) throws WorkerException {
-    Task finishedFunction = eGraph.getSource(outEdge);
-    Task dataNode = eGraph.getDest(outEdge);
+  protected void processOutEdge(final Dependency outEdge) throws WorkerException {
+    final Task finishedFunction = eGraph.getSource(outEdge);
+    final Task dataNode = eGraph.getDest(outEdge);
     final boolean dataNodeModelsSequentiality =
         PropertyServiceData.getNodeType(dataNode).equals(NodeType.Sequentiality);
     final JsonObject enactmentResult = PropertyServiceFunction.getOutput(finishedFunction);
@@ -91,10 +91,10 @@ public class WorkerExtraction extends VerticleApollo {
    */
   protected void checkOverallResult() {
     if (leafNodes.stream().allMatch(leafNode -> PropertyServiceData.isDataAvailable(leafNode))) {
-      JsonObject result = new JsonObject();
+      final JsonObject result = new JsonObject();
       leafNodes.forEach(leafNode -> {
-        JsonElement content = PropertyServiceData.getContent(leafNode);
-        String key = PropertyServiceData.getJsonKey(leafNode);
+        final JsonElement content = PropertyServiceData.getContent(leafNode);
+        final String key = PropertyServiceData.getJsonKey(leafNode);
         result.add(key, content);
       });
       this.vertx.eventBus().publish(ConstantsVertX.addressWorkflowResultAvailable,
@@ -107,7 +107,7 @@ public class WorkerExtraction extends VerticleApollo {
    * 
    * @param extractionEdge the given edge.
    */
-  protected void annotateExtractionEdge(Dependency extractionEdge) {
+  protected void annotateExtractionEdge(final Dependency extractionEdge) {
     PropertyServiceDependency.setExtractionDone(extractionEdge);
     final Task process = eGraph.getSource(extractionEdge);
     // check if extraction done for all out edges

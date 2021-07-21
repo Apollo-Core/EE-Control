@@ -24,6 +24,12 @@ public class InputDataHandler {
   protected final EnactmentGraph eGraph;
   protected final EventBus eBus;
 
+  /**
+   * The injection constructor.
+   * 
+   * @param eGraphProvider provides the e graph
+   * @param vertxProvider provides the vertX instance
+   */
   @Inject
   public InputDataHandler(final EnactmentGraphProvider eGraphProvider,
       final VertxProvider vertxProvider) {
@@ -31,6 +37,13 @@ public class InputDataHandler {
     this.eBus = vertxProvider.geteBus();
   }
 
+  /**
+   * Processes the workflow input by annotating the corresponding root nodes of
+   * the graph and sending event bus messages with the information that the
+   * corresponding data is available.
+   * 
+   * @param input the workflow input
+   */
   public void processInput(final JsonObject input) {
     EnactmentGraphUtils.getNonConstRootNodes(eGraph)
         .forEach(rootNode -> processRootNode(rootNode, input));

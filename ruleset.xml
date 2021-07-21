@@ -25,6 +25,7 @@
 
 	<rule ref="category/java/bestpractices.xml">
 		<exclude name="AbstractClassWithoutAbstractMethod" />
+		<exclude name="GuardLogStatement"/>
 	</rule>
 	<rule ref="category/java/codestyle.xml">
 		<exclude name="OnlyOneReturn" />
@@ -56,9 +57,6 @@
 		<exclude name="BeanMembersShouldSerialize" />
 	</rule>
 	
-	<rule ref="category/java/bestpractices.xml">
-    	<exclude name="GuardLogStatement"/>    	
-    </rule>
 
 	<!-- Things I have to add to the master rule set -->
 
