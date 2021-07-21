@@ -15,6 +15,12 @@ import at.uibk.dps.sc.core.interpreter.ScheduleInterpreter;
 import io.vertx.core.AsyncResult;
 import net.sf.opendse.model.Task;
 
+/**
+ * The worker responsible for the function enactment, i.e., the triggerring of
+ * the underlying serverless function interface.
+ * 
+ * @author Fedor Smirnov
+ */
 public class WorkerEnactment extends VerticleApollo {
 
   protected final PostEnactment postEnactment;
@@ -22,10 +28,19 @@ public class WorkerEnactment extends VerticleApollo {
   protected final ScheduleInterpreter interpreter;
 
   protected final Logger logger = LoggerFactory.getLogger(WorkerEnactment.class);
-  
+
+  /**
+   * The injection constructor.
+   * 
+   * @param eGraphProvider provides the e graph
+   * @param postEnactment defines what to do after the enactment is finished
+   * @param scheduleModel the schedule (maps tasks to mapping sets)
+   * @param interpreter the interpreter (maps mapping sets to functions)
+   */
   @Inject
-  public WorkerEnactment(EnactmentGraphProvider eGraphProvider, PostEnactment postEnactment,
-      ScheduleModel scheduleModel, ScheduleInterpreter interpreter) {
+  public WorkerEnactment(final EnactmentGraphProvider eGraphProvider,
+      final PostEnactment postEnactment, final ScheduleModel scheduleModel,
+      final ScheduleInterpreter interpreter) {
     super(ConstantsVertX.addressTaskLaunchable, ConstantsVertX.addressEnactmentFinished,
         ConstantsVertX.addressFailureAbort, eGraphProvider);
     this.postEnactment = postEnactment;
@@ -34,8 +49,8 @@ public class WorkerEnactment extends VerticleApollo {
   }
 
   @Override
-  protected void work(Task functionNode) throws WorkerException {
-    EnactmentFunction function =
+  protected void work(final Task functionNode) throws WorkerException {
+    final EnactmentFunction function =
         interpreter.interpretSchedule(functionNode, scheduleModel.getTaskSchedule(functionNode));
     function.processInput(PropertyServiceFunction.getInput(functionNode))
         .onComplete(jsonResult -> processResult(jsonResult, functionNode));
@@ -48,7 +63,7 @@ public class WorkerEnactment extends VerticleApollo {
    * @param result the operation result
    * @param functionNode the function node
    */
-  protected void processResult(AsyncResult<JsonObject> result, Task functionNode) {
+  protected void processResult(final AsyncResult<JsonObject> result, final Task functionNode) {
     logger.debug("Enactment finished for task {}.", functionNode.getId());
     PropertyServiceFunction.setOutput(functionNode, result.result());
     postEnactment.postEnactmentTreatment(functionNode, this.vertx.eventBus());

@@ -25,7 +25,7 @@ public class Control implements EnactmentStateListener {
 
   protected final boolean pauseOnStart;
   protected final EventBus eBus;
-  
+
   protected final Logger logger = LoggerFactory.getLogger(Control.class);
 
   /**
@@ -36,7 +36,7 @@ public class Control implements EnactmentStateListener {
    */
   @Inject
   public Control(@Constant(namespace = Control.class, value = "pauseOnStart") boolean pauseOnStart,
-      VertxProvider vertxProvider) {
+      final VertxProvider vertxProvider) {
     this.pauseOnStart = pauseOnStart;
     this.eBus = vertxProvider.geteBus();
   }

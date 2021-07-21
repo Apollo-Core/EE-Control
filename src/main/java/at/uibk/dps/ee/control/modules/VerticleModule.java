@@ -7,27 +7,31 @@ import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.guice.modules.EeModule;
 
 @Category("Vertex eBus Handlers")
-public abstract class VerticleModule extends EeModule{
+public abstract class VerticleModule extends EeModule {
 
   /**
-   * Adds a scalable verticle processing trigger tasks transmitted over the event bus.
+   * Adds a scalable verticle processing trigger tasks transmitted over the event
+   * bus.
    * 
    * @param functionDecorator the verticle to add
    */
   public void addEBusVerticle(final Class<? extends VerticleApollo> verticle) {
     addEBusVerticle(binder(), verticle);
   }
-  
+
   /**
-   * Adds a scalable verticle processing trigger tasks transmitted over the event bus.
+   * Adds a scalable verticle processing trigger tasks transmitted over the event
+   * bus.
    * 
    * @param binder the binder
    * @param functionDecorator the verticle to add
    */
-  public static void addEBusVerticle(final Binder binder, final Class<? extends VerticleApollo> verticle) {
-    final Multibinder<VerticleApollo> multibinder = Multibinder.newSetBinder(binder, VerticleApollo.class);
+  public static void addEBusVerticle(final Binder binder,
+      final Class<? extends VerticleApollo> verticle) {
+    final Multibinder<VerticleApollo> multibinder =
+        Multibinder.newSetBinder(binder, VerticleApollo.class);
     multibinder.addBinding().to(verticle);
   }
-  
+
 
 }

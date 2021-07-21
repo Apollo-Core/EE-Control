@@ -55,6 +55,10 @@
 	<rule ref="category/java/errorprone.xml">
 		<exclude name="BeanMembersShouldSerialize" />
 	</rule>
+	
+	<rule ref="category/java/bestpractices.xml">
+    	<exclude name="GuardLogStatement"/>    	
+    </rule>
 
 	<!-- Things I have to add to the master rule set -->
 

@@ -5,21 +5,22 @@ import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlow;
 import net.sf.opendse.model.Task;
 
 /**
- * The {@link SchedulabilityCheckMulti} picks the right check for the provided task.
+ * The {@link SchedulabilityCheckMulti} picks the right check for the provided
+ * task.
  * 
  * @author Fedor Smirnov
  *
  */
-public class SchedulabilityCheckMulti implements SchedulabilityCheck{
+public class SchedulabilityCheckMulti implements SchedulabilityCheck {
 
   protected SchedulabilityCheckDefault checkDefault = new SchedulabilityCheckDefault();
   protected SchedulabilityCheckMuxer checkMuxer = new SchedulabilityCheckMuxer();
-  
+
   @Override
-  public boolean isTargetSchedulable(Task target, EnactmentGraph graph) {
+  public boolean isTargetSchedulable(final Task target, final EnactmentGraph graph) {
     if (PropertyServiceFunctionDataFlow.isMultiplexerNode(target)) {
       return checkMuxer.isTargetSchedulable(target, graph);
-    }else {
+    } else {
       return checkDefault.isTargetSchedulable(target, graph);
     }
   }

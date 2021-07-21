@@ -32,8 +32,8 @@ public class WorkerTransformation extends VerticleApollo {
    * @param listeners the transformation listeners
    */
   @Inject
-  public WorkerTransformation(EnactmentGraphProvider eGraphProv, GraphTransformer transformer,
-      Set<ModelModificationListener> listeners) {
+  public WorkerTransformation(final EnactmentGraphProvider eGraphProv,
+      final GraphTransformer transformer, final Set<ModelModificationListener> listeners) {
     super(ConstantsVertX.addressRequiredTransformation, ConstantsVertX.addressEnactmentFinished,
         ConstantsVertX.addressFailureAbort, eGraphProv);
     this.transformer = transformer;
@@ -41,7 +41,7 @@ public class WorkerTransformation extends VerticleApollo {
   }
 
   @Override
-  protected void work(Task transformNode) throws WorkerException {
+  protected void work(final Task transformNode) throws WorkerException {
     GraphTransform transformOperation = transformer.getTransformOperation(transformNode);
     transformOperation.modifyEnactmentGraph(eGraph, transformNode);
     logger.debug("Thread {}; Transform operation task {} completed.",

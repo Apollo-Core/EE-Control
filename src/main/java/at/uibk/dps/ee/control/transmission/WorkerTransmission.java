@@ -36,15 +36,15 @@ public class WorkerTransmission extends VerticleApollo {
    * @param schedulabilityCheck checks the schedulability of functions
    */
   @Inject
-  public WorkerTransmission(EnactmentGraphProvider eGraphProvider,
-      SchedulabilityCheck schedulabilityCheck) {
+  public WorkerTransmission(final EnactmentGraphProvider eGraphProvider,
+      final SchedulabilityCheck schedulabilityCheck) {
     super(ConstantsVertX.addressDataAvailable, ConstantsVertX.addressTaskSchedulable,
         ConstantsVertX.addressFailureAbort, eGraphProvider);
     this.schedulabilityCheck = schedulabilityCheck;
   }
 
   @Override
-  protected void work(Task dataNode) throws WorkerException {
+  protected void work(final Task dataNode) throws WorkerException {
     for (Dependency transmissionEdge : eGraph.getOutEdges(dataNode)) {
       processTransmissionEdge(transmissionEdge);
     }
@@ -56,11 +56,11 @@ public class WorkerTransmission extends VerticleApollo {
    * 
    * @param transmissionEdge out edge of the data node being processed
    */
-  protected void processTransmissionEdge(Dependency transmissionEdge) {
+  protected void processTransmissionEdge(final Dependency transmissionEdge) {
     // annotate the edges
     this.vertx.sharedData().getLock("transmission annotation lock", lockRes -> {
       if (lockRes.succeeded()) {
-        Lock lock = lockRes.result();
+        final Lock lock = lockRes.result();
         annotateTransmission(transmissionEdge);
         lock.release();
       } else {
@@ -77,12 +77,12 @@ public class WorkerTransmission extends VerticleApollo {
    * @param transmissionEdge the transmission edge to annotate
    */
   protected void annotateTransmission(final Dependency transmissionEdge) {
-    Task functionNode = eGraph.getDest(transmissionEdge);
+    final Task functionNode = eGraph.getDest(transmissionEdge);
     // annotate the dependency
     PropertyServiceDependency.annotateFinishedTransmission(transmissionEdge);
     // if all edges done with transmitting
     if (schedulabilityCheck.isTargetSchedulable(functionNode, eGraph)) {
-      JsonObject functionInput = new JsonObject();
+      final JsonObject functionInput = new JsonObject();
       // for all in-edges of the node as processed
       eGraph.getInEdges(functionNode).forEach(inEdge -> {
         if (!inEdge.equals(transmissionEdge)

@@ -5,7 +5,7 @@ package at.uibk.dps.ee.control.verticles;
  * 
  * @author Fedor Smirnov
  */
-public class ConstantsVertX {
+public final class ConstantsVertX {
 
   // Apollo Verticle logging ID
   

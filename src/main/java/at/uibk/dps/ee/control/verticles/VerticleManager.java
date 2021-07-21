@@ -23,7 +23,7 @@ public class VerticleManager {
   protected final int deploymentNumber;
   protected final int verticleNumber;
   protected final CountDownLatch latch;
-  
+
   protected final Logger logger = LoggerFactory.getLogger(VerticleManager.class);
 
   /**
@@ -36,9 +36,10 @@ public class VerticleManager {
    * @param vertxProv the vertX provider
    */
   @Inject
-  public VerticleManager(Set<VerticleApollo> eventBusVerticles,
-      @Constant(namespace = VerticleManager.class, value = "deploymentNumber") int deploymentNumber,
-      VertxProvider vertxProv) {
+  public VerticleManager(final Set<VerticleApollo> eventBusVerticles,
+      @Constant(namespace = VerticleManager.class,
+          value = "deploymentNumber") final int deploymentNumber,
+      final VertxProvider vertxProv) {
     this.eventBusVerticles = eventBusVerticles;
     this.deploymentNumber = deploymentNumber;
     this.verticleNumber = eventBusVerticles.size() * deploymentNumber;
@@ -63,9 +64,10 @@ public class VerticleManager {
       throw new IllegalStateException("Interrupted while deploying verticels", e);
     }
   }
-  
+
   /**
    * The latch is decremented once for the deployment of each verticle.
+   * 
    * @param result not used
    */
   protected void deployCallBack(AsyncResult<String> result) {

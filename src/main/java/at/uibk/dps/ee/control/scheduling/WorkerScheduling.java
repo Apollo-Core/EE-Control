@@ -35,8 +35,8 @@ public class WorkerScheduling extends VerticleApollo {
    * @param scheduler the scheduler
    */
   @Inject
-  public WorkerScheduling(EnactmentGraphProvider graphProvider, ScheduleModel schedule,
-      Scheduler scheduler) {
+  public WorkerScheduling(final EnactmentGraphProvider graphProvider, final ScheduleModel schedule,
+      final Scheduler scheduler) {
     super(ConstantsVertX.addressTaskSchedulable, ConstantsVertX.addressTaskLaunchable,
         ConstantsVertX.addressFailureAbort, graphProvider);
     this.schedule = schedule;
@@ -44,7 +44,7 @@ public class WorkerScheduling extends VerticleApollo {
   }
 
   @Override
-  protected void work(Task schedulableTask) throws WorkerException {
+  protected void work(final Task schedulableTask) throws WorkerException {
     if (schedule.isScheduled(schedulableTask)) {
       throw new WorkerException("Task " + schedulableTask.getId() + " already scheduled.");
     } else {

@@ -34,8 +34,8 @@ public abstract class VerticleApollo extends AbstractVerticle {
    * @param failureAddress the address to write to in case of failure
    * @param eProvider the enactment graph provider
    */
-  public VerticleApollo(String triggerAddress, String successAddress, String failureAddress,
-      EnactmentGraphProvider eProvider) {
+  public VerticleApollo(final String triggerAddress, final String successAddress,
+      final String failureAddress, EnactmentGraphProvider eProvider) {
     this.triggerAddress = triggerAddress;
     this.successAddress = successAddress;
     this.failureAddress = failureAddress;
@@ -56,8 +56,8 @@ public abstract class VerticleApollo extends AbstractVerticle {
    * 
    * @param taskMessage the message containing the task ID
    */
-  protected void processTaskTrigger(Message<String> taskMessage) {
-    Task triggerTask = eGraph.getVertex(taskMessage.body());
+  protected void processTaskTrigger(final Message<String> taskMessage) {
+    final Task triggerTask = eGraph.getVertex(taskMessage.body());
     if (!paused) {
       processTask(triggerTask);
     } else {
@@ -70,7 +70,7 @@ public abstract class VerticleApollo extends AbstractVerticle {
    * 
    * @param triggerTask the trigger task
    */
-  protected void processTask(Task triggerTask) {
+  protected void processTask(final Task triggerTask) {
     try {
       work(triggerTask);
     } catch (WorkerException wExc) {
@@ -83,7 +83,7 @@ public abstract class VerticleApollo extends AbstractVerticle {
    * 
    * @param message empty message
    */
-  protected void resumeHandler(Message<String> message) {
+  protected void resumeHandler(final Message<String> message) {
     // process the triggers stored during the pause
     while (!queue.isEmpty()) {
       processTask(queue.remove(0));
@@ -96,7 +96,7 @@ public abstract class VerticleApollo extends AbstractVerticle {
    * 
    * @param message emtpy message
    */
-  protected void pauseHandler(Message<String> message) {
+  protected void pauseHandler(final Message<String> message) {
     this.paused = true;
   }
 

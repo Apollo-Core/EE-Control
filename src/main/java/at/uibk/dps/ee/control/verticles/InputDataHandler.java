@@ -25,12 +25,13 @@ public class InputDataHandler {
   protected final EventBus eBus;
 
   @Inject
-  public InputDataHandler(EnactmentGraphProvider eGraphProvider, VertxProvider vertxProvider) {
+  public InputDataHandler(final EnactmentGraphProvider eGraphProvider,
+      final VertxProvider vertxProvider) {
     this.eGraph = eGraphProvider.getEnactmentGraph();
     this.eBus = vertxProvider.geteBus();
   }
 
-  public void processInput(JsonObject input) {
+  public void processInput(final JsonObject input) {
     EnactmentGraphUtils.getNonConstRootNodes(eGraph)
         .forEach(rootNode -> processRootNode(rootNode, input));
     EnactmentGraphUtils.getConstantDataNodes(eGraph).forEach(
