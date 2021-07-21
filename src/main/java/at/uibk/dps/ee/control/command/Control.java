@@ -1,6 +1,8 @@
 package at.uibk.dps.ee.control.command;
 
 import org.opt4j.core.start.Constant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
@@ -23,6 +25,8 @@ public class Control implements EnactmentStateListener {
 
   protected final boolean pauseOnStart;
   protected final EventBus eBus;
+  
+  protected final Logger logger = LoggerFactory.getLogger(Control.class);
 
   /**
    * Injection constructor
@@ -45,9 +49,9 @@ public class Control implements EnactmentStateListener {
       throw new IllegalStateException("Control play triggerred before control initialization.");
     }
     if (enactmentState.equals(EnactmentState.PAUSED)) {
-      System.out.println("resume");
+      logger.info("Resuming enactment.");
       setState(EnactmentState.RUNNING);
-      eBus.publish(ConstantsVertX.addressControlResume, "resume");
+      eBus.publish(ConstantsVertX.addressControlResume, ConstantsVertX.messageResume);
     }
   }
 
@@ -55,10 +59,10 @@ public class Control implements EnactmentStateListener {
    * Pause if running. Otherwise nothing.
    */
   public void pause() {
-    System.out.println("pause");
+    logger.info("Pausing enactment.");
     if (enactmentState.equals(EnactmentState.RUNNING)) {
       setState(EnactmentState.PAUSED);
-      eBus.publish(ConstantsVertX.addressControlPause, "pause");
+      eBus.publish(ConstantsVertX.addressControlPause, ConstantsVertX.messagePause);
     }
   }
 

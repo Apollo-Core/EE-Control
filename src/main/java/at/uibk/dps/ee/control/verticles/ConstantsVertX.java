@@ -14,6 +14,10 @@ public class ConstantsVertX {
   public static final String enactmentMode = "enactment mode";
   public static final String implId = "implId";
   
+  // Event bus messages
+  public static final String messagePause = "pause";
+  public static final String messageResume = "resume";
+  
 
   // Event bus addresses
 

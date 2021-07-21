@@ -1,7 +1,6 @@
 package at.uibk.dps.ee.control.verticles.enactment;
 
 import com.google.inject.ImplementedBy;
-import at.uibk.dps.ee.control.management.EnactmentQueues;
 import io.vertx.core.eventbus.EventBus;
 import net.sf.opendse.model.Task;
 
