@@ -26,12 +26,12 @@ public class EnactmentVerticleModule extends VerticleModule {
   @Info("If checked, the EE will be initially in the PAUSED state.")
   @Constant(namespace = Control.class, value = "pauseOnStart")
   protected boolean pauseOnStart;
-  
+
   @Order(2)
   @Info("Number of verticles deployed for each verticle type.")
   @Constant(namespace = VerticleManager.class, value = "deploymentNumber")
-  protected int deploymentNumber =  2 * CpuCoreSensor.availableProcessors();
-  
+  protected int deploymentNumber = 2 * CpuCoreSensor.availableProcessors();
+
 
   @Override
   protected void config() {
@@ -42,7 +42,7 @@ public class EnactmentVerticleModule extends VerticleModule {
     addEBusVerticle(WorkerEnactment.class);
     addEBusVerticle(WorkerExtraction.class);
     addEBusVerticle(WorkerTransformation.class);
-    
+
     // probably remove this and remove enactment listener
     addEnactmentStateListener(Control.class);
   }
@@ -59,7 +59,7 @@ public class EnactmentVerticleModule extends VerticleModule {
     return deploymentNumber;
   }
 
-  public void setDeploymentNumber(int deploymentNumber) {
+  public void setDeploymentNumber(final int deploymentNumber) {
     this.deploymentNumber = deploymentNumber;
   }
 }
