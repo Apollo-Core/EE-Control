@@ -1,9 +1,10 @@
-package at.uibk.dps.ee.control.graph;
+package at.uibk.dps.ee.control.verticles.transformation;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
+import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections;
 import at.uibk.dps.ee.model.properties.PropertyServiceReproduction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections.OperationType;
@@ -199,7 +200,7 @@ public class GraphTransformAggregation implements GraphTransform {
             && PropertyServiceFunctionDataFlowCollections.getScope(task).equals(scope))
         .collect(Collectors.toSet());
     return aggregators.stream()
-        .allMatch(aggregator -> PropertyServiceFunctionDataFlowCollections.isFinished(aggregator));
+        .allMatch(aggregator -> PropertyServiceFunction.isInputSet(aggregator));
   }
 
   @Override

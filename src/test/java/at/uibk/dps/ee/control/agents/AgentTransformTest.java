@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
 import at.uibk.dps.ee.control.graph.GraphAccess;
-import at.uibk.dps.ee.control.graph.GraphTransform;
 import at.uibk.dps.ee.control.management.EnactmentQueues;
+import at.uibk.dps.ee.control.verticles.transformation.GraphTransform;
 import at.uibk.dps.ee.core.ModelModificationListener;
 import net.sf.opendse.model.Task;
 

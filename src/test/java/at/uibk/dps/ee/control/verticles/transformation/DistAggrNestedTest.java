@@ -1,16 +1,12 @@
-package at.uibk.dps.ee.control.graph;
+package at.uibk.dps.ee.control.verticles.transformation;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Test;
-import at.uibk.dps.ee.core.function.Enactable.State;
-import at.uibk.dps.ee.enactables.EnactableAtomic;
-import at.uibk.dps.ee.enactables.EnactableFactory;
+import com.google.gson.JsonObject;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
@@ -84,22 +80,11 @@ public class DistAggrNestedTest {
     Communication outsideInput = new Communication("outsideIn");
     String jsonKeyOutside = "outside";
     PropertyServiceDependency.addDataDependency(outsideInput, function, jsonKeyOutside, testInput);
-    GraphProviderEnactables mockProvider = mock(GraphProviderEnactables.class);
-    when(mockProvider.getEnactmentGraph()).thenReturn(testInput);
-    GraphAccessConcurrent gAccess = new GraphAccessConcurrent(mockProvider);
-    EnactableFactory factoryMock = mock(EnactableFactory.class);
-    GraphTransformDistribution tested = new GraphTransformDistribution(factoryMock);
-    EnactableAtomic mockEnactable = mock(EnactableAtomic.class);
-    PropertyServiceFunction.setEnactable(function, mockEnactable);
-    EnactableAtomic mockDist2 = mock(EnactableAtomic.class);
-    PropertyServiceFunction.setEnactable(distributionNode2, mockDist2);
-    EnactableAtomic mockAgg2 = mock(EnactableAtomic.class);
-    when(mockAgg2.getState()).thenReturn(State.FINISHED);
-    PropertyServiceFunction.setEnactable(aggregation2, mockAgg2);
-    PropertyServiceFunction.setEnactable(aggregation, mockAgg2);
+
+    GraphTransformDistribution tested = new GraphTransformDistribution();
     assertEquals(12, testInput.getVertexCount());
     // run the first distribution
-    tested.modifyEnactmentGraph(gAccess, distributionNode);
+    tested.modifyEnactmentGraph(testInput, distributionNode);
     assertEquals(26, testInput.getVertexCount());
     // get the reproduced distributions nodes
     Set<Task> reproduced = testInput.getVertices().stream()
@@ -115,14 +100,16 @@ public class DistAggrNestedTest {
         Collectors.groupingBy(task -> PropertyServiceFunctionDataFlowCollections.getScope(task)));
     assertEquals(3, aggrByScope.size());
     // run the second distribution
-    reproduced.forEach(distTask -> tested.modifyEnactmentGraph(gAccess, distTask));
+    reproduced.forEach(distTask -> tested.modifyEnactmentGraph(testInput, distTask));
     assertEquals(44, testInput.getVertexCount());
     // inner aggregation
     GraphTransformAggregation aggregationOperation = new GraphTransformAggregation();
-    reproducedAggr.forEach(aggr -> aggregationOperation.modifyEnactmentGraph(gAccess, aggr));
+    reproducedAggr.forEach(repAgg -> PropertyServiceFunction.setInput(repAgg, new JsonObject()));
+    reproducedAggr.forEach(aggr -> aggregationOperation.modifyEnactmentGraph(testInput, aggr));
     assertEquals(26, testInput.getVertexCount());
     // outer aggregation
-    aggregationOperation.modifyEnactmentGraph(gAccess, aggregation);
+    PropertyServiceFunction.setInput(aggregation, new JsonObject());
+    aggregationOperation.modifyEnactmentGraph(testInput, aggregation);
     assertEquals(12, testInput.getVertexCount());
   }
 }

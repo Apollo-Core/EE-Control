@@ -1,7 +1,8 @@
-package at.uibk.dps.ee.control.graph;
+package at.uibk.dps.ee.control.verticles.transformation;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import com.google.gson.JsonObject;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
@@ -101,6 +102,7 @@ public class GraphTransformDistributionAggregationTest {
     assertEquals(14, testInput.getVertexCount());
     assertEquals(17, testInput.getEdgeCount());
     // test the reverse operation when enactable finished
+    PropertyServiceFunction.setInput(aggregation, new JsonObject());
     testedAggregation.modifyEnactmentGraph(testInput, aggregation);
     assertEquals(8, testInput.getVertexCount());
     assertEquals(7, testInput.getEdgeCount());
