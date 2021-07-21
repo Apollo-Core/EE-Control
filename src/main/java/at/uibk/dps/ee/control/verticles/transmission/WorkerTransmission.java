@@ -1,9 +1,10 @@
 package at.uibk.dps.ee.control.verticles.transmission;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
-import at.uibk.dps.ee.control.transmission.SchedulabilityCheck;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
@@ -17,10 +18,23 @@ import at.uibk.dps.ee.model.properties.PropertyServiceDependency.TypeDependency;
 import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
 
+/**
+ * Worker transmitting from a data node to function nodes.
+ * 
+ * @author Fedor Smirnov
+ */
 public class WorkerTransmission extends VerticleApollo {
 
   protected final SchedulabilityCheck schedulabilityCheck;
 
+  protected final Logger logger = LoggerFactory.getLogger(WorkerTransmission.class);
+
+  /**
+   * Injection constructor
+   * 
+   * @param eGraphProvider provides the enactment graph
+   * @param schedulabilityCheck checks the schedulability of functions
+   */
   @Inject
   public WorkerTransmission(EnactmentGraphProvider eGraphProvider,
       SchedulabilityCheck schedulabilityCheck) {
@@ -44,12 +58,12 @@ public class WorkerTransmission extends VerticleApollo {
    */
   protected void processTransmissionEdge(Dependency transmissionEdge) {
     // annotate the edges
-    this.vertx.sharedData().getLock("transmission annotation lock", lockRes ->{
+    this.vertx.sharedData().getLock("transmission annotation lock", lockRes -> {
       if (lockRes.succeeded()) {
         Lock lock = lockRes.result();
         annotateTransmission(transmissionEdge);
         lock.release();
-      }else {
+      } else {
         throw new IllegalStateException("Failed getting transmission annotation lock");
       }
     });
@@ -90,8 +104,8 @@ public class WorkerTransmission extends VerticleApollo {
         }
       });
       PropertyServiceFunction.setInput(functionNode, functionInput);
-      System.out.println(
-          "Thread " + Thread.currentThread().getId() + " " + functionNode.getId() + " schedulable");
+      logger.debug("Thread {}; Task {} is schedulable.", Thread.currentThread().getId(),
+          functionNode.getId());
       this.vertx.eventBus().send(successAddress, functionNode.getId());
     }
   }

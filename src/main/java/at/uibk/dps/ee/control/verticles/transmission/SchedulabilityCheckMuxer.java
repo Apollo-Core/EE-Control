@@ -1,4 +1,4 @@
-package at.uibk.dps.ee.control.transmission;
+package at.uibk.dps.ee.control.verticles.transmission;
 
 import java.util.HashSet;
 import java.util.Set;

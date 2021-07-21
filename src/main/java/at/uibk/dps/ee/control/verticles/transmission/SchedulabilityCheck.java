@@ -1,7 +1,6 @@
-package at.uibk.dps.ee.control.transmission;
+package at.uibk.dps.ee.control.verticles.transmission;
 
 import com.google.inject.ImplementedBy;
-import at.uibk.dps.ee.control.verticles.transmission.SchedulabilityCheckMulti;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import net.sf.opendse.model.Task;
 

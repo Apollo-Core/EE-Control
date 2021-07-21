@@ -1,8 +1,5 @@
 package at.uibk.dps.ee.control.verticles.transmission;
 
-import at.uibk.dps.ee.control.transmission.SchedulabilityCheck;
-import at.uibk.dps.ee.control.transmission.SchedulabilityCheckDefault;
-import at.uibk.dps.ee.control.transmission.SchedulabilityCheckMuxer;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlow;
 import net.sf.opendse.model.Task;
@@ -15,8 +12,8 @@ import net.sf.opendse.model.Task;
  */
 public class SchedulabilityCheckMulti implements SchedulabilityCheck{
 
-  protected final SchedulabilityCheckDefault checkDefault = new SchedulabilityCheckDefault();
-  protected final SchedulabilityCheckMuxer checkMuxer = new SchedulabilityCheckMuxer();
+  protected SchedulabilityCheckDefault checkDefault = new SchedulabilityCheckDefault();
+  protected SchedulabilityCheckMuxer checkMuxer = new SchedulabilityCheckMuxer();
   
   @Override
   public boolean isTargetSchedulable(Task target, EnactmentGraph graph) {

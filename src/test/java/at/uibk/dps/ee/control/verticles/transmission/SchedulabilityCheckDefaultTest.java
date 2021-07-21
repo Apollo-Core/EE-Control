@@ -1,4 +1,4 @@
-package at.uibk.dps.ee.control.transmission;
+package at.uibk.dps.ee.control.verticles.transmission;
 
 import static org.junit.Assert.*;
 import org.junit.Test;

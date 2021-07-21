@@ -1,4 +1,4 @@
-package at.uibk.dps.ee.control.transmission;
+package at.uibk.dps.ee.control.verticles.transmission;
 
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
