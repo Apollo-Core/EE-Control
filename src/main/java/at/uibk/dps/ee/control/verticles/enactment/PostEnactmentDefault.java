@@ -1,7 +1,6 @@
 package at.uibk.dps.ee.control.verticles.enactment;
 
 import com.google.inject.Singleton;
-import at.uibk.dps.ee.control.enactment.PostEnactment;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlow;
@@ -25,8 +24,6 @@ public class PostEnactmentDefault implements PostEnactment {
     if (requiresTransformation(enactedTask)) {
       eBus.send(ConstantsVertX.addressRequiredTransformation, enactedTask.getId());
     } else {
-      System.out.println(
-          "Thread " + Thread.currentThread().getId() + " " + enactedTask.getId() + " enacted");
       eBus.send(ConstantsVertX.addressEnactmentFinished, enactedTask.getId());
     }
   }

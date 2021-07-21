@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
-import at.uibk.dps.ee.control.enactment.PostEnactment;
 import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.core.function.EnactmentFunction;
 import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
