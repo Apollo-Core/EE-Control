@@ -1,6 +1,6 @@
 package at.uibk.dps.ee.control.verticles;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;

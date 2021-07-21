@@ -1,6 +1,6 @@
 package at.uibk.dps.ee.control.transformation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

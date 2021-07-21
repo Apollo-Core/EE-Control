@@ -37,7 +37,7 @@ dependencies {
     // dependencies to other parts of the Apollo Core EE
     implementation 'com.github.Apollo-Core:EE-Core:vertx-SNAPSHOT'
     implementation 'com.github.Apollo-Core:EE-Guice:vertex-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Model:290b26ae6a'
+    implementation 'com.github.Apollo-Core:EE-Model:vertex-SNAPSHOT'
     implementation 'com.github.Apollo-Core:EE-Enactables:vertex-SNAPSHOT'
     implementation 'com.github.Apollo-Core:SC-Core:vertex-SNAPSHOT'
   }

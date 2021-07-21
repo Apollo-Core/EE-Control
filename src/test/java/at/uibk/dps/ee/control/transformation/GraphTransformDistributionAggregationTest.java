@@ -1,6 +1,6 @@
 package at.uibk.dps.ee.control.transformation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
