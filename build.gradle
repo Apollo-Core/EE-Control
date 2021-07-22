@@ -62,9 +62,6 @@ dependencies {
   // JUnit 5 
   testImplementation(platform('org.junit:junit-bom:5.7.2'))
   testImplementation('org.junit.jupiter:junit-jupiter')
-  
-  // for the asynchronous VertX tests
-  testCompile 'io.vertx:vertx-unit:4.1.0'
 }
 
 jacocoTestReport {
