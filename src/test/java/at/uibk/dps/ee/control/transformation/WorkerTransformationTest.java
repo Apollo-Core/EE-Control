@@ -1,12 +1,10 @@
 package at.uibk.dps.ee.control.transformation;
 
-import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
-import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.core.ModelModificationListener;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
@@ -44,14 +42,10 @@ class WorkerTransformationTest {
    */
   @Test
   void test() {
-    try {
-      tested.work(input);
-      verify(operation).modifyEnactmentGraph(graph, input);
-      verify(listener).reactToModelModification();
-      verify(eBus).send(ConstantsVertX.addressEnactmentFinished, input.getId());
-    } catch (WorkerException e) {
-      fail();
-    }
+    tested.performTransformation(input);
+    verify(operation).modifyEnactmentGraph(graph, input);
+    verify(listener).reactToModelModification();
+    verify(eBus).send(ConstantsVertX.addressEnactmentFinished, input.getId());
   }
 
   @BeforeEach

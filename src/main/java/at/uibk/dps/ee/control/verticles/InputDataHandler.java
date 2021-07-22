@@ -1,6 +1,8 @@
 package at.uibk.dps.ee.control.verticles;
 
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.inject.Inject;
@@ -23,6 +25,8 @@ public class InputDataHandler {
 
   protected final EnactmentGraph eGraph;
   protected final EventBus eBus;
+
+  protected final Logger logger = LoggerFactory.getLogger(InputDataHandler.class);
 
   /**
    * The injection constructor.
@@ -47,8 +51,19 @@ public class InputDataHandler {
   public void processInput(final JsonObject input) {
     EnactmentGraphUtils.getNonConstRootNodes(eGraph)
         .forEach(rootNode -> processRootNode(rootNode, input));
-    EnactmentGraphUtils.getConstantDataNodes(eGraph).forEach(
-        constantNode -> eBus.send(ConstantsVertX.addressDataAvailable, constantNode.getId()));
+    EnactmentGraphUtils.getConstantDataNodes(eGraph)
+        .forEach(constantNode -> processConstantNode(constantNode));
+  }
+
+  /**
+   * Processes the given constant node: Sends an event bus message signaling the
+   * availability of the node's data.
+   * 
+   * @param constantNode the constant node to process
+   */
+  protected void processConstantNode(Task constantNode) {
+    logger.debug("Availability of constant node {} advertized.", constantNode.getId());
+    eBus.send(ConstantsVertX.addressDataAvailable, constantNode.getId());
   }
 
   /**
@@ -63,6 +78,7 @@ public class InputDataHandler {
         Optional.ofNullable(jsonInput.get(jsonKey)).orElseThrow(() -> new IllegalArgumentException(
             "No entry with the key " + jsonKey + " in the WF input."));
     PropertyServiceData.setContent(rootNode, content);
+    logger.debug("Availability of the input data modeled by node {} advertized.", rootNode.getId());
     eBus.send(ConstantsVertX.addressDataAvailable, rootNode.getId());
   }
 }

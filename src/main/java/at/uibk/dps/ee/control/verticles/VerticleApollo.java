@@ -57,7 +57,7 @@ public abstract class VerticleApollo extends AbstractVerticle {
    * @param taskMessage the message containing the task ID
    */
   protected void processTaskTrigger(final Message<String> taskMessage) {
-    final Task triggerTask = eGraph.getVertex(taskMessage.body());
+    final Task triggerTask = eGraph.getTask(taskMessage.body());
     if (paused) {
       queue.add(triggerTask);
     } else {
