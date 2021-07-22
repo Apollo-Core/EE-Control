@@ -35,11 +35,11 @@ dependencies {
     implementation project (':SC-Core')
   }else {
     // dependencies to other parts of the Apollo Core EE
-    implementation 'com.github.Apollo-Core:EE-Core:vertx-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Guice:vertex-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Model:vertex-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Enactables:vertex-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:SC-Core:vertex-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Core:master-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Guice:main-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Model:main-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Enactables:master-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:SC-Core:main-SNAPSHOT'
   }
 
   // dependency to Opt4J
