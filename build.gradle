@@ -35,11 +35,11 @@ dependencies {
     implementation project (':SC-Core')
   }else {
     // dependencies to other parts of the Apollo Core EE
-    implementation 'com.github.Apollo-Core:EE-Core:master-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Guice:main-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Model:main-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Enactables:master-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:SC-Core:main-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Core:preVertX'
+    implementation 'com.github.Apollo-Core:EE-Guice:preVertX'
+    implementation 'com.github.Apollo-Core:EE-Model:prevertx'
+    implementation 'com.github.Apollo-Core:EE-enactables:preVertX'
+    implementation 'com.github.Apollo-core:SC-Core:preVertX'
   }
 
   // dependency to Opt4J
