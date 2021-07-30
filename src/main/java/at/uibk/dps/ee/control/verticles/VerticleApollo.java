@@ -74,6 +74,7 @@ public abstract class VerticleApollo extends AbstractVerticle {
     try {
       work(triggerTask);
     } catch (WorkerException wExc) {
+      System.err.println(wExc.getMessage());
       this.vertx.eventBus().publish(failureAddress, wExc.getMessage());
     }
   }

@@ -13,7 +13,6 @@ import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import io.vertx.core.shareddata.Lock;
-import at.uibk.dps.ee.model.properties.PropertyServiceData.NodeType;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency.TypeDependency;
 import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
@@ -91,14 +90,19 @@ public class WorkerTransmission extends VerticleApollo {
           final JsonElement content = PropertyServiceData.getContent(src);
           final String key = PropertyServiceDependency.getJsonKey(inEdge);
           functionInput.add(key, content);
-          PropertyServiceDependency.setDataConsumed(inEdge);
-          if (!PropertyServiceData.getNodeType(src).equals(NodeType.Constant)
-              && eGraph.getOutEdges(src).stream()
-                  .allMatch(outEdgeSrc -> PropertyServiceDependency.isDataConsumed(outEdgeSrc))) {
-            PropertyServiceData.resetContent(src);
-            eGraph.getOutEdges(src)
-                .forEach(outEdgeSrc -> PropertyServiceDependency.resetTransmission(outEdgeSrc));
-          }
+
+          // the part resetting the producer content
+          System.err.println("Review whether to throw out the reset");
+          // PropertyServiceDependency.setDataConsumed(inEdge);
+          // if (!PropertyServiceData.getNodeType(src).equals(NodeType.Constant)
+          // && eGraph.getOutEdges(src).stream()
+          // .allMatch(outEdgeSrc ->
+          // PropertyServiceDependency.isDataConsumed(outEdgeSrc))) {
+          // PropertyServiceData.resetContent(src);
+          // eGraph.getOutEdges(src)
+          // .forEach(outEdgeSrc ->
+          // PropertyServiceDependency.resetTransmission(outEdgeSrc));
+          // }
 
         }
         // in the "else" case of the other if edge which is not active and, therefore,

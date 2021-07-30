@@ -1,0 +1,45 @@
+---
+name: "simpleWhile"
+dataIns:
+  - name: "input"
+    type: "number"
+    source: "inputSource"
+workflowBody:
+  - while:
+      name: "while"
+      dataIns:
+        - name: "sum"
+          type: "number"
+          source: "simpleWhile/input"            
+      loopBody:
+        - function:
+            name: "increment"
+            type: "Addition"
+            dataIns:
+            - name: "firstSummand"
+              type: "number"
+              source: "while/sum"
+            - name: "secondSummand"
+              type: "number"
+              source: 1
+            - name: "waitTimeIn"
+              type: "number"
+              source: 1000              
+            dataOuts: 
+            - name: "sum"
+              type: "number"   
+      condition:
+        - data1: "while/counter"
+          data2: 5
+          type: "number"
+          operator: "<"
+          negation: "false"
+          combinedWith: "and"                 
+      dataOuts:
+        - name: "accumulatedSum"
+          type: "number"
+          source: "increment/sum" 
+dataOuts:
+  - name: "overallOutput"
+    type: "number"
+    source: "while/accumulatedSum"
