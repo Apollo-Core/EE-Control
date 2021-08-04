@@ -1,6 +1,7 @@
 package at.uibk.dps.ee.control.transformation;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import com.google.gson.JsonPrimitive;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
@@ -44,12 +45,13 @@ public class GraphTransformWhile implements GraphTransform {
     Set<Task> whileBody = new HashSet<>(graph.getSuccessors(whileStartTask));
     whileBody.forEach(toReplicate -> graph.addVertex(replicateTask(toReplicate)));
     // process the out edges (add the data node replicas)
+    String whileRef = PropertyServiceFunctionUtilityWhile.getWhileStart(whileEnd);
     whileBody.forEach(toReplicate -> graph.getOutEdges(toReplicate)
-        .forEach(outEdge -> processOutEdge(outEdge, graph)));
+        .forEach(outEdge -> processOutEdge(outEdge, graph, whileRef)));
     // process the in edges (connect to the predecessor data nodes)
     whileBody.add(whileEnd);
     whileBody.forEach(toReplicate -> graph.getInEdges(toReplicate)
-        .forEach(inEdge -> processInEdge(inEdge, graph)));
+        .forEach(inEdge -> processInEdge(inEdge, graph, whileRef)));
   }
 
   /**
@@ -118,14 +120,39 @@ public class GraphTransformWhile implements GraphTransform {
    * @param originalInEdge the original in edge (from data to function)
    * @param graph the enactment graph
    */
-  protected void processInEdge(Dependency originalInEdge, EnactmentGraph graph) {
+  protected void processInEdge(Dependency originalInEdge, EnactmentGraph graph, String whileId) {
     Task originalData = graph.getSource(originalInEdge);
     boolean dataIsReplicated = graph.getVertex(getReplicaId(originalData)) != null;
-    Task replicaSrc = dataIsReplicated ? graph.getVertex(getReplicaId(originalData)) : originalData;
+    Task replicaSrc = getReplicaSrc(originalInEdge, graph);
     Task replicaDst = findReplica(graph.getDest(originalInEdge), graph);
-    Dependency replica = addDependencyReplica(replicaSrc, replicaDst, originalInEdge, graph);
-    if (dataIsReplicated) {
+    Dependency replica =
+        addDependencyReplica(replicaSrc, replicaDst, originalInEdge, graph, whileId);
+    if (dataIsReplicated && !PropertyServiceDependency.doesPointToPreviousIteration(replica)) {
       PropertyServiceDependency.resetTransmission(replica);
+    }
+  }
+
+  /**
+   * Returns the node which is to be used as the source for the edge created by
+   * replicating the given edge.
+   * 
+   * @param replicatedEdge the edge being replicated
+   * @param graph the enactment graph
+   * @return the node which is to be used as src
+   */
+  protected Task getReplicaSrc(Dependency replicatedEdge, EnactmentGraph graph) {
+    if (PropertyServiceDependency.isWhileAnnotated(replicatedEdge)) {
+      // there is a difference between first and further iterations
+      return Optional
+          .ofNullable(
+              graph.getVertex(PropertyServiceDependency.getReplicaSrcReference(replicatedEdge)))
+          .orElseThrow(() -> new IllegalStateException("The edge " + replicatedEdge.getId()
+              + " points to a non-existant while replica reference."));
+    } else {
+      // standard dependency
+      Task originalData = graph.getSource(replicatedEdge);
+      boolean dataIsReplicated = graph.getVertex(getReplicaId(originalData)) != null;
+      return dataIsReplicated ? graph.getVertex(getReplicaId(originalData)) : originalData;
     }
   }
 
@@ -136,13 +163,13 @@ public class GraphTransformWhile implements GraphTransform {
    * @param replicaFunc the replicated function
    * @param graph the enactment graph
    */
-  protected void processOutEdge(Dependency originalOutEdge, EnactmentGraph graph) {
+  protected void processOutEdge(Dependency originalOutEdge, EnactmentGraph graph, String whileId) {
     Task replicaFunc = findReplica(graph.getSource(originalOutEdge), graph);
     Task originalData = graph.getDest(originalOutEdge);
     // create the data node replica
     Task replicatedDataNode = replicateDataNode(originalData);
     // connect it to the src replica
-    addDependencyReplica(replicaFunc, replicatedDataNode, originalOutEdge, graph);
+    addDependencyReplica(replicaFunc, replicatedDataNode, originalOutEdge, graph, whileId);
   }
 
   /**
@@ -170,12 +197,21 @@ public class GraphTransformWhile implements GraphTransform {
    * @return the added dependency
    */
   protected Dependency addDependencyReplica(Task replicaSrc, Task replicaDest,
-      Dependency originalDep, EnactmentGraph graph) {
+      Dependency originalDep, EnactmentGraph graph, String whileNodeId) {
     String jsonKey = PropertyServiceDependency.getJsonKey(originalDep);
     Dependency replica =
         PropertyServiceDependency.addDataDependency(replicaSrc, replicaDest, jsonKey, graph);
     originalDep.getAttributeNames()
         .forEach(attrName -> replica.setAttribute(attrName, originalDep.getAttribute(attrName)));
+    if (PropertyServiceDependency.isWhileAnnotated(originalDep)
+        && PropertyServiceDependency.getReplicaWhileFuncRefernce(originalDep).equals(whileNodeId)) {
+      PropertyServiceDependency.resetWhileAnnotation(replica);
+      PropertyServiceDependency.annotatePreviousIterationDependency(replica);
+//      PropertyServiceDependency.annotateWhileReplica(replica,
+//          graph.getVertex(getReplicaId(
+//              graph.getVertex(PropertyServiceDependency.getReplicaSrcReference(originalDep)))),
+//          whileNodeId);
+    }
     return replica;
   }
 
