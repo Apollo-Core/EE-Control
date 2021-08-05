@@ -20,8 +20,9 @@ import net.sf.opendse.model.Task;
 public class WorkerTransformation extends VerticleApollo {
 
   protected final GraphTransformer transformer;
+  protected final PostTransformation postTransformation;
   protected final Set<ModelModificationListener> listeners;
-
+  
   protected final Logger logger = LoggerFactory.getLogger(WorkerTransformation.class);
 
   /**
@@ -31,14 +32,18 @@ public class WorkerTransformation extends VerticleApollo {
    * @param transformer the class with the transform operations for different
    *        tasks
    * @param listeners the transformation listeners
+   * @param postTransformation the object performing the action to trigger the
+   *        next step of the orchestration
    */
   @Inject
   public WorkerTransformation(final EnactmentGraphProvider eGraphProv,
-      final GraphTransformer transformer, final Set<ModelModificationListener> listeners) {
+      final GraphTransformer transformer, final Set<ModelModificationListener> listeners,
+      PostTransformation postTransformation) {
     super(ConstantsVertX.addressRequiredTransformation, ConstantsVertX.addressEnactmentFinished,
         ConstantsVertX.addressFailureAbort, eGraphProv);
     this.transformer = transformer;
     this.listeners = listeners;
+    this.postTransformation = postTransformation;
   }
 
   @Override
@@ -67,6 +72,6 @@ public class WorkerTransformation extends VerticleApollo {
     logger.debug("Thread {}; Transform operation task {} completed.",
         Thread.currentThread().getId(), transformNode.getId());
     listeners.forEach(listener -> listener.reactToModelModification());
-    this.vertx.eventBus().send(successAddress, transformNode.getId());
+    postTransformation.postTransformationTreatment(transformNode, this.vertx.eventBus());
   }
 }

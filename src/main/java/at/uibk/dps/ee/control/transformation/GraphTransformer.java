@@ -1,5 +1,7 @@
 package at.uibk.dps.ee.control.transformation;
 
+import com.google.gson.JsonObject;
+import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction.UsageType;
@@ -32,7 +34,14 @@ public class GraphTransformer {
       }
     } else if (PropertyServiceFunction.getUsageType(functionNode).equals(UsageType.Utility)) {
       if (PropertyServiceFunctionUtility.getUtilityType(functionNode).equals(UtilityType.While)) {
-        return new GraphTransformWhile();
+        // check the while decision
+        JsonObject content = PropertyServiceFunction.getOutput(functionNode);
+        if (!content.has(ConstantsEEModel.JsonKeyWhileDecision)) {
+          throw new IllegalArgumentException(
+              "While decision variable not set in the while end task " + functionNode);
+        }
+        boolean whileGoesOn = content.get(ConstantsEEModel.JsonKeyWhileDecision).getAsBoolean();
+        return whileGoesOn ? new GraphTransformWhile() : new GraphTransformWhileCollapse();
       }
     }
     throw new IllegalArgumentException("Unknown type of data flow operation.");

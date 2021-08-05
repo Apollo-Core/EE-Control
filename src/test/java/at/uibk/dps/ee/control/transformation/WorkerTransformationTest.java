@@ -19,8 +19,8 @@ class WorkerTransformationTest {
 
   protected class MockWorker extends WorkerTransformation {
     public MockWorker(EnactmentGraphProvider eGraphProv, GraphTransformer transformer,
-        Set<ModelModificationListener> listeners) {
-      super(eGraphProv, transformer, listeners);
+        Set<ModelModificationListener> listeners, PostTransformation postTransformation) {
+      super(eGraphProv, transformer, listeners, postTransformation);
     }
 
     public void setVertX(Vertx vertx) {
@@ -30,6 +30,7 @@ class WorkerTransformationTest {
 
   GraphTransformer transformer;
   GraphTransform operation;
+  PostTransformation postTransformation;
   ModelModificationListener listener;
   EventBus eBus;
   Task input;
@@ -53,6 +54,7 @@ class WorkerTransformationTest {
     input = new Task("task");
     transformer = mock(GraphTransformer.class);
     operation = mock(GraphTransform.class);
+    postTransformation = mock(PostTransformation.class);
     when(transformer.getTransformOperation(input)).thenReturn(operation);
     Vertx vertx = mock(Vertx.class);
     eBus = mock(EventBus.class);
@@ -63,7 +65,7 @@ class WorkerTransformationTest {
     listener = mock(ModelModificationListener.class);
     Set<ModelModificationListener> listeners = new HashSet<>();
     listeners.add(listener);
-    tested = new MockWorker(eProv, transformer, listeners);
+    tested = new MockWorker(eProv, transformer, listeners, postTransformation);
     tested.setVertX(vertx);
   }
 }

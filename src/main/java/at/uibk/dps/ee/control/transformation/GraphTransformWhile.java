@@ -11,6 +11,7 @@ import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionUtility.UtilityType;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionUtilityWhile;
+import at.uibk.dps.ee.model.properties.PropertyServiceReproduction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction.UsageType;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionUser;
 import net.sf.opendse.model.Communication;
@@ -27,6 +28,10 @@ public class GraphTransformWhile implements GraphTransform {
 
   @Override
   public void modifyEnactmentGraph(EnactmentGraph graph, Task whileEnd) {
+    // Get the reference to the originalWhileEnd
+    Task dataOutCompound = graph.getSuccessors(whileEnd).iterator().next();
+    String referenceOriginalWhileEnd =
+        PropertyServiceData.getOriginalWhileEndReference(dataOutCompound);
     // get all the functions which have to be replicated
     String whileStartRef = PropertyServiceFunctionUtilityWhile.getWhileStart(whileEnd);
     Task whileStartTask = graph.getVertex(whileStartRef);
@@ -35,7 +40,7 @@ public class GraphTransformWhile implements GraphTransform {
         graph.getVertex(PropertyServiceFunctionUtilityWhile.getWhileCounterReference(whileEnd));
     PropertyServiceData.incrementWhileCounter(whileCounter);
     // integrate replica of while end
-    Task whileEndRep = replicateWhileEnd(graph, whileEnd);
+    Task whileEndRep = replicateWhileEnd(graph, whileEnd, referenceOriginalWhileEnd);
     // integrate replica of while start
     Task whileStartRep = replicateWhileStart(graph, whileStartTask, whileEnd);
     PropertyServiceFunctionUtilityWhile.setWhileStart(whileEndRep, whileStartRep);
@@ -43,7 +48,8 @@ public class GraphTransformWhile implements GraphTransform {
     // their outEdges (contained within the while) and in-edges (potentially
     // pointing to things outside the while body)
     Set<Task> whileBody = new HashSet<>(graph.getSuccessors(whileStartTask));
-    whileBody.forEach(toReplicate -> graph.addVertex(replicateTask(toReplicate)));
+    whileBody.forEach(
+        toReplicate -> graph.addVertex(replicateTask(toReplicate, referenceOriginalWhileEnd)));
     // process the out edges (add the data node replicas)
     String whileRef = PropertyServiceFunctionUtilityWhile.getWhileStart(whileEnd);
     whileBody.forEach(toReplicate -> graph.getOutEdges(toReplicate)
@@ -71,8 +77,9 @@ public class GraphTransformWhile implements GraphTransform {
    * @param whileEnd the while end node
    * @return the replica of the while end
    */
-  protected Task replicateWhileEnd(EnactmentGraph graph, Task whileEnd) {
-    Task result = replicateTask(whileEnd);
+  protected Task replicateWhileEnd(EnactmentGraph graph, Task whileEnd,
+      String originalWhileEndRef) {
+    Task result = replicateTask(whileEnd, originalWhileEndRef);
     // attach all successors of the original to the replica
     graph.getOutEdges(whileEnd)
         .forEach(outEdge -> transferOutputEdge(graph, whileEnd, result, outEdge));
@@ -123,7 +130,7 @@ public class GraphTransformWhile implements GraphTransform {
   protected void processInEdge(Dependency originalInEdge, EnactmentGraph graph, String whileId) {
     Task originalData = graph.getSource(originalInEdge);
     boolean dataIsReplicated = graph.getVertex(getReplicaId(originalData)) != null;
-    Task replicaSrc = getReplicaSrc(originalInEdge, graph);
+    Task replicaSrc = getReplicaSrc(originalInEdge, graph, whileId);
     Task replicaDst = findReplica(graph.getDest(originalInEdge), graph);
     Dependency replica =
         addDependencyReplica(replicaSrc, replicaDst, originalInEdge, graph, whileId);
@@ -140,8 +147,10 @@ public class GraphTransformWhile implements GraphTransform {
    * @param graph the enactment graph
    * @return the node which is to be used as src
    */
-  protected Task getReplicaSrc(Dependency replicatedEdge, EnactmentGraph graph) {
-    if (PropertyServiceDependency.isWhileAnnotated(replicatedEdge)) {
+  protected Task getReplicaSrc(Dependency replicatedEdge, EnactmentGraph graph,
+      String whileReference) {
+    if (PropertyServiceDependency.isWhileAnnotated(replicatedEdge) && PropertyServiceDependency
+        .getReplicaWhileFuncRefernce(replicatedEdge).equals(whileReference)) {
       // there is a difference between first and further iterations
       return Optional
           .ofNullable(
@@ -207,10 +216,6 @@ public class GraphTransformWhile implements GraphTransform {
         && PropertyServiceDependency.getReplicaWhileFuncRefernce(originalDep).equals(whileNodeId)) {
       PropertyServiceDependency.resetWhileAnnotation(replica);
       PropertyServiceDependency.annotatePreviousIterationDependency(replica);
-//      PropertyServiceDependency.annotateWhileReplica(replica,
-//          graph.getVertex(getReplicaId(
-//              graph.getVertex(PropertyServiceDependency.getReplicaSrcReference(originalDep)))),
-//          whileNodeId);
     }
     return replica;
   }
@@ -233,9 +238,10 @@ public class GraphTransformWhile implements GraphTransform {
    * Replicates the providedtask by creating a copy of it, representing the
    * processing in the next iteration.
    * 
-   * @param original
+   * @param original the original task
+   * @param whileReference the reference to the while task
    */
-  protected Task replicateTask(Task original) {
+  protected Task replicateTask(Task original, String originalWhileEndRef) {
     String replicaId = getReplicaId(original);
     Task result = new Task(replicaId);
     original.getAttributeNames()
@@ -243,11 +249,13 @@ public class GraphTransformWhile implements GraphTransform {
     PropertyServiceFunction.resetInput(result);
     PropertyServiceFunction.resetOutput(result);
     if (PropertyServiceFunction.getUsageType(result).equals(UsageType.User)) {
-      String originalId = PropertyServiceFunctionUser.isSeqReplica(original)
+      String originalRef = PropertyServiceFunctionUser.isSeqReplica(original)
           ? PropertyServiceFunctionUser.getOriginalRef(original)
           : original.getId();
-      PropertyServiceFunctionUser.setOriginalRef(result, originalId);
+      PropertyServiceFunctionUser.setWhileRef(result, originalRef);
     }
+    // set the while end reference
+    PropertyServiceReproduction.setOriginalWhileEndReference(result, originalWhileEndRef);
     return result;
   }
 

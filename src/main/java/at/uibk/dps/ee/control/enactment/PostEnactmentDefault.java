@@ -1,10 +1,7 @@
 package at.uibk.dps.ee.control.enactment;
 
-import com.google.gson.JsonObject;
 import com.google.inject.Singleton;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
-import at.uibk.dps.ee.model.constants.ConstantsEEModel;
-import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionUtilityWhile;
 import io.vertx.core.eventbus.EventBus;
@@ -40,26 +37,6 @@ public class PostEnactmentDefault implements PostEnactment {
   protected boolean requiresTransformation(final Task task) {
     return PropertyServiceFunctionDataFlowCollections.isAggregationNode(task)
         || PropertyServiceFunctionDataFlowCollections.isDistributionNode(task)
-        || whileRequiresTransformation(task);
-  }
-
-  /**
-   * Returns true iff the provided task (a) is a while end and (b) requires a
-   * graph transformation (to create the next iteration of the while body).
-   * 
-   * @param task the provided task
-   * @return true iff the provided task (a) is a while end and (b) requires a
-   *         graph transformation (to create the next iteration of the while body)
-   */
-  protected boolean whileRequiresTransformation(Task task) {
-    if (!PropertyServiceFunctionUtilityWhile.isWhileEndTask(task)) {
-      return false;
-    }
-    JsonObject content = PropertyServiceFunction.getOutput(task);
-    if (!content.has(ConstantsEEModel.JsonKeyWhileDecision)) {
-      throw new IllegalArgumentException(
-          "While decision variable not set in the while end task " + task);
-    }
-    return content.get(ConstantsEEModel.JsonKeyWhileDecision).getAsBoolean();
+        || PropertyServiceFunctionUtilityWhile.isWhileEndTask(task);
   }
 }

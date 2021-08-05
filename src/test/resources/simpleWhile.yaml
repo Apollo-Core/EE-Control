@@ -36,10 +36,10 @@ workflowBody:
           negation: "false"
           combinedWith: "and"                 
       dataOuts:
-        - name: "accumulatedSum"
+        - name: "sum"
           type: "number"
           source: "increment/sum" 
 dataOuts:
   - name: "overallOutput"
     type: "number"
-    source: "while/accumulatedSum"
+    source: "while/sum"
