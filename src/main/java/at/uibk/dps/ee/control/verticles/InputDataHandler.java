@@ -61,7 +61,7 @@ public class InputDataHandler {
    * 
    * @param constantNode the constant node to process
    */
-  protected void processConstantNode(Task constantNode) {
+  protected void processConstantNode(final Task constantNode) {
     logger.debug("Availability of constant node {} advertized.", constantNode.getId());
     eBus.send(ConstantsVertX.addressDataAvailable, constantNode.getId());
   }

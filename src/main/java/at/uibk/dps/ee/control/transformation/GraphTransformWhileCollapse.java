@@ -53,11 +53,11 @@ public class GraphTransformWhileCollapse implements GraphTransform {
     functionsToRemove.forEach(nodeToRemove -> removeReplicatedFunctionNode(nodeToRemove, graph));
     // remove the now disconnected data nodes
     final Set<Task> disconnected = graph.getVertices().stream().filter(
-        vertex -> (graph.getSuccessorCount(vertex) == 0 && graph.getPredecessorCount(vertex) == 0))
+        vertex -> graph.getSuccessorCount(vertex) == 0 && graph.getPredecessorCount(vertex) == 0)
         .collect(Collectors.toSet());
     disconnected.forEach(disconnectedNode -> graph.removeVertex(disconnectedNode));
     graph.getVertices().stream().filter(task -> TaskPropertyService.isCommunication(task))
-        .filter(dataNode -> (graph.getIncidentEdges(dataOut).size() == 0))
+        .filter(dataNode -> graph.getIncidentEdges(dataOut).size() == 0)
         .forEach(toRemove -> graph.removeVertex(toRemove));
     // reset the while counter
     final String whileCounterReference =

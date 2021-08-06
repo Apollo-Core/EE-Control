@@ -22,7 +22,7 @@ public class WorkerTransformation extends VerticleApollo {
   protected final GraphTransformer transformer;
   protected final PostTransformation postTransformation;
   protected final Set<ModelModificationListener> listeners;
-  
+
   protected final Logger logger = LoggerFactory.getLogger(WorkerTransformation.class);
 
   /**
@@ -38,7 +38,7 @@ public class WorkerTransformation extends VerticleApollo {
   @Inject
   public WorkerTransformation(final EnactmentGraphProvider eGraphProv,
       final GraphTransformer transformer, final Set<ModelModificationListener> listeners,
-      PostTransformation postTransformation) {
+      final PostTransformation postTransformation) {
     super(ConstantsVertX.addressRequiredTransformation, ConstantsVertX.addressEnactmentFinished,
         ConstantsVertX.addressFailureAbort, eGraphProv);
     this.transformer = transformer;

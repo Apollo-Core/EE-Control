@@ -71,7 +71,7 @@ public class GraphTransformWhile implements GraphTransform {
    * @return the replica of the while end
    */
   protected Task replicateWhileEnd(final EnactmentGraph graph, final Task whileEnd,
-      final String originalWhileEndRef, String originalWhileStart) {
+      final String originalWhileEndRef, final String originalWhileStart) {
     final Task result = replicateTask(whileEnd, originalWhileEndRef, originalWhileStart);
     // attach all successors of the original to the replica
     graph.getOutEdges(whileEnd)
@@ -89,9 +89,10 @@ public class GraphTransformWhile implements GraphTransform {
    */
   protected void transferOutputEdge(final EnactmentGraph graph, final Task original,
       final Task replica, final Dependency originalOutEdge) {
-    Task dst = graph.getDest(originalOutEdge);
-    String jsonKey = PropertyServiceDependency.getJsonKey(originalOutEdge);
-    Dependency newEdge = PropertyServiceDependency.addDataDependency(replica, dst, jsonKey, graph);
+    final Task dst = graph.getDest(originalOutEdge);
+    final String jsonKey = PropertyServiceDependency.getJsonKey(originalOutEdge);
+    final Dependency newEdge =
+        PropertyServiceDependency.addDataDependency(replica, dst, jsonKey, graph);
     originalOutEdge.getAttributeNames().forEach(
         attrName -> newEdge.setAttribute(attrName, originalOutEdge.getAttribute(attrName)));
     graph.removeEdge(originalOutEdge);
@@ -107,7 +108,7 @@ public class GraphTransformWhile implements GraphTransform {
    */
   protected Task replicateWhileStart(final EnactmentGraph graph, final Task whileStart,
       final Task whileEnd, final String originalWhileStart) {
-    Task whileStartRep = replicateDataNode(whileStart, originalWhileStart);
+    final Task whileStartRep = replicateDataNode(whileStart, originalWhileStart);
     PropertyServiceDependency.addDataDependency(whileEnd, whileStartRep,
         ConstantsEEModel.JsonKeyWhileDecision, graph);
     return whileStartRep;
@@ -124,7 +125,7 @@ public class GraphTransformWhile implements GraphTransform {
   protected void processInEdge(final Dependency originalInEdge, final EnactmentGraph graph,
       final String whileId, final String originalWhileStart) {
     final Task originalData = graph.getSource(originalInEdge);
-    boolean dataIsReplicated =
+    final boolean dataIsReplicated =
         graph.getVertex(getReplicaId(originalData, originalWhileStart)) != null;
     final Task replicaSrc = getReplicaSrc(originalInEdge, graph, whileId, originalWhileStart);
     final Task replicaDst = findReplica(graph.getDest(originalInEdge), graph, originalWhileStart);
