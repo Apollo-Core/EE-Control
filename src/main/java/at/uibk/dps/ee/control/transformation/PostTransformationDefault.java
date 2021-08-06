@@ -21,7 +21,8 @@ public class PostTransformationDefault implements PostTransformation {
   protected final String enactAddress = ConstantsVertX.addressEnactmentFinished;
 
   @Override
-  public void postTransformationTreatment(Task transformationTriggerTask, EventBus eventBus) {
+  public void postTransformationTreatment(final Task transformationTriggerTask,
+      final EventBus eventBus) {
     // in case of the parFor transformations, just say that stuff is enacted
     if (PropertyServiceFunctionDataFlowCollections.isAggregationNode(transformationTriggerTask)
         || PropertyServiceFunctionDataFlowCollections
@@ -43,15 +44,15 @@ public class PostTransformationDefault implements PostTransformation {
    *        executed.
    * @param eBus the vertX event bus
    */
-  protected void postTransformWhile(Task whileEndTask, EventBus eBus) {
-    JsonObject output = PropertyServiceFunction.getOutput(whileEndTask);
-    boolean whileContinued = output.get(ConstantsEEModel.JsonKeyWhileDecision).getAsBoolean();
+  protected void postTransformWhile(final Task whileEndTask, final EventBus eBus) {
+    final JsonObject output = PropertyServiceFunction.getOutput(whileEndTask);
+    final boolean whileContinued = output.get(ConstantsEEModel.JsonKeyWhileDecision).getAsBoolean();
     if (whileContinued) {
       // just built the next iteration => enact the while end (replica)
       eBus.send(enactAddress, whileEndTask.getId());
     } else {
       // while finished and collapsed => enact the original while end
-      String originalWhileEndReference =
+      final String originalWhileEndReference =
           PropertyServiceReproduction.getOriginalWhileEndReference(whileEndTask);
       eBus.send(enactAddress, originalWhileEndReference);
     }
@@ -64,7 +65,7 @@ public class PostTransformationDefault implements PostTransformation {
    * @param parallelForTask distribution/aggregation task of a parallel for
    * @param eBus the vertX event bus
    */
-  protected void postTransformParFor(Task parallelForTask, EventBus eBus) {
+  protected void postTransformParFor(final Task parallelForTask, final EventBus eBus) {
     eBus.send(enactAddress, parallelForTask.getId());
   }
 }

@@ -27,15 +27,15 @@ import net.sf.opendse.model.properties.TaskPropertyService;
 public class GraphTransformWhileCollapse implements GraphTransform {
 
   @Override
-  public void modifyEnactmentGraph(EnactmentGraph graph, Task whileEnd) {
+  public void modifyEnactmentGraph(final EnactmentGraph graph, final Task whileEnd) {
     // get the reference to the original while end
-    Task dataOut = graph.getSuccessors(whileEnd).iterator().next();
-    String originalWhileEndRef = PropertyServiceData.getOriginalWhileEndReference(dataOut);
+    final Task dataOut = graph.getSuccessors(whileEnd).iterator().next();
+    final String originalWhileEndRef = PropertyServiceData.getOriginalWhileEndReference(dataOut);
     if (originalWhileEndRef.equals(whileEnd.getId())) {
       // finished after first iteration -> no collapsing
       return;
     }
-    Task originalWhileEnd = graph.getVertex(originalWhileEndRef);
+    final Task originalWhileEnd = graph.getVertex(originalWhileEndRef);
     // transfer the output from the replica to the original while end
     transferOutput(originalWhileEnd, whileEnd);
     // remove all edges currently at the original while end
@@ -44,7 +44,7 @@ public class GraphTransformWhileCollapse implements GraphTransform {
     graph.getOutEdges(whileEnd)
         .forEach(outEdge -> transferDataOutEdge(outEdge, whileEnd, originalWhileEnd, graph));
     // gather and remove all function nodes pointing to the original while end
-    Set<Task> functionsToRemove =
+    final Set<Task> functionsToRemove =
         graph.getVertices().stream().filter(task -> TaskPropertyService.isProcess(task))
             .filter(function -> PropertyServiceReproduction.isWhileReplica(function)
                 && PropertyServiceReproduction.getOriginalWhileEndReference(function)
@@ -52,7 +52,7 @@ public class GraphTransformWhileCollapse implements GraphTransform {
             .collect(Collectors.toSet());
     functionsToRemove.forEach(nodeToRemove -> removeReplicatedFunctionNode(nodeToRemove, graph));
     // remove the now disconnected data nodes
-    Set<Task> disconnected = graph.getVertices().stream().filter(
+    final Set<Task> disconnected = graph.getVertices().stream().filter(
         vertex -> (graph.getSuccessorCount(vertex) == 0 && graph.getPredecessorCount(vertex) == 0))
         .collect(Collectors.toSet());
     disconnected.forEach(disconnectedNode -> graph.removeVertex(disconnectedNode));
@@ -60,9 +60,9 @@ public class GraphTransformWhileCollapse implements GraphTransform {
         .filter(dataNode -> (graph.getIncidentEdges(dataOut).size() == 0))
         .forEach(toRemove -> graph.removeVertex(toRemove));
     // reset the while counter
-    String whileCounterReference =
+    final String whileCounterReference =
         PropertyServiceFunctionUtilityWhile.getWhileCounterReference(originalWhileEnd);
-    Task whileCounter = graph.getVertex(whileCounterReference);
+    final Task whileCounter = graph.getVertex(whileCounterReference);
     PropertyServiceData.setContent(whileCounter, new JsonPrimitive(0));
   }
 
@@ -72,8 +72,8 @@ public class GraphTransformWhileCollapse implements GraphTransform {
    * @param originalWhileEnd the original while end
    * @param whileEndReplica the while end replica
    */
-  protected void transferOutput(Task originalWhileEnd, Task whileEndReplica) {
-    JsonObject outputReplica = PropertyServiceFunction.getOutput(whileEndReplica);
+  protected void transferOutput(final Task originalWhileEnd, final Task whileEndReplica) {
+    final JsonObject outputReplica = PropertyServiceFunction.getOutput(whileEndReplica);
     PropertyServiceFunction.resetOutput(originalWhileEnd);
     PropertyServiceFunction.setOutput(originalWhileEnd, outputReplica);
   }
@@ -85,8 +85,8 @@ public class GraphTransformWhileCollapse implements GraphTransform {
    * @param functionNode the given function node
    * @param graph the enactment graph
    */
-  protected void removeReplicatedFunctionNode(Task functionNode, EnactmentGraph graph) {
-    Set<Dependency> edgesToRemove = new HashSet<>(graph.getIncidentEdges(functionNode));
+  protected void removeReplicatedFunctionNode(final Task functionNode, final EnactmentGraph graph) {
+    final Set<Dependency> edgesToRemove = new HashSet<>(graph.getIncidentEdges(functionNode));
     edgesToRemove.forEach(edge -> graph.removeEdge(edge));
     graph.removeVertex(functionNode);
   }
@@ -100,11 +100,11 @@ public class GraphTransformWhileCollapse implements GraphTransform {
    * @param originalWhileEnd the original while end
    * @param graph the enactment graph
    */
-  protected void transferDataOutEdge(Dependency dataOutEdge, Task replicatedWhileEnd,
-      Task originalWhileEnd, EnactmentGraph graph) {
-    Task dataOut = graph.getDest(dataOutEdge);
-    Dependency fromOriginal = PropertyServiceDependency.addDataDependency(originalWhileEnd, dataOut,
-        PropertyServiceDependency.getJsonKey(dataOutEdge), graph);
+  protected void transferDataOutEdge(final Dependency dataOutEdge, final Task replicatedWhileEnd,
+      final Task originalWhileEnd, final EnactmentGraph graph) {
+    final Task dataOut = graph.getDest(dataOutEdge);
+    final Dependency fromOriginal = PropertyServiceDependency.addDataDependency(originalWhileEnd,
+        dataOut, PropertyServiceDependency.getJsonKey(dataOutEdge), graph);
     dataOutEdge.getAttributeNames().forEach(
         attrName -> fromOriginal.setAttribute(attrName, dataOutEdge.getAttribute(attrName)));
     graph.removeEdge(dataOutEdge);
