@@ -46,7 +46,7 @@ class GraphTransformWhileTest {
     assertEquals(12, numDataNodes);
     assertEquals(26, numEdges);
 
-    Task whileEndReplica = input.getVertex("while--whileEnd+");
+    Task whileEndReplica = input.getVertex("while--whileEnd+while");
     
     JsonObject testContent = new JsonObject();
     testContent.add("prop", new JsonPrimitive(42));

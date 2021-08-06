@@ -37,9 +37,9 @@ dependencies {
     // dependencies to other parts of the Apollo Core EE
     implementation 'com.github.Apollo-Core:EE-Core:master-SNAPSHOT'
     implementation 'com.github.Apollo-Core:EE-Guice:main-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Model:main-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Enactables:master-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:SC-Core:main-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Model:seqFor-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Enactables:seqFor-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:SC-Core:seqFor-SNAPSHOT'
   }
 
   // dependency to Opt4J
@@ -64,7 +64,7 @@ dependencies {
   testImplementation('org.junit.jupiter:junit-jupiter')
   
   // Apollo test dependencies
-  testImplementation('com.github.Apollo-Core:EE-IO:main-SNAPSHOT')
+  testImplementation('com.github.Apollo-Core:EE-IO:seqFor-SNAPSHOT')
 }
 
 jacocoTestReport {

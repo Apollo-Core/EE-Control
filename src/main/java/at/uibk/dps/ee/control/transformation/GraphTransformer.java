@@ -44,6 +44,6 @@ public class GraphTransformer {
         return whileGoesOn ? new GraphTransformWhile() : new GraphTransformWhileCollapse();
       }
     }
-    throw new IllegalArgumentException("Unknown type of data flow operation.");
+    throw new IllegalArgumentException("Unknown type of transform operation.");
   }
 }

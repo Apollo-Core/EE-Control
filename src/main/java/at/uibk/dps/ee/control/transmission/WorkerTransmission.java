@@ -60,8 +60,11 @@ public class WorkerTransmission extends VerticleApollo {
     this.vertx.sharedData().getLock("transmission annotation lock", lockRes -> {
       if (lockRes.succeeded()) {
         final Lock lock = lockRes.result();
-        annotateTransmission(transmissionEdge);
+        final boolean inputCompletelyPresent = annotateAndCheck(transmissionEdge);
         lock.release();
+        if (inputCompletelyPresent) {
+          annotateFunctionInput(transmissionEdge);
+        }
       } else {
         throw new IllegalStateException("Failed getting transmission annotation lock");
       }
@@ -69,49 +72,40 @@ public class WorkerTransmission extends VerticleApollo {
   }
 
   /**
-   * Annotates a completed transmission on the corresponding edge. In case that
-   * all in edges of the node are annotated as completed, the node is put into the
-   * schedulable queue.
+   * Annotates the given edge as processed. Returns true iff all in-edges of the
+   * dest function are processed thereafter.
    * 
-   * @param transmissionEdge the transmission edge to annotate
+   * @param transmissionEdge the processed edge
+   * @return true iff all the in-edges of the function dest are processed
    */
-  protected void annotateTransmission(final Dependency transmissionEdge) {
-    final Task functionNode = eGraph.getDest(transmissionEdge);
-    // annotate the dependency
+  protected boolean annotateAndCheck(final Dependency transmissionEdge) {
     PropertyServiceDependency.annotateFinishedTransmission(transmissionEdge);
-    // if all edges done with transmitting
-    if (schedulabilityCheck.isTargetSchedulable(functionNode, eGraph)) {
-      final JsonObject functionInput = new JsonObject();
-      // for all in-edges of the node as processed
-      eGraph.getInEdges(functionNode).forEach(inEdge -> {
-        if (inEdge.equals(transmissionEdge)
-            || !PropertyServiceDependency.getType(inEdge).equals(TypeDependency.ControlIf)) {
-          final Task src = eGraph.getSource(inEdge);
-          final JsonElement content = PropertyServiceData.getContent(src);
-          final String key = PropertyServiceDependency.getJsonKey(inEdge);
-          functionInput.add(key, content);
+    final Task functionNode = eGraph.getDest(transmissionEdge);
+    return schedulabilityCheck.isTargetSchedulable(functionNode, eGraph);
+  }
 
-          // the part resetting the producer content
-          System.err.println("Review whether to throw out the reset");
-          // PropertyServiceDependency.setDataConsumed(inEdge);
-          // if (!PropertyServiceData.getNodeType(src).equals(NodeType.Constant)
-          // && eGraph.getOutEdges(src).stream()
-          // .allMatch(outEdgeSrc ->
-          // PropertyServiceDependency.isDataConsumed(outEdgeSrc))) {
-          // PropertyServiceData.resetContent(src);
-          // eGraph.getOutEdges(src)
-          // .forEach(outEdgeSrc ->
-          // PropertyServiceDependency.resetTransmission(outEdgeSrc));
-          // }
-
-        }
-        // in the "else" case of the other if edge which is not active and, therefore,
-        // ignored
-      });
-      PropertyServiceFunction.setInput(functionNode, functionInput);
-      logger.debug("Thread {}; Task {} is schedulable.", Thread.currentThread().getId(),
-          functionNode.getId());
-      this.vertx.eventBus().send(successAddress, functionNode.getId());
-    }
+  /**
+   * Annotates the inputs for the function destination of the given edge and
+   * advertizes that the function dest can be scheduled.
+   * 
+   * @param transmissionEdge the given edge
+   */
+  protected void annotateFunctionInput(final Dependency transmissionEdge) {
+    final Task functionNode = eGraph.getDest(transmissionEdge);
+    final JsonObject functionInput = new JsonObject();
+    // for all in-edges of the node as processed
+    eGraph.getInEdges(functionNode).forEach(inEdge -> {
+      if (inEdge.equals(transmissionEdge)
+          || !PropertyServiceDependency.getType(inEdge).equals(TypeDependency.ControlIf)) {
+        final Task src = eGraph.getSource(inEdge);
+        final JsonElement content = PropertyServiceData.getContent(src);
+        final String key = PropertyServiceDependency.getJsonKey(inEdge);
+        functionInput.add(key, content);
+      }
+    });
+    PropertyServiceFunction.setInput(functionNode, functionInput);
+    logger.debug("Thread {}; Task {} is schedulable.", Thread.currentThread().getId(),
+        functionNode.getId());
+    this.vertx.eventBus().send(successAddress, functionNode.getId());
   }
 }

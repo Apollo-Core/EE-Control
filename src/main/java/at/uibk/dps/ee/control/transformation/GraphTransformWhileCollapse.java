@@ -46,7 +46,7 @@ public class GraphTransformWhileCollapse implements GraphTransform {
     // gather and remove all function nodes pointing to the original while end
     Set<Task> functionsToRemove =
         graph.getVertices().stream().filter(task -> TaskPropertyService.isProcess(task))
-            .filter(function -> PropertyServiceReproduction.isSequentialReplica(function)
+            .filter(function -> PropertyServiceReproduction.isWhileReplica(function)
                 && PropertyServiceReproduction.getOriginalWhileEndReference(function)
                     .equals(originalWhileEnd.getId()))
             .collect(Collectors.toSet());

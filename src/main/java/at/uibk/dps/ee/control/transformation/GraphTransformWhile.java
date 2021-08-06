@@ -3,7 +3,6 @@ package at.uibk.dps.ee.control.transformation;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import com.google.gson.JsonPrimitive;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
@@ -62,16 +61,6 @@ public class GraphTransformWhile implements GraphTransform {
     whileBody.add(whileEnd);
     whileBody.forEach(toReplicate -> graph.getInEdges(toReplicate)
         .forEach(inEdge -> processInEdge(inEdge, graph, whileRef, originalWhileStartRef)));
-  }
-
-  /**
-   * Increments the while loop counter.
-   * 
-   * @param whileCounter the node with the loop count
-   */
-  protected void incrementWhileCounter(Task whileCounter) {
-    int count = PropertyServiceData.getContent(whileCounter).getAsInt();
-    PropertyServiceData.setContent(whileCounter, new JsonPrimitive(++count));
   }
 
   /**
@@ -157,7 +146,7 @@ public class GraphTransformWhile implements GraphTransform {
   protected Task getReplicaSrc(Dependency replicatedEdge, EnactmentGraph graph,
       String whileReference, String originalWhileStart) {
     if (PropertyServiceDependency.isWhileAnnotated(replicatedEdge) && PropertyServiceDependency
-        .getReplicaWhileFuncRefernce(replicatedEdge).equals(whileReference)) {
+        .getReplicaWhileFuncReference(replicatedEdge).equals(whileReference)) {
       // there is a difference between first and further iterations
       return Optional
           .ofNullable(
@@ -223,7 +212,7 @@ public class GraphTransformWhile implements GraphTransform {
     originalDep.getAttributeNames()
         .forEach(attrName -> replica.setAttribute(attrName, originalDep.getAttribute(attrName)));
     if (PropertyServiceDependency.isWhileAnnotated(originalDep)
-        && PropertyServiceDependency.getReplicaWhileFuncRefernce(originalDep).equals(whileNodeId)) {
+        && PropertyServiceDependency.getReplicaWhileFuncReference(originalDep).equals(whileNodeId)) {
       PropertyServiceDependency.resetWhileAnnotation(replica);
       PropertyServiceDependency.annotatePreviousIterationDependency(replica);
     }
@@ -267,8 +256,8 @@ public class GraphTransformWhile implements GraphTransform {
     PropertyServiceFunction.resetInput(result);
     PropertyServiceFunction.resetOutput(result);
     if (PropertyServiceFunction.getUsageType(result).equals(UsageType.User)) {
-      String originalRef = PropertyServiceFunctionUser.isSeqReplica(original)
-          ? PropertyServiceFunctionUser.getOriginalRef(original)
+      String originalRef = PropertyServiceFunctionUser.isWhileReplica(original)
+          ? PropertyServiceFunctionUser.getWhileRef(original)
           : original.getId();
       PropertyServiceFunctionUser.setWhileRef(result, originalRef);
     }
