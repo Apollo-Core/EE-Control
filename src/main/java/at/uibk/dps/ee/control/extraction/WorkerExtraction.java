@@ -76,7 +76,7 @@ public class WorkerExtraction extends VerticleApollo {
     final JsonElement data =
         dataNodeModelsSequentiality ? new JsonPrimitive(true) : enactmentResult.get(key);
     PropertyServiceData.setContent(dataNode, data);
-    annotateExtractionEdge(outEdge);
+    //annotateExtractionEdge(outEdge);
     logger.debug("Thread {}; Data on node {} available.", Thread.currentThread().getId(),
         dataNode.getId());
     this.vertx.eventBus().send(successAddress, dataNode.getId());
@@ -99,25 +99,6 @@ public class WorkerExtraction extends VerticleApollo {
       });
       this.vertx.eventBus().publish(ConstantsVertX.addressWorkflowResultAvailable,
           result.toString());
-    }
-  }
-
-  /**
-   * Annotates that the extraction modeled by the given edge is finished.
-   * 
-   * @param extractionEdge the given edge.
-   */
-  protected void annotateExtractionEdge(final Dependency extractionEdge) {
-    PropertyServiceDependency.setExtractionDone(extractionEdge);
-    final Task process = eGraph.getSource(extractionEdge);
-    // check if extraction done for all out edges
-    if (eGraph.getOutEdges(process).stream()
-        .allMatch(outEdge -> PropertyServiceDependency.isExtractionDone(outEdge))) {
-      // reset the edge annotation
-      eGraph.getOutEdges(process)
-          .forEach(outEdge -> PropertyServiceDependency.resetExtractionDone(outEdge));
-      // reset the enactable state
-      logger.error("Schedule reset still has to be implemented");
     }
   }
 }

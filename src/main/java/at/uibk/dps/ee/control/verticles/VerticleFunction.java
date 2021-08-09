@@ -24,7 +24,8 @@ public class VerticleFunction implements CoreFunction {
 
   protected final VerticleManager vManager;
   protected final InputDataHandler dataHandler;
-  protected final Promise<JsonObject> resultPromise;
+  protected final PromiseProvider promiseProvider;
+  protected Promise<JsonObject> currentPromise;
   protected final EventBus eBus;
 
   /**
@@ -41,7 +42,7 @@ public class VerticleFunction implements CoreFunction {
     this.vManager = vManager;
     this.dataHandler = dataHandler;
     this.eBus = vProv.geteBus();
-    this.resultPromise = pProv.getJsonPromise();
+    this.promiseProvider = pProv;
     eBus.consumer(ConstantsVertX.addressWorkflowResultAvailable, this::resultHandler);
     vManager.deployVerticles();
   }
@@ -54,13 +55,14 @@ public class VerticleFunction implements CoreFunction {
    */
   protected void resultHandler(final Message<String> resultMessage) {
     final JsonObject resultObject = JsonParser.parseString(resultMessage.body()).getAsJsonObject();
-    resultPromise.complete(resultObject);
+    currentPromise.complete(resultObject);
   }
 
   @Override
   public Future<JsonObject> processInput(final JsonObject input) {
     dataHandler.processInput(input);
-    return resultPromise.future();
+    currentPromise = promiseProvider.getJsonPromise();
+    return currentPromise.future();
   }
 
   @Override

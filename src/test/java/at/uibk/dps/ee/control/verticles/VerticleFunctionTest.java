@@ -67,6 +67,7 @@ class VerticleFunctionTest {
     @SuppressWarnings("unchecked")
     Message<String> mockMessage = mock(Message.class);
     when(mockMessage.body()).thenReturn(result.toString());
+    tested.currentPromise = tested.promiseProvider.getJsonPromise();
     tested.resultHandler(mockMessage);
     verify(resultPromise).complete(any(JsonObject.class));
   }
