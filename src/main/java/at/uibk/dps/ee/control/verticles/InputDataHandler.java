@@ -10,7 +10,7 @@ import at.uibk.dps.ee.guice.starter.VertxProvider;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
-import at.uibk.dps.ee.model.utils.EnactmentGraphUtils;
+import at.uibk.dps.ee.model.utils.UtilsEnactmentGraph;
 import io.vertx.core.eventbus.EventBus;
 import net.sf.opendse.model.Task;
 
@@ -49,9 +49,9 @@ public class InputDataHandler {
    * @param input the workflow input
    */
   public void processInput(final JsonObject input) {
-    EnactmentGraphUtils.getNonConstRootNodes(eGraph)
+    UtilsEnactmentGraph.getNonConstRootNodes(eGraph)
         .forEach(rootNode -> processRootNode(rootNode, input));
-    EnactmentGraphUtils.getConstantDataNodes(eGraph)
+    UtilsEnactmentGraph.getConstantDataNodes(eGraph)
         .forEach(constantNode -> processConstantNode(constantNode));
   }
 
