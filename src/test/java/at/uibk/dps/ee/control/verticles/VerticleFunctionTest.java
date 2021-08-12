@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import at.uibk.dps.ee.control.failure.FailureHandler;
 import at.uibk.dps.ee.guice.starter.VertxProvider;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -24,7 +25,10 @@ class VerticleFunctionTest {
   Vertx vertx;
   EventBus eBus;
   Promise<JsonObject> resultPromise;
-  
+  FailureHandler failureHandler;
+  Message<String> failureMessage;
+  String failureString;
+
   JsonObject result;
 
   @SuppressWarnings("unchecked")
@@ -32,7 +36,7 @@ class VerticleFunctionTest {
   public void setup() {
     result = new JsonObject();
     result.add("result", new JsonPrimitive(42));
-    
+
     inputHandler = mock(InputDataHandler.class);
     verticleManager = mock(VerticleManager.class);
     vertx = mock(Vertx.class);
@@ -46,7 +50,22 @@ class VerticleFunctionTest {
     resultPromise = mock(Promise.class);
     when(pProv.getJsonPromise()).thenReturn(resultPromise);
 
-    tested = new VerticleFunction(inputHandler, verticleManager, vProv, pProv);
+    failureHandler = mock(FailureHandler.class);
+    failureMessage = mock(Message.class);
+    failureString = "stuff failed";
+    when(failureMessage.body()).thenReturn(failureString);
+
+    tested = new VerticleFunction(inputHandler, verticleManager, vProv, pProv, failureHandler);
+  }
+  
+  /**
+   * Test that the correct failure handling is performed.
+   */
+  @Test
+  void testFailureHandling() {
+    tested.currentPromise = resultPromise;
+    tested.handleFailure(failureMessage);
+    verify(failureHandler).handleFailure(failureString, resultPromise, vertx);
   }
 
   /**
@@ -68,7 +87,7 @@ class VerticleFunctionTest {
     Message<String> mockMessage = mock(Message.class);
     when(mockMessage.body()).thenReturn(result.toString());
     tested.currentPromise = tested.promiseProvider.getJsonPromise();
-    tested.resultHandler(mockMessage);
+    tested.handleResult(mockMessage);
     verify(resultPromise).complete(any(JsonObject.class));
   }
 

@@ -21,9 +21,6 @@ public final class ConstantsVertX {
 
   // Event bus addresses
 
-  // requests that the schedule of a task is reset, has task id as message body
-  public static final String addressResetScheduleTask = "RESET_SCHEDULE_TASK";
-
   // Control Addresses
   public static final String addressControlPause = "PAUSE_ADDRESS";
   public static final String addressControlResume = "RESUME_ADDRESS";
@@ -58,10 +55,6 @@ public final class ConstantsVertX {
   // failures
 
   public static final String addressFailureAbort = "FAILURE_ABORT";
-
-
-  // placeholder for handlers not using certain addresses
-  public static final String addressPlaceholder = "404";
 
 
   /**

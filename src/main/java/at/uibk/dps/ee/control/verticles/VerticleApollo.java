@@ -2,6 +2,8 @@ package at.uibk.dps.ee.control.verticles;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import io.vertx.core.AbstractVerticle;
@@ -22,6 +24,8 @@ public abstract class VerticleApollo extends AbstractVerticle {
   protected final String failureAddress;
 
   protected final EnactmentGraph eGraph;
+  
+  protected final Logger logger = LoggerFactory.getLogger(VerticleApollo.class);
 
   protected boolean paused;
   protected final List<Task> queue = new ArrayList<>();
@@ -74,7 +78,7 @@ public abstract class VerticleApollo extends AbstractVerticle {
     try {
       work(triggerTask);
     } catch (WorkerException wExc) {
-      System.err.println(wExc.getMessage());
+      logger.error("Worker Exception Encountered.", wExc);
       this.vertx.eventBus().publish(failureAddress, wExc.getMessage());
     }
   }
