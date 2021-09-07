@@ -10,7 +10,6 @@ import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.sc.core.ScheduleModel;
 import at.uibk.dps.sc.core.interpreter.ScheduleInterpreter;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
@@ -58,11 +57,7 @@ class WorkerEnactmentTest {
    */
   @Test
   void testProcessResult() {
-    @SuppressWarnings("unchecked")
-    AsyncResult<JsonObject> aRes = mock(AsyncResult.class);
-    when(aRes.result()).thenReturn(result);
-    
-    tested.processResult(aRes, functionTask);
+    tested.processResult(result, functionTask);
     assertTrue(PropertyServiceFunction.isOutputSet(functionTask));
     assertEquals(result, PropertyServiceFunction.getOutput(functionTask));
     verify(postEnactment).postEnactmentTreatment(functionTask, eBus);

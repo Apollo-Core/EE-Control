@@ -8,23 +8,24 @@ package at.uibk.dps.ee.control.verticles;
 public final class ConstantsVertX {
 
   // Apollo Verticle logging ID
-  
+
   // still have to figure our more sensible settings for these
   public static final String typeId = "Apollo Instance";
+  public static final String functionId = "Apollo WF Verticle";
   public static final String enactmentMode = "enactment mode";
   public static final String implId = "implId";
-  
+
   // Event bus messages
   public static final String messagePause = "pause";
   public static final String messageResume = "resume";
-  
+
 
   // Event bus addresses
 
   // Control Addresses
   public static final String addressControlPause = "PAUSE_ADDRESS";
   public static final String addressControlResume = "RESUME_ADDRESS";
-  
+
   // worker addresses
 
   // normal procedures

@@ -12,7 +12,6 @@ import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.sc.core.ScheduleModel;
 import at.uibk.dps.sc.core.interpreter.ScheduleInterpreter;
-import io.vertx.core.AsyncResult;
 import net.sf.opendse.model.Task;
 
 /**
@@ -52,8 +51,14 @@ public class WorkerEnactment extends VerticleApollo {
   protected void work(final Task functionNode) throws WorkerException {
     final EnactmentFunction function =
         interpreter.interpretSchedule(functionNode, scheduleModel.getTaskSchedule(functionNode));
-    function.processInput(PropertyServiceFunction.getInput(functionNode))
-        .onComplete(jsonResult -> processResult(jsonResult, functionNode));
+    function.processInput(PropertyServiceFunction.getInput(functionNode)).onComplete(asyncRes -> {
+      if (asyncRes.succeeded()) {
+        processResult(asyncRes.result(), functionNode);
+      } else {
+        logger.error("Exception during enactment", asyncRes.cause());
+        failureHandler(asyncRes.cause());
+      }
+    });
   }
 
   /**
@@ -63,9 +68,9 @@ public class WorkerEnactment extends VerticleApollo {
    * @param result the operation result
    * @param functionNode the function node
    */
-  protected void processResult(final AsyncResult<JsonObject> result, final Task functionNode) {
+  protected void processResult(final JsonObject result, final Task functionNode) {
     logger.debug("Enactment finished for task {}.", functionNode.getId());
-    PropertyServiceFunction.setOutput(functionNode, result.result());
+    PropertyServiceFunction.setOutput(functionNode, result);
     postEnactment.postEnactmentTreatment(functionNode, this.vertx.eventBus());
   }
 }

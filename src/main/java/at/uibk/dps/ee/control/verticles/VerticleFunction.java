@@ -92,6 +92,11 @@ public class VerticleFunction implements CoreFunction {
   }
 
   @Override
+  public String getFunctionId() {
+    return ConstantsVertX.functionId;
+  }
+
+  @Override
   public String getEnactmentMode() {
     return ConstantsVertX.enactmentMode;
   }

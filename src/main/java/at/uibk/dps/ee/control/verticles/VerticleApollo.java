@@ -24,7 +24,7 @@ public abstract class VerticleApollo extends AbstractVerticle {
   protected final String failureAddress;
 
   protected final EnactmentGraph eGraph;
-  
+
   protected final Logger logger = LoggerFactory.getLogger(VerticleApollo.class);
 
   protected boolean paused;
@@ -79,8 +79,18 @@ public abstract class VerticleApollo extends AbstractVerticle {
       work(triggerTask);
     } catch (WorkerException wExc) {
       logger.error("Worker Exception Encountered.", wExc);
-      this.vertx.eventBus().publish(failureAddress, wExc.getMessage());
+      failureHandler(wExc);
     }
+  }
+
+  /**
+   * Write a failure message to the event bus so that the verticle responsible to
+   * failure treatment can take care of it.
+   * 
+   * @param cause the cause of the failure.
+   */
+  protected void failureHandler(final Throwable cause) {
+    this.vertx.eventBus().publish(failureAddress, cause.getMessage());
   }
 
   /**
