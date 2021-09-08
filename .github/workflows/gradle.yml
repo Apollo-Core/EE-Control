@@ -40,3 +40,9 @@ jobs:
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
         max-allowed-issues: 10
+    - name: Run integration tests
+      run: |
+        curl -X POST https://api.github.com/repos/Apollo-Core/IntegrationTests/dispatches \
+        -H 'Accept: application/vnd.github.everest-preview+json' \
+        -u ${{ secrets.IT_ACCESS_TOKEN }} \
+        --data '{"event_type": "Push to '"$GITHUB_REPOSITORY"'", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
