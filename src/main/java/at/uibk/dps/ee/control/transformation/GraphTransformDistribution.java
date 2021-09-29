@@ -155,7 +155,9 @@ public class GraphTransformDistribution implements GraphTransform {
   protected Optional<Task> reproduceNode(final EnactmentGraph graph, final Task original,
       final int reproductionIdx) {
     final String offspringId = getReproducedId(original.getId(), reproductionIdx);
-    final Task offspring = Optional.ofNullable(graph.getVertex(offspringId)).orElseGet(() -> {
+    if (graph.containsVertex(offspringId)) {
+      return Optional.of(graph.getVertex(offspringId));
+    } else {
       final boolean adjustScope =
           PropertyServiceFunctionDataFlowCollections.isAggregationNode(original)
               || PropertyServiceFunctionDataFlowCollections.isDistributionNode(original);
@@ -172,9 +174,8 @@ public class GraphTransformDistribution implements GraphTransform {
             + ConstantsEEModel.KeywordSeparator1 + reproductionIdx;
         PropertyServiceFunctionDataFlowCollections.setScope(task, adjustedScope);
       }
-      return task;
-    });
-    return Optional.of(offspring);
+      return Optional.of(task);
+    }
   }
 
   /**
