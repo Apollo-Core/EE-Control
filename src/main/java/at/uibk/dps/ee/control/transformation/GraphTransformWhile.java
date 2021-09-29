@@ -126,7 +126,7 @@ public class GraphTransformWhile implements GraphTransform {
       final String whileId, final String originalWhileStart) {
     final Task originalData = graph.getSource(originalInEdge);
     final boolean dataIsReplicated =
-        graph.getVertex(getReplicaId(originalData, originalWhileStart)) != null;
+        graph.containsVertex(getReplicaId(originalData, originalWhileStart));
     final Task replicaSrc = getReplicaSrc(originalInEdge, graph, whileId, originalWhileStart);
     final Task replicaDst = findReplica(graph.getDest(originalInEdge), graph, originalWhileStart);
     final Dependency replica =
@@ -158,7 +158,7 @@ public class GraphTransformWhile implements GraphTransform {
       // standard dependency
       final Task originalData = graph.getSource(replicatedEdge);
       final boolean dataIsReplicated =
-          graph.getVertex(getReplicaId(originalData, originalWhileStart)) != null;
+          graph.containsVertex(getReplicaId(originalData, originalWhileStart));
       return dataIsReplicated ? graph.getVertex(getReplicaId(originalData, originalWhileStart))
           : originalData;
     }

@@ -98,12 +98,18 @@ public class GraphTransformDistributionAggregationTest {
 
     // run the tests
     // enactable not finished
+    
+    
+    
     testedAggregation.modifyEnactmentGraph(testInput, aggregation);
+    
     assertEquals(14, testInput.getVertexCount());
     assertEquals(17, testInput.getEdgeCount());
     // test the reverse operation when enactable finished
     PropertyServiceFunction.setInput(aggregation, new JsonObject());
     testedAggregation.modifyEnactmentGraph(testInput, aggregation);
+    
+    //EnactmentGraphViewer.view(testInput);
     assertEquals(8, testInput.getVertexCount());
     assertEquals(7, testInput.getEdgeCount());
   }

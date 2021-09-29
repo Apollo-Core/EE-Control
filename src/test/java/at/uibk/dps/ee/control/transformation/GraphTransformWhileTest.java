@@ -36,6 +36,7 @@ class GraphTransformWhileTest {
     assertEquals(13, numEdges);
 
     tested.modifyEnactmentGraph(input, whileEndTask);
+    
 
     numFunctionNodes = (int) input.getVertices().stream()
         .filter(node -> TaskPropertyService.isProcess(node)).count();
