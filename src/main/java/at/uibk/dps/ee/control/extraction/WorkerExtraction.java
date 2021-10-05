@@ -66,6 +66,9 @@ public class WorkerExtraction extends VerticleApollo {
     final Task dataNode = eGraph.getDest(outEdge);
     final boolean dataNodeModelsSequentiality =
         PropertyServiceData.getNodeType(dataNode).equals(NodeType.Sequentiality);
+    if (dataNodeModelsSequentiality & PropertyServiceData.isWhileCounter(dataNode)) {
+      return;
+    }
     final JsonObject enactmentResult = PropertyServiceFunction.getOutput(finishedFunction);
     final String key = PropertyServiceDependency.getJsonKey(outEdge);
     if (!enactmentResult.has(key) && !dataNodeModelsSequentiality) {

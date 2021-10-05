@@ -107,6 +107,9 @@ public class GraphTransformWhileCollapse implements GraphTransform {
         dataOut, PropertyServiceDependency.getJsonKey(dataOutEdge), graph);
     dataOutEdge.getAttributeNames().forEach(
         attrName -> fromOriginal.setAttribute(attrName, dataOutEdge.getAttribute(attrName)));
+    if (dataOutEdge.getParent() != null) {
+      fromOriginal.setParent(dataOutEdge.getParent());
+    }
     graph.removeEdge(dataOutEdge);
   }
 

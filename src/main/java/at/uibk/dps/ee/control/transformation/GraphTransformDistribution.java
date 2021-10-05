@@ -4,12 +4,15 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.google.inject.Inject;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
+import at.uibk.dps.ee.model.properties.PropertyServiceData.Property;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections;
 import at.uibk.dps.ee.model.properties.PropertyServiceReproduction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections.OperationType;
+import at.uibk.dps.ee.model.properties.PropertyServiceFunctionUtilityWhile.Properties;
 import net.sf.opendse.model.Communication;
 import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
@@ -23,9 +26,56 @@ import net.sf.opendse.model.properties.TaskPropertyService;
  */
 public class GraphTransformDistribution implements GraphTransform {
 
+  // The set of attributes which relate to other nodes and therefore, must be
+  // adjusted during reproduction
+  protected final Set<String> nodeReferenceAttributes;
+  protected final Set<String> edgeReferenceAttributes;
+
+  /**
+   * Default constructor
+   */
+  @Inject
+  public GraphTransformDistribution() {
+    this.nodeReferenceAttributes = generateNodeReferenceAttributes();
+    this.edgeReferenceAttributes = generateEdgeReferenceAttributes();
+  }
+
   @Override
   public void modifyEnactmentGraph(final EnactmentGraph graph, final Task taskNode) {
     applyDistributionReproduction(graph, taskNode);
+  }
+
+  /**
+   * Generates the set of edge attributes which have to be updated during
+   * reproduction.
+   * 
+   * @return the set of edge attributes which have to be updated during
+   *         reproduction
+   */
+  protected final Set<String> generateEdgeReferenceAttributes() {
+    final Set<String> result = new HashSet<>();
+    result.add(
+        at.uibk.dps.ee.model.properties.PropertyServiceDependency.Property.WhileRepDataReference
+            .name());
+    result.add(
+        at.uibk.dps.ee.model.properties.PropertyServiceDependency.Property.WhileRepWhileFuncReference
+            .name());
+    return result;
+  }
+
+  /**
+   * Generates the set of node attributes which have to be updated during
+   * reproduction.
+   * 
+   * @return the set of node attributes which have to be updated during
+   *         reproduction
+   */
+  protected final Set<String> generateNodeReferenceAttributes() {
+    final Set<String> result = new HashSet<>();
+    result.add(Property.OriginalWhileEnd.name());
+    result.add(Properties.WhileStartRef.name());
+    result.add(Properties.WhileCounterRef.name());
+    return result;
   }
 
   /**
@@ -137,8 +187,13 @@ public class GraphTransformDistribution implements GraphTransform {
         // dst needs to be reproduced
         offspringDst = reproduceNode(graph, originalDst, reproductionIdx);
       }
-      PropertyServiceReproduction.addDataDependencyOffspring(offspringSrc.get(), offspringDst.get(),
-          jsonKey, graph, originalEdge, scope);
+      Dependency edgeOffspring = PropertyServiceReproduction.addDataDependencyOffspring(
+          offspringSrc.get(), offspringDst.get(), jsonKey, graph, originalEdge, scope);
+      final int rpIdx = reproductionIdx;
+      originalEdge.getAttributeNames().stream()
+          .filter(attrName -> edgeReferenceAttributes.contains(attrName))
+          .forEach(attrName -> edgeOffspring.setAttribute(attrName,
+              getReproducedId(originalEdge.getAttribute(attrName), rpIdx)));
     }
   }
 
@@ -166,9 +221,12 @@ public class GraphTransformDistribution implements GraphTransform {
               : new Task(offspringId);
       task.setParent(original);
 
+      // copy all standard attributes
       original.getAttributeNames()
-          .forEach(attr -> task.setAttribute(attr, original.getAttribute(attr)));
-
+          .forEach(attr -> task.setAttribute(attr,
+              nodeReferenceAttributes.contains(attr)
+                  ? getReproducedId(original.getAttribute(attr), reproductionIdx)
+                  : original.getAttribute(attr)));
       if (adjustScope) {
         final String adjustedScope = PropertyServiceFunctionDataFlowCollections.getScope(original)
             + ConstantsEEModel.KeywordSeparator1 + reproductionIdx;

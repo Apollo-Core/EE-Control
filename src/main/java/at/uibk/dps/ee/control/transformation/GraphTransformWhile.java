@@ -93,6 +93,9 @@ public class GraphTransformWhile implements GraphTransform {
     final String jsonKey = PropertyServiceDependency.getJsonKey(originalOutEdge);
     final Dependency newEdge =
         PropertyServiceDependency.addDataDependency(replica, dst, jsonKey, graph);
+    if (originalOutEdge.getParent() != null) {
+      newEdge.setParent(originalOutEdge.getParent());
+    }
     originalOutEdge.getAttributeNames().forEach(
         attrName -> newEdge.setAttribute(attrName, originalOutEdge.getAttribute(attrName)));
     graph.removeEdge(originalOutEdge);
@@ -254,6 +257,7 @@ public class GraphTransformWhile implements GraphTransform {
       final String whileStarRef) {
     final String replicaId = getReplicaId(original, whileStarRef);
     final Task result = new Task(replicaId);
+    result.setParent(original);
     original.getAttributeNames()
         .forEach(attrName -> result.setAttribute(attrName, original.getAttribute(attrName)));
     PropertyServiceFunction.resetInput(result);

@@ -77,6 +77,9 @@ public class GraphTransformAggregation implements GraphTransform {
    */
   protected void addOriginalEdge(final EnactmentGraph graph, final Dependency offspringEdge,
       final String scope, final Task distributionNode) {
+    if (offspringEdge.getParent() == null) {
+      throw new IllegalArgumentException("The offspring edge " + offspringEdge + " has no parent.");
+    }
     if (graph.containsEdge((Dependency) offspringEdge.getParent())) {
       return;
     }
