@@ -37,10 +37,13 @@ dependencies {
     // dependencies to other parts of the Apollo Core EE
     implementation 'com.github.Apollo-Core:EE-Core:master-SNAPSHOT'
     implementation 'com.github.Apollo-Core:EE-Guice:main-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Model:main-SNAPSHOT'
+    implementation 'com.github.Apollo-Core:EE-Model:whileForFixes-SNAPSHOT'
     implementation 'com.github.Apollo-Core:EE-Enactables:master-SNAPSHOT'
     implementation 'com.github.Apollo-Core:SC-Core:main-SNAPSHOT'
   }
+  
+  // Apollo test dependencies
+  testImplementation('com.github.Apollo-Core:EE-IO:fca06e8eb0')
 
   // dependency to Opt4J
   implementation 'com.github.FedorSmirnov89:opt4j:-SNAPSHOT'
@@ -62,9 +65,6 @@ dependencies {
   // JUnit 5
   testImplementation(platform('org.junit:junit-bom:5.7.2'))
   testImplementation('org.junit.jupiter:junit-jupiter')
-
-  // Apollo test dependencies
-  testImplementation('com.github.Apollo-Core:EE-IO:main-SNAPSHOT')
 }
 
 jacocoTestReport {

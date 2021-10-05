@@ -15,6 +15,10 @@ public final class ConstantsVertX {
   public static final String enactmentMode = "enactment mode";
   public static final String implId = "implId";
 
+  // Locks
+  
+  public static final String transformTransmitLock = "transformTransmit";
+  
   // Event bus messages
   public static final String messagePause = "pause";
   public static final String messageResume = "resume";
@@ -52,7 +56,7 @@ public final class ConstantsVertX {
   // as message string
   public static final String addressWorkflowResultAvailable = "WORKFLOW_RESULT";
 
-
+  
   // failures
 
   public static final String addressFailureAbort = "FAILURE_ABORT";

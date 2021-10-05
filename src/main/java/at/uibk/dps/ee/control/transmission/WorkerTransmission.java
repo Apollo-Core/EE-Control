@@ -44,9 +44,17 @@ public class WorkerTransmission extends VerticleApollo {
 
   @Override
   protected void work(final Task dataNode) throws WorkerException {
-    for (final Dependency transmissionEdge : eGraph.getOutEdges(dataNode)) {
-      processTransmissionEdge(transmissionEdge);
-    }
+    this.vertx.sharedData().getLock(ConstantsVertX.transformTransmitLock, lockRes -> {
+      if (lockRes.succeeded()) {
+        final Lock lock = lockRes.result();
+        for (final Dependency transmissionEdge : eGraph.getOutEdges(dataNode)) {
+          processTransmissionEdge(transmissionEdge);
+        }
+        lock.release();
+      } else {
+        throw new IllegalStateException("Failed getting transmission annotation lock");
+      }
+    });
   }
 
   /**
@@ -56,19 +64,10 @@ public class WorkerTransmission extends VerticleApollo {
    * @param transmissionEdge out edge of the data node being processed
    */
   protected void processTransmissionEdge(final Dependency transmissionEdge) {
-    // annotate the edges
-    this.vertx.sharedData().getLock("transmission annotation lock", lockRes -> {
-      if (lockRes.succeeded()) {
-        final Lock lock = lockRes.result();
-        final boolean inputCompletelyPresent = annotateAndCheck(transmissionEdge);
-        lock.release();
-        if (inputCompletelyPresent) {
-          annotateFunctionInput(transmissionEdge);
-        }
-      } else {
-        throw new IllegalStateException("Failed getting transmission annotation lock");
-      }
-    });
+    final boolean inputCompletelyPresent = annotateAndCheck(transmissionEdge);
+    if (inputCompletelyPresent) {
+      annotateFunctionInput(transmissionEdge);
+    }
   }
 
   /**

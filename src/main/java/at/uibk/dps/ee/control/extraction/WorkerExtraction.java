@@ -67,6 +67,7 @@ public class WorkerExtraction extends VerticleApollo {
     final boolean dataNodeModelsSequentiality =
         PropertyServiceData.getNodeType(dataNode).equals(NodeType.Sequentiality);
     if (dataNodeModelsSequentiality & PropertyServiceData.isWhileCounter(dataNode)) {
+      this.vertx.eventBus().send(successAddress, dataNode.getId());
       return;
     }
     final JsonObject enactmentResult = PropertyServiceFunction.getOutput(finishedFunction);
