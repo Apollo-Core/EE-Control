@@ -26,7 +26,8 @@ public class FailureHandlerShutdown extends FailureHandler {
   }
 
   @Override
-  public void handleFailure(String failureMessage, Promise<JsonObject> resultPromise, Vertx vertx) {
+  public void handleFailure(final String failureMessage, final Promise<JsonObject> resultPromise,
+      final Vertx vertx) {
     resultPromise.tryFail(failureMessage);
     vertx.close();
   }

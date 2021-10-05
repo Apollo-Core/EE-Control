@@ -187,7 +187,7 @@ public class GraphTransformDistribution implements GraphTransform {
         // dst needs to be reproduced
         offspringDst = reproduceNode(graph, originalDst, reproductionIdx);
       }
-      Dependency edgeOffspring = PropertyServiceReproduction.addDataDependencyOffspring(
+      final Dependency edgeOffspring = PropertyServiceReproduction.addDataDependencyOffspring(
           offspringSrc.get(), offspringDst.get(), jsonKey, graph, originalEdge, scope);
       final int rpIdx = reproductionIdx;
       originalEdge.getAttributeNames().stream()

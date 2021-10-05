@@ -62,7 +62,6 @@ public class WorkerExtraction extends VerticleApollo {
    * @throws WorkerException exception thrown in case the extraction fails
    */
   protected void processOutEdge(final Dependency outEdge) throws WorkerException {
-    final Task finishedFunction = eGraph.getSource(outEdge);
     final Task dataNode = eGraph.getDest(outEdge);
     final boolean dataNodeModelsSequentiality =
         PropertyServiceData.getNodeType(dataNode).equals(NodeType.Sequentiality);
@@ -70,6 +69,7 @@ public class WorkerExtraction extends VerticleApollo {
       this.vertx.eventBus().send(successAddress, dataNode.getId());
       return;
     }
+    final Task finishedFunction = eGraph.getSource(outEdge);
     final JsonObject enactmentResult = PropertyServiceFunction.getOutput(finishedFunction);
     final String key = PropertyServiceDependency.getJsonKey(outEdge);
     if (!enactmentResult.has(key) && !dataNodeModelsSequentiality) {

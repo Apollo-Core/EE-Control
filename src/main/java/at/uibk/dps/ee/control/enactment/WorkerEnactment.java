@@ -55,7 +55,7 @@ public class WorkerEnactment extends VerticleApollo {
       if (asyncRes.succeeded()) {
         processResult(asyncRes.result(), functionNode);
       } else {
-        logger.error("Exception during enactment", asyncRes.cause());
+        logger.error("Exception during enactment {}", asyncRes.cause());
         failureHandler(asyncRes.cause());
       }
     });
