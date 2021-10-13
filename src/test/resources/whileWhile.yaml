@@ -1,0 +1,63 @@
+---
+name: "complexWhile"
+dataIns:
+  - name: "input"
+    type: "number"
+    source: "inputSource"
+workflowBody:
+  - while:
+      name: "outerWhile"
+      dataIns:
+        - name: "sum"
+          type: "number"
+          source: "complexWhile/input"
+      loopBody:
+        - while:
+            name: "innerWhile"
+            dataIns:
+              - name: "sum"
+                type: "number"
+                source: "outerWhile/sum"
+            loopBody:
+              - function:
+                  name: "increment"
+                  type: "Addition"
+                  dataIns:
+                    - name: "firstSummand"
+                      type: "number"
+                      source: "innerWhile/sum"
+                    - name: "secondSummand"
+                      type: "number"
+                      source: 1
+                    - name: "waitTimeIn"
+                      type: "number"
+                      source: 1000
+                  dataOuts:
+                    - name: "sum"
+                      type: "number"
+            condition:
+              - data1: "innerWhile/counter"
+                data2: 5
+                type: "number"
+                operator: "<"
+                negation: "false"
+                combinedWith: "and"
+            dataOuts:
+              - name: "sum"
+                type: "number"
+                source: "increment/sum"
+      condition:
+        - data1: "outerWhile/counter"
+          data2: 5
+          type: "number"
+          operator: "<"
+          negation: "false"
+          combinedWith: "and"
+      dataOuts:
+        - name: "sum"
+          type: "number"
+          source: "innerWhile/sum"
+dataOuts:
+  - name: "overallOutput"
+    type: "number"
+    source: "outerWhile/sum"

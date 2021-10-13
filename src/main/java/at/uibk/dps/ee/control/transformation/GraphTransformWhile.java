@@ -112,6 +112,7 @@ public class GraphTransformWhile implements GraphTransform {
   protected Task replicateWhileStart(final EnactmentGraph graph, final Task whileStart,
       final Task whileEnd, final String originalWhileStart) {
     final Task whileStartRep = replicateDataNode(whileStart, originalWhileStart);
+    whileStartRep.setParent(whileStart);
     PropertyServiceDependency.addDataDependency(whileEnd, whileStartRep,
         ConstantsEEModel.JsonKeyWhileDecision, graph);
     return whileStartRep;
@@ -127,6 +128,10 @@ public class GraphTransformWhile implements GraphTransform {
    */
   protected void processInEdge(final Dependency originalInEdge, final EnactmentGraph graph,
       final String whileId, final String originalWhileStart) {
+
+    Task whileNode = graph.getVertex(whileId);
+    String originalWhileStartRef = PropertyServiceData.getOriginalWhileStartAnnotation(whileNode);
+
     final Task originalData = graph.getSource(originalInEdge);
     final boolean dataIsReplicated =
         graph.containsVertex(getReplicaId(originalData, originalWhileStart));
@@ -134,6 +139,9 @@ public class GraphTransformWhile implements GraphTransform {
     final Task replicaDst = findReplica(graph.getDest(originalInEdge), graph, originalWhileStart);
     final Dependency replica =
         addDependencyReplica(replicaSrc, replicaDst, originalInEdge, graph, whileId);
+    if (PropertyServiceDependency.isAnnotatedForGivenWhile(replica, originalWhileStartRef)) {
+      PropertyServiceDependency.removeWhileInputReference(replica, originalWhileStartRef);
+    }
     if (dataIsReplicated && !PropertyServiceDependency.doesPointToPreviousIteration(replica)) {
       PropertyServiceDependency.resetTransmission(replica);
     }
@@ -149,14 +157,19 @@ public class GraphTransformWhile implements GraphTransform {
    */
   protected Task getReplicaSrc(final Dependency replicatedEdge, final EnactmentGraph graph,
       final String whileReference, final String originalWhileStart) {
-    if (PropertyServiceDependency.isWhileAnnotated(replicatedEdge) && PropertyServiceDependency
-        .getReplicaWhileFuncReference(replicatedEdge).equals(whileReference)) {
+    Task whileStart = graph.getVertex(whileReference);
+    String refOrigWhileStart = PropertyServiceData.getOriginalWhileStartAnnotation(whileStart);
+    if (PropertyServiceDependency.isWhileAnnotated(replicatedEdge)
+        && PropertyServiceDependency.isAnnotatedForGivenWhile(replicatedEdge, refOrigWhileStart)) {
       // there is a difference between first and further iterations
-      return Optional
-          .ofNullable(
-              graph.getVertex(PropertyServiceDependency.getReplicaSrcReference(replicatedEdge)))
+      String srcReference =
+          PropertyServiceDependency.getDataRefForWhile(replicatedEdge, refOrigWhileStart);
+      String curSrcReference = getCurrentSrcRef(refOrigWhileStart, whileReference, srcReference);
+      // adjust the source reference to the current nesting (recreate the relation
+      // between the current and the original while)
+      return Optional.ofNullable(graph.getVertex(curSrcReference))
           .orElseThrow(() -> new IllegalStateException("The edge " + replicatedEdge.getId()
-              + " points to a non-existant while replica reference."));
+              + " points to a non-existent while replica reference."));
     } else {
       // standard dependency
       final Task originalData = graph.getSource(replicatedEdge);
@@ -165,6 +178,14 @@ public class GraphTransformWhile implements GraphTransform {
       return dataIsReplicated ? graph.getVertex(getReplicaId(originalData, originalWhileStart))
           : originalData;
     }
+  }
+  
+  protected String getCurrentSrcRef(String originalWhileString, String currentWhileString, String originalSrcRef) {
+    if (originalWhileString.equals(currentWhileString)) {
+      return originalSrcRef;
+    }
+    String suffix = currentWhileString.substring(originalWhileString.length());
+    return originalSrcRef + suffix;
   }
 
   /**
@@ -216,9 +237,8 @@ public class GraphTransformWhile implements GraphTransform {
         PropertyServiceDependency.addDataDependency(replicaSrc, replicaDest, jsonKey, graph);
     originalDep.getAttributeNames()
         .forEach(attrName -> replica.setAttribute(attrName, originalDep.getAttribute(attrName)));
-    if (PropertyServiceDependency.isWhileAnnotated(originalDep) && PropertyServiceDependency
-        .getReplicaWhileFuncReference(originalDep).equals(whileNodeId)) {
-      PropertyServiceDependency.resetWhileAnnotation(replica);
+    if (PropertyServiceDependency.isWhileAnnotated(originalDep)
+        && PropertyServiceDependency.isAnnotatedForGivenWhile(originalDep, whileNodeId)) {
       PropertyServiceDependency.annotatePreviousIterationDependency(replica);
     }
     return replica;

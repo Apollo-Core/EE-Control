@@ -1,6 +1,7 @@
 package at.uibk.dps.ee.control.transformation;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,12 +55,12 @@ public class GraphTransformDistribution implements GraphTransform {
    */
   protected final Set<String> generateEdgeReferenceAttributes() {
     final Set<String> result = new HashSet<>();
-    result.add(
-        at.uibk.dps.ee.model.properties.PropertyServiceDependency.Property.WhileRepDataReference
-            .name());
-    result.add(
-        at.uibk.dps.ee.model.properties.PropertyServiceDependency.Property.WhileRepWhileFuncReference
-            .name());
+//    result.add(
+//        at.uibk.dps.ee.model.properties.PropertyServiceDependency.Property.WhileRepDataReferenceList
+//            .name());
+//    result.add(
+//        at.uibk.dps.ee.model.properties.PropertyServiceDependency.Property.WhileRepFunctionReferenceList
+//            .name());
     return result;
   }
 
@@ -72,6 +73,7 @@ public class GraphTransformDistribution implements GraphTransform {
    */
   protected final Set<String> generateNodeReferenceAttributes() {
     final Set<String> result = new HashSet<>();
+    result.add(Property.OriginalWhileStart.name());
     result.add(Property.OriginalWhileEnd.name());
     result.add(Properties.WhileStartRef.name());
     result.add(Properties.WhileCounterRef.name());
@@ -194,8 +196,25 @@ public class GraphTransformDistribution implements GraphTransform {
           .filter(attrName -> edgeReferenceAttributes.contains(attrName))
           .forEach(attrName -> edgeOffspring.setAttribute(attrName,
               getReproducedId(originalEdge.getAttribute(attrName), rpIdx)));
+      // case where the original edge is while annotated -> the data references will
+      // point to replicas
+      if (PropertyServiceDependency.isWhileAnnotated(originalEdge)) {
+        List<String> whileDataRefsOriginal =
+            PropertyServiceDependency.getWhileDataReferences(originalEdge);
+        List<String> whileFuncRefsOriginal =
+            PropertyServiceDependency.getWhileFuncReferences(originalEdge);
+        PropertyServiceDependency.resetWhileAnnotation(edgeOffspring);
+        for (int idx = 0; idx < whileDataRefsOriginal.size(); idx++) {
+          String whileDataRefReplica = getReproducedId(whileDataRefsOriginal.get(idx), rpIdx);
+          String whileFuncRefReplica = getReproducedId(whileFuncRefsOriginal.get(idx), rpIdx);
+          PropertyServiceDependency.addWhileInputReference(edgeOffspring, whileDataRefReplica,
+              whileFuncRefReplica);
+        }
+      }
     }
   }
+
+
 
   /**
    * Reproduces the given node and returns an optional of the offspring with the
