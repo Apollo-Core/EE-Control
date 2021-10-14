@@ -128,10 +128,9 @@ public class GraphTransformWhile implements GraphTransform {
    */
   protected void processInEdge(final Dependency originalInEdge, final EnactmentGraph graph,
       final String whileId, final String originalWhileStart) {
-
-    Task whileNode = graph.getVertex(whileId);
-    String originalWhileStartRef = PropertyServiceData.getOriginalWhileStartAnnotation(whileNode);
-
+    final Task whileNode = graph.getVertex(whileId);
+    final String originalWhileStartRef =
+        PropertyServiceData.getOriginalWhileStartAnnotation(whileNode);
     final Task originalData = graph.getSource(originalInEdge);
     final boolean dataIsReplicated =
         graph.containsVertex(getReplicaId(originalData, originalWhileStart));
@@ -157,14 +156,16 @@ public class GraphTransformWhile implements GraphTransform {
    */
   protected Task getReplicaSrc(final Dependency replicatedEdge, final EnactmentGraph graph,
       final String whileReference, final String originalWhileStart) {
-    Task whileStart = graph.getVertex(whileReference);
-    String refOrigWhileStart = PropertyServiceData.getOriginalWhileStartAnnotation(whileStart);
+    final Task whileStart = graph.getVertex(whileReference);
+    final String refOrigWhileStart =
+        PropertyServiceData.getOriginalWhileStartAnnotation(whileStart);
     if (PropertyServiceDependency.isWhileAnnotated(replicatedEdge)
         && PropertyServiceDependency.isAnnotatedForGivenWhile(replicatedEdge, refOrigWhileStart)) {
       // there is a difference between first and further iterations
-      String srcReference =
+      final String srcReference =
           PropertyServiceDependency.getDataRefForWhile(replicatedEdge, refOrigWhileStart);
-      String curSrcReference = getCurrentSrcRef(refOrigWhileStart, whileReference, srcReference);
+      final String curSrcReference =
+          getCurrentSrcRef(refOrigWhileStart, whileReference, srcReference);
       // adjust the source reference to the current nesting (recreate the relation
       // between the current and the original while)
       return Optional.ofNullable(graph.getVertex(curSrcReference))
@@ -179,12 +180,23 @@ public class GraphTransformWhile implements GraphTransform {
           : originalData;
     }
   }
-  
-  protected String getCurrentSrcRef(String originalWhileString, String currentWhileString, String originalSrcRef) {
+
+  /**
+   * Retrieves the reference to the absolute starting node of the while (used in
+   * the while reference of the input edges).
+   * 
+   * @param originalWhileString the original while string
+   * @param currentWhileString the id of the current while
+   * @param originalSrcRef the reference to the original src
+   * @return the reference to the absolute starting node of the while (used in the
+   *         while reference of the input edges)
+   */
+  protected String getCurrentSrcRef(final String originalWhileString,
+      final String currentWhileString, final String originalSrcRef) {
     if (originalWhileString.equals(currentWhileString)) {
       return originalSrcRef;
     }
-    String suffix = currentWhileString.substring(originalWhileString.length());
+    final String suffix = currentWhileString.substring(originalWhileString.length());
     return originalSrcRef + suffix;
   }
 

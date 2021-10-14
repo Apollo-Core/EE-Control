@@ -54,14 +54,9 @@ public class GraphTransformDistribution implements GraphTransform {
    *         reproduction
    */
   protected final Set<String> generateEdgeReferenceAttributes() {
-    final Set<String> result = new HashSet<>();
-//    result.add(
-//        at.uibk.dps.ee.model.properties.PropertyServiceDependency.Property.WhileRepDataReferenceList
-//            .name());
-//    result.add(
-//        at.uibk.dps.ee.model.properties.PropertyServiceDependency.Property.WhileRepFunctionReferenceList
-//            .name());
-    return result;
+    // No reference attributes atm. Use this method if any such attributes added in
+    // the future.
+    return new HashSet<>();
   }
 
   /**
@@ -199,14 +194,14 @@ public class GraphTransformDistribution implements GraphTransform {
       // case where the original edge is while annotated -> the data references will
       // point to replicas
       if (PropertyServiceDependency.isWhileAnnotated(originalEdge)) {
-        List<String> whileDataRefsOriginal =
+        final List<String> whileDataRefsOriginal =
             PropertyServiceDependency.getWhileDataReferences(originalEdge);
-        List<String> whileFuncRefsOriginal =
+        final List<String> whileFuncRefsOriginal =
             PropertyServiceDependency.getWhileFuncReferences(originalEdge);
         PropertyServiceDependency.resetWhileAnnotation(edgeOffspring);
         for (int idx = 0; idx < whileDataRefsOriginal.size(); idx++) {
-          String whileDataRefReplica = getReproducedId(whileDataRefsOriginal.get(idx), rpIdx);
-          String whileFuncRefReplica = getReproducedId(whileFuncRefsOriginal.get(idx), rpIdx);
+          final String whileDataRefReplica = getReproducedId(whileDataRefsOriginal.get(idx), rpIdx);
+          final String whileFuncRefReplica = getReproducedId(whileFuncRefsOriginal.get(idx), rpIdx);
           PropertyServiceDependency.addWhileInputReference(edgeOffspring, whileDataRefReplica,
               whileFuncRefReplica);
         }
