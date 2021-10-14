@@ -83,22 +83,35 @@ public class GraphTransformAggregation implements GraphTransform {
     if (graph.containsEdge((Dependency) offspringEdge.getParent())) {
       return;
     }
-    final Task offspringSrc = graph.getSource(offspringEdge);
     final Task originalSrc =
-        wasReproduced(offspringSrc, scope, distributionNode) ? (Task) offspringSrc.getParent()
-            : offspringSrc;
-    if (originalSrc == null) {
-      throw new IllegalStateException("The offspring " + offspringSrc + " has no parent.");
-    }
-    final Task offspringDst = graph.getDest(offspringEdge);
+        getOriginalEndPoint(graph, offspringEdge, scope, distributionNode, true);
     final Task originalDst =
-        wasReproduced(offspringDst, scope, distributionNode) ? (Task) offspringDst.getParent()
-            : offspringDst;
-    if (originalDst == null) {
-      throw new IllegalStateException("The offspring " + offspringDst + " has no parent.");
-    }
+        getOriginalEndPoint(graph, offspringEdge, scope, distributionNode, false);
     final Dependency originalEdge = (Dependency) offspringEdge.getParent();
     graph.addEdge(originalEdge, originalSrc, originalDst, EdgeType.DIRECTED);
+  }
+
+  /**
+   * Gets the original endpoint of the provided offspring edge.
+   * 
+   * @param graph the eGraph
+   * @param offspringEdge the offspring edge
+   * @param scope the for scope
+   * @param distributionNode the distribution node responsible for the
+   *        reproduction which is being reverted
+   * @param source true iff looking for src, otherwise false
+   * @return the original endpoint of the provided offspring edge
+   */
+  protected Task getOriginalEndPoint(final EnactmentGraph graph, final Dependency offspringEdge,
+      final String scope, final Task distributionNode, final boolean source) {
+    final Task offspring = source ? graph.getSource(offspringEdge) : graph.getDest(offspringEdge);
+    final Task original =
+        wasReproduced(offspring, scope, distributionNode) ? (Task) offspring.getParent()
+            : offspring;
+    if (original == null) {
+      throw new IllegalStateException("The offspring " + offspring + " has no parent.");
+    }
+    return original;
   }
 
   /**
