@@ -37,13 +37,13 @@ dependencies {
     // dependencies to other parts of the Apollo Core EE
     implementation 'com.github.Apollo-Core:EE-Core:master-SNAPSHOT'
     implementation 'com.github.Apollo-Core:EE-Guice:main-SNAPSHOT'
-    implementation 'com.github.Apollo-Core:EE-Model:8458291a82'
+    implementation 'com.github.Apollo-Core:EE-Model:main-SNAPSHOT'
     implementation 'com.github.Apollo-Core:EE-Enactables:master-SNAPSHOT'
     implementation 'com.github.Apollo-Core:SC-Core:main-SNAPSHOT'
   }
   
   // Apollo test dependencies
-  testImplementation('com.github.Apollo-Core:EE-IO:ac04f8038b')
+  testImplementation('com.github.Apollo-Core:EE-IO:main-SNAPSHOT')
 
   // dependency to Opt4J
   implementation 'com.github.FedorSmirnov89:opt4j:2ad9d51292'
