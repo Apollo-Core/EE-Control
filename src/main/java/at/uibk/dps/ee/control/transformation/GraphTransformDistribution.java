@@ -208,8 +208,8 @@ public class GraphTransformDistribution implements GraphTransform {
    * @param edgeOffspring the edge created through the distribution operation
    * @param rpIdx the current reproduction index
    */
-  protected void adjustWhileAnnotations(Dependency originalEdge, Dependency edgeOffspring,
-      int rpIdx) {
+  protected void adjustWhileAnnotations(final Dependency originalEdge,
+      final Dependency edgeOffspring, final int rpIdx) {
     final List<String> whileDataRefsOriginal =
         PropertyServiceDependency.getWhileDataReferences(originalEdge);
     final List<String> whileFuncRefsOriginal =
