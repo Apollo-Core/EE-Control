@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
@@ -63,7 +62,7 @@ public class GraphTransformWhileCollapse implements GraphTransform {
     final String whileCounterReference =
         PropertyServiceFunctionUtilityWhile.getWhileCounterReference(originalWhileEnd);
     final Task whileCounter = graph.getVertex(whileCounterReference);
-    PropertyServiceData.setContent(whileCounter, new JsonPrimitive(0));
+    PropertyServiceData.resetWhileCounter(whileCounter);
   }
 
   /**

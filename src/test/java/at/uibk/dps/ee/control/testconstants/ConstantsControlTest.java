@@ -10,6 +10,7 @@ public final class ConstantsControlTest {
 
   public static final String filePathYamlSimpleWhile = "src/test/resources/simpleWhile.yaml";
   public static final String filePathYamlNestedWhile = "src/test/resources/whileWhile.yaml";
+  public static final String filePathYamlWhileFor = "src/test/resources/whileFor.yaml";
 
   /**
    * No constructor.

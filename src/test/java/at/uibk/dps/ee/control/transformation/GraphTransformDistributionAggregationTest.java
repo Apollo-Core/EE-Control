@@ -3,6 +3,8 @@ package at.uibk.dps.ee.control.transformation;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
+import at.uibk.dps.ee.control.testconstants.ConstantsControlTest;
+import at.uibk.dps.ee.io.afcl.AfclReader;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
@@ -16,6 +18,23 @@ import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
 
 public class GraphTransformDistributionAggregationTest {
+
+  @Test
+  public void testWhileAnnotation() {
+    AfclReader reader = new AfclReader(ConstantsControlTest.filePathYamlWhileFor);
+    EnactmentGraph input = reader.getEnactmentGraph();
+    GraphTransformDistribution tested = new GraphTransformDistribution();
+    Task distNode = input.getVertex("forEachBlock--Distribution");
+    distNode.setAttribute("IterationNumber", 3);
+    Dependency annotatedDepInit = input.getEdge("forEachBlock/input--increment");
+    String dataRef = PropertyServiceDependency.getDataRefForWhile(annotatedDepInit, "innerWhile");
+    assertEquals("increment/sum", dataRef);
+    tested.modifyEnactmentGraph(input, distNode);
+    Dependency annotatedDepPostTrans = input.getEdge("forEachBlock/input__2--increment__2");
+    String dataRefPost =
+        PropertyServiceDependency.getDataRefForWhile(annotatedDepPostTrans, "innerWhile__2");
+    assertEquals("increment/sum__2", dataRefPost);
+  }
 
   @Test
   public void test() {
@@ -98,18 +117,18 @@ public class GraphTransformDistributionAggregationTest {
 
     // run the tests
     // enactable not finished
-    
-    
-    
+
+
+
     testedAggregation.modifyEnactmentGraph(testInput, aggregation);
-    
+
     assertEquals(14, testInput.getVertexCount());
     assertEquals(17, testInput.getEdgeCount());
     // test the reverse operation when enactable finished
     PropertyServiceFunction.setInput(aggregation, new JsonObject());
     testedAggregation.modifyEnactmentGraph(testInput, aggregation);
-    
-    //EnactmentGraphViewer.view(testInput);
+
+    // EnactmentGraphViewer.view(testInput);
     assertEquals(8, testInput.getVertexCount());
     assertEquals(7, testInput.getEdgeCount());
   }
