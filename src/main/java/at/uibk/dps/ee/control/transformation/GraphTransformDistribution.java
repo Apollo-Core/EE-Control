@@ -194,18 +194,32 @@ public class GraphTransformDistribution implements GraphTransform {
       // case where the original edge is while annotated -> the data references will
       // point to replicas
       if (PropertyServiceDependency.isWhileAnnotated(originalEdge)) {
-        final List<String> whileDataRefsOriginal =
-            PropertyServiceDependency.getWhileDataReferences(originalEdge);
-        final List<String> whileFuncRefsOriginal =
-            PropertyServiceDependency.getWhileFuncReferences(originalEdge);
-        PropertyServiceDependency.resetWhileAnnotation(edgeOffspring);
-        for (int idx = 0; idx < whileDataRefsOriginal.size(); idx++) {
-          final String whileDataRefReplica = getReproducedId(whileDataRefsOriginal.get(idx), rpIdx);
-          final String whileFuncRefReplica = getReproducedId(whileFuncRefsOriginal.get(idx), rpIdx);
-          PropertyServiceDependency.addWhileInputReference(edgeOffspring, whileDataRefReplica,
-              whileFuncRefReplica);
-        }
+        adjustWhileAnnotations(originalEdge, edgeOffspring, rpIdx);
       }
+    }
+  }
+
+  /**
+   * Adjusts the while annotations of an edge which points to different sources
+   * between the first and the following while iterations (necessary since the
+   * distribution operation changes the node names).
+   * 
+   * @param originalEdge the original edge
+   * @param edgeOffspring the edge created through the distribution operation
+   * @param rpIdx the current reproduction index
+   */
+  protected void adjustWhileAnnotations(Dependency originalEdge, Dependency edgeOffspring,
+      int rpIdx) {
+    final List<String> whileDataRefsOriginal =
+        PropertyServiceDependency.getWhileDataReferences(originalEdge);
+    final List<String> whileFuncRefsOriginal =
+        PropertyServiceDependency.getWhileFuncReferences(originalEdge);
+    PropertyServiceDependency.resetWhileAnnotation(edgeOffspring);
+    for (int idx = 0; idx < whileDataRefsOriginal.size(); idx++) {
+      final String whileDataRefReplica = getReproducedId(whileDataRefsOriginal.get(idx), rpIdx);
+      final String whileFuncRefReplica = getReproducedId(whileFuncRefsOriginal.get(idx), rpIdx);
+      PropertyServiceDependency.addWhileInputReference(edgeOffspring, whileDataRefReplica,
+          whileFuncRefReplica);
     }
   }
 
