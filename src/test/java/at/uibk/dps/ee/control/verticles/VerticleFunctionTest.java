@@ -1,6 +1,5 @@
 package at.uibk.dps.ee.control.verticles;
 
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.google.gson.JsonObject;
@@ -89,16 +88,5 @@ class VerticleFunctionTest {
     tested.currentPromise = tested.promiseProvider.getJsonPromise();
     tested.handleResult(mockMessage);
     verify(resultPromise).complete(any(JsonObject.class));
-  }
-
-  /**
-   * Test that the function returns all the right log constants
-   */
-  @Test
-  void testLogConstants() {
-    assertEquals(ConstantsVertX.typeId, tested.getTypeId());
-    assertEquals(ConstantsVertX.enactmentMode, tested.getEnactmentMode());
-    assertEquals(ConstantsVertX.implId, tested.getImplementationId());
-    assertTrue(tested.getAdditionalAttributes().isEmpty());
   }
 }

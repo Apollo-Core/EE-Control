@@ -1,8 +1,5 @@
 package at.uibk.dps.ee.control.verticles;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.HashSet;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.JsonObject;
@@ -84,30 +81,5 @@ public class VerticleFunction implements CoreFunction {
     dataHandler.processInput(input);
     currentPromise = promiseProvider.getJsonPromise();
     return currentPromise.future();
-  }
-
-  @Override
-  public String getTypeId() {
-    return ConstantsVertX.typeId;
-  }
-
-  @Override
-  public String getFunctionId() {
-    return ConstantsVertX.functionId;
-  }
-
-  @Override
-  public String getEnactmentMode() {
-    return ConstantsVertX.enactmentMode;
-  }
-
-  @Override
-  public String getImplementationId() {
-    return ConstantsVertX.implId;
-  }
-
-  @Override
-  public Set<SimpleEntry<String, String>> getAdditionalAttributes() {
-    return new HashSet<>();
   }
 }
