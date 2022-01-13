@@ -13,7 +13,6 @@ import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import io.vertx.core.shareddata.Lock;
-import at.uibk.dps.ee.model.properties.PropertyServiceDependency.TypeDependency;
 import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
 
@@ -94,9 +93,8 @@ public class WorkerTransmission extends VerticleApollo {
     final JsonObject functionInput = new JsonObject();
     // for all in-edges of the node as processed
     eGraph.getInEdges(functionNode).forEach(inEdge -> {
-      if (inEdge.equals(transmissionEdge)
-          || !PropertyServiceDependency.getType(inEdge).equals(TypeDependency.ControlIf)) {
-        final Task src = eGraph.getSource(inEdge);
+      final Task src = eGraph.getSource(inEdge);
+      if (PropertyServiceData.isDataAvailable(src)) {
         final JsonElement content = PropertyServiceData.getContent(src);
         final String key = PropertyServiceDependency.getJsonKey(inEdge);
         functionInput.add(key, content);
