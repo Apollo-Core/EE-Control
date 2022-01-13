@@ -8,6 +8,7 @@ import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction.UsageType;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections.OperationType;
+import at.uibk.dps.sc.core.ScheduleModel;
 import io.vertx.core.eventbus.EventBus;
 import net.sf.opendse.model.Task;
 
@@ -56,7 +57,8 @@ class PostEnactmentDefaultTest {
     PropertyServiceFunction.setUsageType(UsageType.User, requiresNoTrans);
     requiresTrans = PropertyServiceFunctionDataFlowCollections.createCollectionDataFlowTask("task2",
         OperationType.Aggregation, "scope");
-    tested = new PostEnactmentDefault();
+    ScheduleModel mockSchedule = mock(ScheduleModel.class);
+    tested = new PostEnactmentDefault(mockSchedule);
     eBus = mock(EventBus.class);
   }
 }

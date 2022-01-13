@@ -94,13 +94,15 @@ public class WorkerTransmission extends VerticleApollo {
     final JsonObject functionInput = new JsonObject();
     // for all in-edges of the node as processed
     eGraph.getInEdges(functionNode).forEach(inEdge -> {
-      if (inEdge.equals(transmissionEdge)
-          || !PropertyServiceDependency.getType(inEdge).equals(TypeDependency.ControlIf)) {
+      
+      //if (inEdge.equals(transmissionEdge)
+      //    || PropertyServiceDependency.getType(inEdge).equals(TypeDependency.ControlIf)) {
         final Task src = eGraph.getSource(inEdge);
+        if (PropertyServiceData.isDataAvailable(src)) {
         final JsonElement content = PropertyServiceData.getContent(src);
         final String key = PropertyServiceDependency.getJsonKey(inEdge);
-        functionInput.add(key, content);
-      }
+        functionInput.add(key, content);}
+      //}
     });
     PropertyServiceFunction.setInput(functionNode, functionInput);
     logger.debug("Thread {}; Task {} is schedulable.", Thread.currentThread().getId(),

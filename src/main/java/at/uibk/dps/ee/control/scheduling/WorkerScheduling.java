@@ -51,8 +51,10 @@ public class WorkerScheduling extends VerticleApollo {
       final Set<Mapping<Task, Resource>> taskSchedule = scheduler.scheduleTask(schedulableTask);
       schedule.setTaskSchedule(schedulableTask, taskSchedule);
     }
-    logger.debug("Thread {}; Task {} scheduled.", Thread.currentThread().getId(),
-        schedulableTask.getId());
     this.vertx.eventBus().send(successAddress, schedulableTask.getId());
+    if (schedule.isScheduled(schedulableTask)) {
+      logger.debug("Thread {}; Task {} scheduled", Thread.currentThread().getId(),
+          schedulableTask.getId());
+    }
   }
 }
