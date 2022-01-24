@@ -49,6 +49,7 @@ public class WorkerEnactment extends VerticleApollo {
 
   @Override
   protected void work(final Task functionNode) throws WorkerException {
+    logger.debug("Enacting Task {}", functionNode.getId());
     final EnactmentFunction function =
         interpreter.interpretSchedule(functionNode, scheduleModel.getTaskSchedule(functionNode));
     function.processInput(PropertyServiceFunction.getInput(functionNode)).onComplete(asyncRes -> {

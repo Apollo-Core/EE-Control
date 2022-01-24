@@ -8,6 +8,7 @@ import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
 import at.uibk.dps.sc.core.ScheduleModel;
 import at.uibk.dps.sc.core.scheduler.Scheduler;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import net.sf.opendse.model.Resource;
@@ -73,7 +74,8 @@ class WorkerSchedulingTest {
     input = new Task("task");
     schedule = new HashSet<>();
     scheduler = mock(Scheduler.class);
-    when(scheduler.scheduleTask(input)).thenReturn(schedule);
+    Future<Set<Mapping<Task, Resource>>> futureSched = Future.succeededFuture(schedule);
+    when(scheduler.scheduleTask(input)).thenReturn(futureSched);
     scheduleModel = mock(ScheduleModel.class);
     tested = new MockWorker(eProv, scheduleModel, scheduler);
     Vertx vMock = mock(Vertx.class);
