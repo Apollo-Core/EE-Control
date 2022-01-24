@@ -47,14 +47,27 @@ public class WorkerScheduling extends VerticleApollo {
   protected void work(final Task schedulableTask) throws WorkerException {
     if (schedule.isScheduled(schedulableTask)) {
       throw new WorkerException("Task " + schedulableTask.getId() + " already scheduled.");
-    } else {
-      final Set<Mapping<Task, Resource>> taskSchedule = scheduler.scheduleTask(schedulableTask);
-      schedule.setTaskSchedule(schedulableTask, taskSchedule);
     }
-    this.vertx.eventBus().send(successAddress, schedulableTask.getId());
-    if (schedule.isScheduled(schedulableTask)) {
-      logger.debug("Thread {}; Task {} scheduled", Thread.currentThread().getId(),
-          schedulableTask.getId());
+    scheduler.scheduleTask(schedulableTask).onComplete(asyncRes -> {
+      if (asyncRes.succeeded()) {
+        processChosenMappings(schedulableTask, asyncRes.result());
+      } else {
+        throw new IllegalArgumentException("Async scheduling call failed.");
+      }
+    });
+  }
+
+  /**
+   * Processes the mappings chosen by the scheduler
+   * 
+   * @param task the task being scheduled
+   * @param chosenMappings the chosen mappings
+   */
+  protected void processChosenMappings(Task task, Set<Mapping<Task, Resource>> chosenMappings) {
+    schedule.setTaskSchedule(task, chosenMappings);
+    this.vertx.eventBus().send(successAddress, task.getId());
+    if (schedule.isScheduled(task)) {
+      logger.debug("Thread {}; Task {} scheduled", Thread.currentThread().getId(), task.getId());
     }
   }
 }
