@@ -30,8 +30,14 @@ public class PostEnactmentDefault implements PostEnactment {
   protected final ScheduleModel schedule;
   protected final Vertx vertx;
 
+  /**
+   * Injection constructor
+   * 
+   * @param schedule the reference to the task schedule
+   * @param vProv the vertx provider
+   */
   @Inject
-  public PostEnactmentDefault(ScheduleModel schedule, VertxProvider vProv) {
+  public PostEnactmentDefault(final ScheduleModel schedule, final VertxProvider vProv) {
     this.schedule = schedule;
     this.vertx = vProv.getVertx();
   }
@@ -55,7 +61,7 @@ public class PostEnactmentDefault implements PostEnactment {
    * @param enactedTask the task that was enacted
    * @param eBus reference to the event bus
    */
-  protected void lockResHandler(AsyncResult<Lock> asyncRes, final Task enactedTask,
+  protected void lockResHandler(final AsyncResult<Lock> asyncRes, final Task enactedTask,
       final EventBus eBus) {
     if (asyncRes.succeeded()) {
       final Lock lock = asyncRes.result();

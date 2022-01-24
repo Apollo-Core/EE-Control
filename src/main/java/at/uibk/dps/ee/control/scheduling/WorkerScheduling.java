@@ -63,7 +63,8 @@ public class WorkerScheduling extends VerticleApollo {
    * @param task the task being scheduled
    * @param chosenMappings the chosen mappings
    */
-  protected void processChosenMappings(Task task, Set<Mapping<Task, Resource>> chosenMappings) {
+  protected void processChosenMappings(final Task task,
+      final Set<Mapping<Task, Resource>> chosenMappings) {
     schedule.setTaskSchedule(task, chosenMappings);
     this.vertx.eventBus().send(successAddress, task.getId());
     if (schedule.isScheduled(task)) {
