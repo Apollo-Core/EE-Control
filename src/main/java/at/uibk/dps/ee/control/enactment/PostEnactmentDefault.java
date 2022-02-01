@@ -50,6 +50,8 @@ public class PostEnactmentDefault implements PostEnactment {
       if (PropertyServiceFunction.getUsageType(enactedTask).equals(UsageType.User)) {
         this.vertx.sharedData().getLock(ConstantsScheduling.lockCapacityQuery,
             lockRes -> lockResHandler(lockRes, enactedTask, eBus));
+      } else {
+        eBus.send(ConstantsVertX.addressEnactmentFinished, enactedTask.getId());
       }
     }
   }
