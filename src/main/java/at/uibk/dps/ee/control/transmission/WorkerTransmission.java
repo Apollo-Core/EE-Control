@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
-import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
+import at.uibk.dps.ee.model.graph.SpecificationProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
@@ -34,10 +34,10 @@ public class WorkerTransmission extends VerticleApollo {
    * @param schedulabilityCheck checks the schedulability of functions
    */
   @Inject
-  public WorkerTransmission(final EnactmentGraphProvider eGraphProvider,
+  public WorkerTransmission(final SpecificationProvider specProvider,
       final SchedulabilityCheck schedulabilityCheck) {
     super(ConstantsVertX.addressDataAvailable, ConstantsVertX.addressTaskSchedulable,
-        ConstantsVertX.addressFailureAbort, eGraphProvider);
+        ConstantsVertX.addressFailureAbort, specProvider);
     this.schedulabilityCheck = schedulabilityCheck;
   }
 

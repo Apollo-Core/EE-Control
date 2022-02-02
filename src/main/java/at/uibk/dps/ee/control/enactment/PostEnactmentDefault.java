@@ -1,5 +1,6 @@
 package at.uibk.dps.ee.control.enactment;
 
+import java.util.stream.Collectors;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
@@ -67,6 +68,13 @@ public class PostEnactmentDefault implements PostEnactment {
       final EventBus eBus) {
     if (asyncRes.succeeded()) {
       final Lock lock = asyncRes.result();
+      // trigger the scheduler to review the waiting list
+      schedule.getTaskSchedule(enactedTask).stream() //
+          .filter(m -> !PropertyServiceFunction.hasNegligibleWorkload(m.getSource())) //
+          .map(m -> m.getTarget()) //
+          .filter(res -> PropertyServiceResource.hasLimitedCapacity(res)) //
+          .collect(Collectors.toSet()) //
+          .forEach(res -> eBus.send(ConstantsVertX.addressResourceFreed, res.getId()));
       schedule.getTaskSchedule(enactedTask)
           .forEach(m -> PropertyServiceResource.removeUsingTask(enactedTask, m.getTarget()));
       lock.release();

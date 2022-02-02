@@ -8,7 +8,7 @@ import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.core.function.EnactmentFunction;
-import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
+import at.uibk.dps.ee.model.graph.SpecificationProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
 import at.uibk.dps.sc.core.ScheduleModel;
 import at.uibk.dps.sc.core.interpreter.ScheduleInterpreter;
@@ -31,17 +31,17 @@ public class WorkerEnactment extends VerticleApollo {
   /**
    * The injection constructor.
    * 
-   * @param eGraphProvider provides the e graph
+   * @param specProvider provides the sepc
    * @param postEnactment defines what to do after the enactment is finished
    * @param scheduleModel the schedule (maps tasks to mapping sets)
    * @param interpreter the interpreter (maps mapping sets to functions)
    */
   @Inject
-  public WorkerEnactment(final EnactmentGraphProvider eGraphProvider,
+  public WorkerEnactment(final SpecificationProvider specProvider,
       final PostEnactment postEnactment, final ScheduleModel scheduleModel,
       final ScheduleInterpreter interpreter) {
     super(ConstantsVertX.addressTaskLaunchable, ConstantsVertX.addressEnactmentFinished,
-        ConstantsVertX.addressFailureAbort, eGraphProvider);
+        ConstantsVertX.addressFailureAbort, specProvider);
     this.postEnactment = postEnactment;
     this.scheduleModel = scheduleModel;
     this.interpreter = interpreter;

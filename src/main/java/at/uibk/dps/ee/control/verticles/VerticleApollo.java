@@ -1,3 +1,4 @@
+
 package at.uibk.dps.ee.control.verticles;
 
 import java.util.ArrayList;
@@ -5,7 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
-import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
+import at.uibk.dps.ee.model.graph.MappingsConcurrent;
+import at.uibk.dps.ee.model.graph.ResourceGraph;
+import at.uibk.dps.ee.model.graph.SpecificationProvider;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.Message;
 import net.sf.opendse.model.Task;
@@ -24,6 +27,8 @@ public abstract class VerticleApollo extends AbstractVerticle {
   protected final String failureAddress;
 
   protected final EnactmentGraph eGraph;
+  protected final ResourceGraph rGraph;
+  protected final MappingsConcurrent mappings;
 
   protected final Logger logger = LoggerFactory.getLogger(VerticleApollo.class);
 
@@ -39,11 +44,13 @@ public abstract class VerticleApollo extends AbstractVerticle {
    * @param eProvider the enactment graph provider
    */
   public VerticleApollo(final String triggerAddress, final String successAddress,
-      final String failureAddress, final EnactmentGraphProvider eProvider) {
+      final String failureAddress, final SpecificationProvider specProv) {
     this.triggerAddress = triggerAddress;
     this.successAddress = successAddress;
     this.failureAddress = failureAddress;
-    this.eGraph = eProvider.getEnactmentGraph();
+    this.eGraph = specProv.getEnactmentGraph();
+    this.rGraph = specProv.getResourceGraph();
+    this.mappings = specProv.getMappings();
   }
 
 

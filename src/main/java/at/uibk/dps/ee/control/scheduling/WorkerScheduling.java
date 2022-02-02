@@ -1,15 +1,21 @@
 package at.uibk.dps.ee.control.scheduling;
 
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
-import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
+import at.uibk.dps.ee.model.graph.SpecificationProvider;
 import at.uibk.dps.sc.core.ScheduleModel;
+import at.uibk.dps.sc.core.arbitration.ResourceArbiter;
+import at.uibk.dps.sc.core.capacity.CapacityLimitException;
 import at.uibk.dps.sc.core.scheduler.Scheduler;
+import io.vertx.core.eventbus.Message;
 import net.sf.opendse.model.Mapping;
 import net.sf.opendse.model.Resource;
 import net.sf.opendse.model.Task;
@@ -24,24 +30,68 @@ public class WorkerScheduling extends VerticleApollo {
 
   protected final ScheduleModel schedule;
   protected final Scheduler scheduler;
+  protected final ResourceArbiter arbiter;
+
+  protected final CopyOnWriteArrayList<Task> waitingTasks;
 
   protected final Logger logger = LoggerFactory.getLogger(WorkerScheduling.class);
 
   /**
    * Injection constructor
    * 
-   * @param graphProvider e graph provider
+   * @param specProvider the specification provider
    * @param schedule the schedule model
    * @param scheduler the scheduler
    */
   @Inject
-  public WorkerScheduling(final EnactmentGraphProvider graphProvider, final ScheduleModel schedule,
-      final Scheduler scheduler) {
+  public WorkerScheduling(final SpecificationProvider specProvider, final ScheduleModel schedule,
+      final Scheduler scheduler, final ResourceArbiter arbiter) {
     super(ConstantsVertX.addressTaskSchedulable, ConstantsVertX.addressTaskLaunchable,
-        ConstantsVertX.addressFailureAbort, graphProvider);
+        ConstantsVertX.addressFailureAbort, specProvider);
     this.schedule = schedule;
     this.scheduler = scheduler;
+    this.arbiter = arbiter;
+    this.waitingTasks = new CopyOnWriteArrayList<>();
   }
+
+  @Override
+  public void start() throws Exception {
+    super.start();
+    this.vertx.eventBus().consumer(ConstantsVertX.addressResourceFreed, this::processFreedResource);
+  }
+
+  /**
+   * Reads the freed resource from the eBus message
+   * 
+   * @param resMessage the eBus message
+   */
+  protected void processFreedResource(final Message<String> resMessage) {
+    final Resource freedRes = rGraph.getVertex(resMessage.body());
+    considerWaiting(freedRes);
+  }
+
+  /**
+   * Chooses the waiting task to try to reschedule on the given resource.
+   * 
+   * @param res the given resource (which was just freed)
+   */
+  protected void considerWaiting(Resource res) {
+    List<Task> relevant = waitingTasks.stream() //
+        .filter(t -> mappings.getMappings(t).stream() //
+            .anyMatch(m -> m.getTarget().equals(res))) //
+        .collect(Collectors.toList());
+    if (!relevant.isEmpty()) {
+      try {
+        Task scheduledNext = arbiter.chooseTask(relevant, res);
+        logger.debug("Task {} picked for scheduling from the wait list.", scheduledNext.getId());
+        waitingTasks.remove(scheduledNext);
+        work(scheduledNext);
+      } catch (WorkerException e) {
+        failureHandler(e);
+      }
+    }
+  }
+
 
   @Override
   protected void work(final Task schedulableTask) throws WorkerException {
@@ -52,7 +102,13 @@ public class WorkerScheduling extends VerticleApollo {
       if (asyncRes.succeeded()) {
         processChosenMappings(schedulableTask, asyncRes.result());
       } else {
-        throw new IllegalArgumentException("Async scheduling call failed.");
+        if (asyncRes.cause() instanceof CapacityLimitException) {
+          Task waiting = ((CapacityLimitException) asyncRes.cause()).getUnscheduledTask();
+          logger.debug("Task {} added to waiting list.", schedulableTask.getId());
+          waitingTasks.add(waiting);
+        } else {
+          throw new IllegalArgumentException("Async scheduling call failed.");
+        }
       }
     });
   }

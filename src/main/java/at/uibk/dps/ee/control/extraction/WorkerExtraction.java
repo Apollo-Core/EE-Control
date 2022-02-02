@@ -11,7 +11,7 @@ import com.google.inject.Inject;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
-import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
+import at.uibk.dps.ee.model.graph.SpecificationProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
@@ -39,9 +39,9 @@ public class WorkerExtraction extends VerticleApollo {
    * @param eGraphProvider provider of the enactment graph
    */
   @Inject
-  public WorkerExtraction(final EnactmentGraphProvider eGraphProvider) {
+  public WorkerExtraction(final SpecificationProvider specProvider) {
     super(ConstantsVertX.addressEnactmentFinished, ConstantsVertX.addressDataAvailable,
-        ConstantsVertX.addressFailureAbort, eGraphProvider);
+        ConstantsVertX.addressFailureAbort, specProvider);
     this.leafNodes = eGraph.getVertices().stream()
         .filter(
             node -> TaskPropertyService.isCommunication(node) && PropertyServiceData.isLeaf(node))
@@ -80,7 +80,7 @@ public class WorkerExtraction extends VerticleApollo {
     final JsonElement data =
         dataNodeModelsSequentiality ? new JsonPrimitive(true) : enactmentResult.get(key);
     PropertyServiceData.setContent(dataNode, data);
-    //annotateExtractionEdge(outEdge);
+    // annotateExtractionEdge(outEdge);
     logger.debug("Thread {}; Data on node {} available.", Thread.currentThread().getId(),
         dataNode.getId());
     this.vertx.eventBus().send(successAddress, dataNode.getId());

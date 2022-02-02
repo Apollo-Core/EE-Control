@@ -8,7 +8,7 @@ import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.VerticleApollo;
 import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.core.ModelModificationListener;
-import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
+import at.uibk.dps.ee.model.graph.SpecificationProvider;
 import io.vertx.core.shareddata.Lock;
 import net.sf.opendse.model.Task;
 
@@ -28,7 +28,7 @@ public class WorkerTransformation extends VerticleApollo {
   /**
    * Injection constructor
    * 
-   * @param eGraphProv provides the enactment graph
+   * @param specProv provides the spec
    * @param transformer the class with the transform operations for different
    *        tasks
    * @param listeners the transformation listeners
@@ -36,11 +36,11 @@ public class WorkerTransformation extends VerticleApollo {
    *        next step of the orchestration
    */
   @Inject
-  public WorkerTransformation(final EnactmentGraphProvider eGraphProv,
+  public WorkerTransformation(final SpecificationProvider specProv,
       final GraphTransformer transformer, final Set<ModelModificationListener> listeners,
       final PostTransformation postTransformation) {
     super(ConstantsVertX.addressRequiredTransformation, ConstantsVertX.addressEnactmentFinished,
-        ConstantsVertX.addressFailureAbort, eGraphProv);
+        ConstantsVertX.addressFailureAbort, specProv);
     this.transformer = transformer;
     this.listeners = listeners;
     this.postTransformation = postTransformation;
