@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import at.uibk.dps.ee.core.ModelModificationListener;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
-import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
+import at.uibk.dps.ee.model.graph.SpecificationProvider;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import net.sf.opendse.model.Task;
@@ -17,9 +17,9 @@ import static org.mockito.Mockito.verify;
 class WorkerTransformationTest {
 
   protected class MockWorker extends WorkerTransformation {
-    public MockWorker(EnactmentGraphProvider eGraphProv, GraphTransformer transformer,
+    public MockWorker(SpecificationProvider specProv, GraphTransformer transformer,
         Set<ModelModificationListener> listeners, PostTransformation postTransformation) {
-      super(eGraphProv, transformer, listeners, postTransformation);
+      super(specProv, transformer, listeners, postTransformation);
     }
 
     public void setVertX(Vertx vertx) {
@@ -59,12 +59,12 @@ class WorkerTransformationTest {
     eBus = mock(EventBus.class);
     when(vertx.eventBus()).thenReturn(eBus);
     graph = new EnactmentGraph();
-    EnactmentGraphProvider eProv = mock(EnactmentGraphProvider.class);
-    when(eProv.getEnactmentGraph()).thenReturn(graph);
+    SpecificationProvider specProv = mock(SpecificationProvider.class);
+    when(specProv.getEnactmentGraph()).thenReturn(graph);
     listener = mock(ModelModificationListener.class);
     Set<ModelModificationListener> listeners = new HashSet<>();
     listeners.add(listener);
-    tested = new MockWorker(eProv, transformer, listeners, postTransformation);
+    tested = new MockWorker(specProv, transformer, listeners, postTransformation);
     tested.setVertX(vertx);
   }
 }

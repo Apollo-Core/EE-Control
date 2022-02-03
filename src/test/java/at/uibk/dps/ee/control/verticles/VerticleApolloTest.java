@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
-import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
+import at.uibk.dps.ee.model.graph.SpecificationProvider;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
@@ -21,8 +21,8 @@ public class VerticleApolloTest {
   protected class VerticleMock extends VerticleApollo {
 
     public VerticleMock(String triggerAddress, String successAddress, String failureAddress,
-        EnactmentGraphProvider eProvider) {
-      super(triggerAddress, successAddress, failureAddress, eProvider);
+        SpecificationProvider specProvider) {
+      super(triggerAddress, successAddress, failureAddress, specProvider);
     }
 
     @Override
@@ -67,9 +67,9 @@ public class VerticleApolloTest {
     EnactmentGraph eGraph = new EnactmentGraph();
     eGraph.addVertex(task1);
     eGraph.addVertex(task2);
-    EnactmentGraphProvider eProv = mock(EnactmentGraphProvider.class);
-    when(eProv.getEnactmentGraph()).thenReturn(eGraph);
-    tested = new VerticleMock(triggerAddress, successAddress, failureAddress, eProv);
+    SpecificationProvider specProv = mock(SpecificationProvider.class);
+    when(specProv.getEnactmentGraph()).thenReturn(eGraph);
+    tested = new VerticleMock(triggerAddress, successAddress, failureAddress, specProv);
 
     Vertx vertX = mock(Vertx.class);
     eBus = mock(EventBus.class);
@@ -91,7 +91,7 @@ public class VerticleApolloTest {
     assertTrue(spy.queue.isEmpty());
     verify(spy).processTask(task1);
   }
-  
+
   /**
    * Test that we don't queue if not paused.
    */
@@ -102,7 +102,7 @@ public class VerticleApolloTest {
     assertTrue(spy.queue.isEmpty());
     verify(spy).processTask(task1);
   }
-  
+
   /**
    * Test the publishing of the failure message.
    */

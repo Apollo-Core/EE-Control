@@ -13,7 +13,7 @@ import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.control.verticles.WorkerException;
 import at.uibk.dps.ee.model.constants.ConstantsEEModel;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
-import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
+import at.uibk.dps.ee.model.graph.SpecificationProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
@@ -27,14 +27,15 @@ import net.sf.opendse.model.Task;
 public class WorkerExtractionTest {
 
   protected class ExtractionMock extends WorkerExtraction {
-    public ExtractionMock(EnactmentGraphProvider eGraphProvider) {
-      super(eGraphProvider);
+    public ExtractionMock(SpecificationProvider specProvider) {
+      super(specProvider);
     }
+
     public void setVertX(Vertx vertx) {
       this.vertx = vertx;
     }
   }
-  
+
   @Test
   public void testNoKey() {
     Task finished = new Task("finished");
@@ -43,9 +44,9 @@ public class WorkerExtractionTest {
     PropertyServiceDependency.setJsonKey(dep, "key");
     EnactmentGraph eGraph = new EnactmentGraph();
     eGraph.addEdge(dep, finished, dataNode, EdgeType.DIRECTED);
-    EnactmentGraphProvider eProv = mock(EnactmentGraphProvider.class);
-    when(eProv.getEnactmentGraph()).thenReturn(eGraph);
-    WorkerExtraction tested = new WorkerExtraction(eProv);
+    SpecificationProvider specProv = mock(SpecificationProvider.class);
+    when(specProv.getEnactmentGraph()).thenReturn(eGraph);
+    WorkerExtraction tested = new WorkerExtraction(specProv);
     PropertyServiceFunction.setOutput(finished, new JsonObject());
     try {
       tested.work(finished);
@@ -65,19 +66,19 @@ public class WorkerExtractionTest {
     PropertyServiceDependency.setJsonKey(dep, ConstantsEEModel.JsonKeySequentiality);
     EnactmentGraph eGraph = new EnactmentGraph();
     eGraph.addEdge(dep, finished, dataNode, EdgeType.DIRECTED);
-    EnactmentGraphProvider eProv = mock(EnactmentGraphProvider.class);
-    when(eProv.getEnactmentGraph()).thenReturn(eGraph);
-    ExtractionMock tested = new ExtractionMock(eProv);
+    SpecificationProvider specProv = mock(SpecificationProvider.class);
+    when(specProv.getEnactmentGraph()).thenReturn(eGraph);
+    ExtractionMock tested = new ExtractionMock(specProv);
 
     EventBus busMock = mock(EventBus.class);
     Vertx mockV = mock(Vertx.class);
     when(mockV.eventBus()).thenReturn(busMock);
     tested.setVertX(mockV);
-    
+
     JsonObject result = new JsonObject();
     result.add(ConstantsEEModel.JsonKeySequentiality, new JsonPrimitive(true));
     PropertyServiceFunction.setOutput(finished, result);
-    
+
     try {
       tested.work(finished);
     } catch (WorkerException e) {
@@ -92,7 +93,7 @@ public class WorkerExtractionTest {
     Task finished = new Task("finished");
     Dependency dep = new Dependency("dep");
     Communication dataNode = new Communication("data");
-    
+
     PropertyServiceData.makeLeaf(dataNode);
     PropertyServiceData.setJsonKey(dataNode, "key");
     JsonObject result = new JsonObject();
@@ -102,9 +103,9 @@ public class WorkerExtractionTest {
     EnactmentGraph eGraph = new EnactmentGraph();
     eGraph.addEdge(dep, finished, dataNode, EdgeType.DIRECTED);
     PropertyServiceFunction.setOutput(finished, result);
-    EnactmentGraphProvider eProv = mock(EnactmentGraphProvider.class);
-    when(eProv.getEnactmentGraph()).thenReturn(eGraph);
-    ExtractionMock tested = new ExtractionMock(eProv);
+    SpecificationProvider specProv = mock(SpecificationProvider.class);
+    when(specProv.getEnactmentGraph()).thenReturn(eGraph);
+    ExtractionMock tested = new ExtractionMock(specProv);
 
     EventBus busMock = mock(EventBus.class);
     Vertx mockV = mock(Vertx.class);
@@ -120,7 +121,7 @@ public class WorkerExtractionTest {
     verify(busMock).send(ConstantsVertX.addressDataAvailable, dataNode.getId());
     verify(busMock).publish(ConstantsVertX.addressWorkflowResultAvailable, result.toString());
   }
-  
+
   @Test
   public void testWork() {
     Task finished = new Task("finished");
@@ -133,9 +134,9 @@ public class WorkerExtractionTest {
     EnactmentGraph eGraph = new EnactmentGraph();
     eGraph.addEdge(dep, finished, dataNode, EdgeType.DIRECTED);
     PropertyServiceFunction.setOutput(finished, result);
-    EnactmentGraphProvider eProv = mock(EnactmentGraphProvider.class);
-    when(eProv.getEnactmentGraph()).thenReturn(eGraph);
-    ExtractionMock tested = new ExtractionMock(eProv);
+    SpecificationProvider specProv = mock(SpecificationProvider.class);
+    when(specProv.getEnactmentGraph()).thenReturn(eGraph);
+    ExtractionMock tested = new ExtractionMock(specProv);
 
     EventBus busMock = mock(EventBus.class);
     Vertx mockV = mock(Vertx.class);

@@ -11,7 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import at.uibk.dps.ee.control.verticles.ConstantsVertX;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
-import at.uibk.dps.ee.model.graph.EnactmentGraphProvider;
+import at.uibk.dps.ee.model.graph.SpecificationProvider;
 import at.uibk.dps.ee.model.properties.PropertyServiceData;
 import at.uibk.dps.ee.model.properties.PropertyServiceDependency;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunction;
@@ -25,9 +25,8 @@ class WorkerTransmissionTest {
 
   protected class MockWorker extends WorkerTransmission {
 
-    public MockWorker(EnactmentGraphProvider eGraphProvider,
-        SchedulabilityCheck schedulabilityCheck) {
-      super(eGraphProvider, schedulabilityCheck);
+    public MockWorker(SpecificationProvider specProvider, SchedulabilityCheck schedulabilityCheck) {
+      super(specProvider, schedulabilityCheck);
     }
 
     public void setVertx(Vertx vertx) {
@@ -35,9 +34,9 @@ class WorkerTransmissionTest {
     }
   }
 
+  SpecificationProvider specProv;
   EventBus eBus;
   EnactmentGraph graph;
-  EnactmentGraphProvider eProv;
   SchedulabilityCheck schedCheck;
   MockWorker tested;
   Dependency dep1;
@@ -80,11 +79,11 @@ class WorkerTransmissionTest {
     Vertx vMock = mock(Vertx.class);
     eBus = mock(EventBus.class);
     when(vMock.eventBus()).thenReturn(eBus);
-    eProv = mock(EnactmentGraphProvider.class);
     graph = new EnactmentGraph();
-    when(eProv.getEnactmentGraph()).thenReturn(graph);
+    specProv = mock(SpecificationProvider.class);
+    when(specProv.getEnactmentGraph()).thenReturn(graph);
     schedCheck = mock(SchedulabilityCheck.class);
-    tested = new MockWorker(eProv, schedCheck);
+    tested = new MockWorker(specProv, schedCheck);
     tested.setVertx(vMock);
 
     comm1 = new Communication("comm1");
