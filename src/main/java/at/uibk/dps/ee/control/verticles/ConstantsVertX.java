@@ -16,8 +16,8 @@ public final class ConstantsVertX {
   public static final String implId = "implId";
 
   // Locks
-
   public static final String transformTransmitLock = "transformTransmit";
+  public static final String waitingListLock = "waitingList";
 
   // Event bus messages
   public static final String messagePause = "pause";

@@ -1,8 +1,8 @@
 package at.uibk.dps.ee.control.scheduling;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,7 @@ import at.uibk.dps.sc.core.arbitration.ResourceArbiter;
 import at.uibk.dps.sc.core.capacity.CapacityLimitException;
 import at.uibk.dps.sc.core.scheduler.Scheduler;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.shareddata.Lock;
 import net.sf.opendse.model.Mapping;
 import net.sf.opendse.model.Resource;
 import net.sf.opendse.model.Task;
@@ -32,7 +33,7 @@ public class WorkerScheduling extends VerticleApollo {
   protected final Scheduler scheduler;
   protected final ResourceArbiter arbiter;
 
-  protected final CopyOnWriteArrayList<Task> waitingTasks;
+  protected final List<Task> waitingTasks;
 
   protected final Logger logger = LoggerFactory.getLogger(WorkerScheduling.class);
 
@@ -51,7 +52,7 @@ public class WorkerScheduling extends VerticleApollo {
     this.schedule = schedule;
     this.scheduler = scheduler;
     this.arbiter = arbiter;
-    this.waitingTasks = new CopyOnWriteArrayList<>();
+    this.waitingTasks = new ArrayList<>();
   }
 
   @Override
@@ -67,7 +68,15 @@ public class WorkerScheduling extends VerticleApollo {
    */
   protected void processFreedResource(final Message<String> resMessage) {
     final Resource freedRes = rGraph.getVertex(resMessage.body());
-    considerWaiting(freedRes);
+    this.vertx.sharedData().getLock(ConstantsVertX.waitingListLock, lockRes -> {
+      if (lockRes.succeeded()) {
+        Lock waitingListLock = lockRes.result();
+        considerWaiting(freedRes);
+        waitingListLock.release();
+      } else {
+        throw new IllegalStateException("Failed to acquire waiting list lock");
+      }
+    });
   }
 
   /**
@@ -82,16 +91,18 @@ public class WorkerScheduling extends VerticleApollo {
         .collect(Collectors.toList());
     if (!relevant.isEmpty()) {
       try {
-        Task scheduledNext = arbiter.chooseTask(relevant, res);
-        logger.debug("Task {} picked for scheduling from the wait list.", scheduledNext.getId());
-        waitingTasks.remove(scheduledNext);
-        work(scheduledNext);
+        List<Task> prioList = arbiter.prioritizeTasks(relevant, res);
+        for (Task taskToSchedule : prioList) {
+          logger.debug("Attempting to schedule Task {} from the wait list.",
+              taskToSchedule.getId());
+          waitingTasks.remove(taskToSchedule);
+          work(taskToSchedule);
+        }
       } catch (WorkerException e) {
         failureHandler(e);
       }
     }
   }
-
 
   @Override
   protected void work(final Task schedulableTask) throws WorkerException {
