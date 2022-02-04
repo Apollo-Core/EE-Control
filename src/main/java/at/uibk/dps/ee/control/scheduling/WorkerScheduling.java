@@ -70,7 +70,7 @@ public class WorkerScheduling extends VerticleApollo {
     final Resource freedRes = rGraph.getVertex(resMessage.body());
     this.vertx.sharedData().getLock(ConstantsVertX.waitingListLock, lockRes -> {
       if (lockRes.succeeded()) {
-        Lock waitingListLock = lockRes.result();
+        final Lock waitingListLock = lockRes.result();
         considerWaiting(freedRes);
         waitingListLock.release();
       } else {
@@ -84,15 +84,15 @@ public class WorkerScheduling extends VerticleApollo {
    * 
    * @param res the given resource (which was just freed)
    */
-  protected void considerWaiting(Resource res) {
-    List<Task> relevant = waitingTasks.stream() //
+  protected void considerWaiting(final Resource res) {
+    final List<Task> relevant = waitingTasks.stream() //
         .filter(t -> mappings.getMappings(t).stream() //
             .anyMatch(m -> m.getTarget().equals(res))) //
         .collect(Collectors.toList());
     if (!relevant.isEmpty()) {
       try {
-        List<Task> prioList = arbiter.prioritizeTasks(relevant, res);
-        for (Task taskToSchedule : prioList) {
+        final List<Task> prioList = arbiter.prioritizeTasks(relevant, res);
+        for (final Task taskToSchedule : prioList) {
           logger.debug("Attempting to schedule Task {} from the wait list.",
               taskToSchedule.getId());
           waitingTasks.remove(taskToSchedule);
@@ -114,7 +114,7 @@ public class WorkerScheduling extends VerticleApollo {
         processChosenMappings(schedulableTask, asyncRes.result());
       } else {
         if (asyncRes.cause() instanceof CapacityLimitException) {
-          Task waiting = ((CapacityLimitException) asyncRes.cause()).getUnscheduledTask();
+          final Task waiting = ((CapacityLimitException) asyncRes.cause()).getUnscheduledTask();
           logger.debug("Task {} added to waiting list.", schedulableTask.getId());
           waitingTasks.add(waiting);
         } else {
