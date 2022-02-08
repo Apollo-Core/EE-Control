@@ -38,5 +38,5 @@ public abstract class VerticleModule extends EeModule {
     multibinder.addBinding().to(verticle);
   }
 
-
+  
 }

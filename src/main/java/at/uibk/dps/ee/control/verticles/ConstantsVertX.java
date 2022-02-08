@@ -22,13 +22,17 @@ public final class ConstantsVertX {
   // Event bus messages
   public static final String messagePause = "pause";
   public static final String messageResume = "resume";
-
+  
+  public static final String messageInitDelay = "init delay";
 
   // Event bus addresses
 
   // Control Addresses
   public static final String addressControlPause = "PAUSE_ADDRESS";
   public static final String addressControlResume = "RESUME_ADDRESS";
+  
+  // Init Addresses
+  public static final String addressInitDelay = "INIT_DELAY_ADDRESS";
 
   // worker addresses
 

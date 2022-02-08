@@ -6,6 +6,7 @@ import org.opt4j.core.start.Constant;
 import at.uibk.dps.ee.control.command.Control;
 import at.uibk.dps.ee.control.enactment.WorkerEnactment;
 import at.uibk.dps.ee.control.extraction.WorkerExtraction;
+import at.uibk.dps.ee.control.init.InitializerDelayedExecution;
 import at.uibk.dps.ee.control.scheduling.WorkerScheduling;
 import at.uibk.dps.ee.control.transformation.WorkerTransformation;
 import at.uibk.dps.ee.control.transmission.WorkerTransmission;
@@ -32,6 +33,10 @@ public class EnactmentVerticleModule extends VerticleModule {
   @Constant(namespace = VerticleManager.class, value = "deploymentNumber")
   protected int deploymentNumber = 2 * CpuCoreSensor.availableProcessors();
 
+  @Order(3)
+  @Info("Delays the enactment by a time interval.")
+  @Constant(namespace = InitializerDelayedExecution.class, value = "delayInSeconds")
+  protected int delayInSeconds = 0;
 
   @Override
   protected void config() {
@@ -45,6 +50,8 @@ public class EnactmentVerticleModule extends VerticleModule {
 
     // probably remove this and remove enactment listener
     addEnactmentStateListener(Control.class);
+
+    addInitializer(InitializerDelayedExecution.class);
   }
 
   public boolean isPauseOnStart() {
@@ -61,5 +68,13 @@ public class EnactmentVerticleModule extends VerticleModule {
 
   public void setDeploymentNumber(final int deploymentNumber) {
     this.deploymentNumber = deploymentNumber;
+  }
+
+  public int getDelayInSeconds() {
+    return delayInSeconds;
+  }
+
+  public void setDelayInSeconds(int delayInSeconds) {
+    this.delayInSeconds = delayInSeconds;
   }
 }
