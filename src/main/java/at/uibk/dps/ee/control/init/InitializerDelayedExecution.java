@@ -4,11 +4,11 @@ import org.opt4j.core.start.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
-import at.uibk.dps.ee.control.verticles.ConstantsVertX;
-import at.uibk.dps.ee.guice.init.InitializerComponent;
+import at.uibk.dps.ee.core.Initializer;
 import at.uibk.dps.ee.guice.starter.VertxProvider;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
 
 /**
  * The {@link InitializerDelayedExecution} introduces a temporal offset between
@@ -18,9 +18,10 @@ import io.vertx.core.Promise;
  * 
  * @author Fedor Smirnov
  */
-public class InitializerDelayedExecution extends InitializerComponent {
+public class InitializerDelayedExecution implements Initializer {
 
   protected final int delayInSeconds;
+  protected final Vertx vertX;
 
   protected final Logger logger = LoggerFactory.getLogger(InitializerDelayedExecution.class);
 
@@ -28,21 +29,21 @@ public class InitializerDelayedExecution extends InitializerComponent {
   public InitializerDelayedExecution(VertxProvider vProv,
       @Constant(namespace = InitializerDelayedExecution.class,
           value = "delayInSeconds") int delayInSeconds) {
-    super(vProv, ConstantsVertX.addressInitDelay, ConstantsVertX.messageInitDelay);
     this.delayInSeconds = delayInSeconds;
+    this.vertX = vProv.getVertx();
   }
 
   @Override
-  protected Future<String> actualInitialization() {
+  public Future<String> initialize() {
     Promise<String> resultPromise = Promise.promise();
     if (delayInSeconds > 0) {
       logger.info("Enactment delayed by {} seconds.", delayInSeconds);
       vertX.setTimer(delayInSeconds * 1000, asyncRes -> {
-          logger.info("Starting enactment after delay.");
-        resultPromise.complete(readySignal);
+        logger.info("Starting enactment after delay.");
+        resultPromise.complete();
       });
-    }else {
-      resultPromise.complete(readySignal);
+    } else {
+      resultPromise.complete();
     }
     return resultPromise.future();
   }
