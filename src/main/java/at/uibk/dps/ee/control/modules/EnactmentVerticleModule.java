@@ -36,7 +36,7 @@ public class EnactmentVerticleModule extends VerticleModule {
   @Order(3)
   @Info("Delays the enactment by a time interval.")
   @Constant(namespace = InitializerDelayedExecution.class, value = "delayInSeconds")
-  protected int delayInSeconds = 0;
+  protected int delayInSeconds;
 
   @Override
   protected void config() {
@@ -74,7 +74,7 @@ public class EnactmentVerticleModule extends VerticleModule {
     return delayInSeconds;
   }
 
-  public void setDelayInSeconds(int delayInSeconds) {
+  public void setDelayInSeconds(final int delayInSeconds) {
     this.delayInSeconds = delayInSeconds;
   }
 }

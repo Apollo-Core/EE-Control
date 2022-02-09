@@ -25,17 +25,23 @@ public class InitializerDelayedExecution implements Initializer {
 
   protected final Logger logger = LoggerFactory.getLogger(InitializerDelayedExecution.class);
 
+  /**
+   * Injection constructor
+   * 
+   * @param vProv vertX provider (to get the timer)
+   * @param delayInSeconds configured delay in seconds
+   */
   @Inject
-  public InitializerDelayedExecution(VertxProvider vProv,
+  public InitializerDelayedExecution(final VertxProvider vProv,
       @Constant(namespace = InitializerDelayedExecution.class,
-          value = "delayInSeconds") int delayInSeconds) {
+          value = "delayInSeconds") final int delayInSeconds) {
     this.delayInSeconds = delayInSeconds;
     this.vertX = vProv.getVertx();
   }
 
   @Override
   public Future<String> initialize() {
-    Promise<String> resultPromise = Promise.promise();
+    final Promise<String> resultPromise = Promise.promise();
     if (delayInSeconds > 0) {
       logger.info("Enactment delayed by {} seconds.", delayInSeconds);
       vertX.setTimer(delayInSeconds * 1000, asyncRes -> {
