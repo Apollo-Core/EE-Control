@@ -1,13 +1,8 @@
-buildscript {
-  repositories {
-    jcenter()
-  }
-}
 
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'eclipse'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 // for compliance with higher Java versions
 jacoco {
@@ -21,9 +16,7 @@ version '1.0-SNAPSHOT'
 
 repositories {
   mavenCentral()
-  maven {
-    name "jitpack"
-    url 'https://jitpack.io' }
+  maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -62,10 +55,27 @@ dependencies {
 
   // test dependencies
   // mockito
-  testCompile group: 'org.mockito',     name: 'mockito-core',     version: '3.4.4'
+  testImplementation group: 'org.mockito',     name: 'mockito-core',     version: '3.4.4'
   // JUnit 5
   testImplementation(platform('org.junit:junit-bom:5.7.2'))
   testImplementation('org.junit.jupiter:junit-jupiter')
+}
+
+java {
+  withSourcesJar()
+}
+
+publishing {
+  publications {
+      maven(MavenPublication) {
+      from components.java
+      }
+  }
+}
+
+wrapper {
+  gradleVersion = "6.8.3"
+  distributionType = Wrapper.DistributionType.ALL
 }
 
 jacocoTestReport {
