@@ -7,6 +7,7 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'eclipse'
+apply plugin: 'maven'
 apply plugin: 'jacoco'
 // for compliance with higher Java versions
 jacoco {
