@@ -40,9 +40,9 @@ dependencies {
   testImplementation('com.github.Apollo-Core:EE-IO:main-SNAPSHOT')
 
   // dependency to Opt4J
-  implementation 'com.github.FedorSmirnov89:opt4j:-SNAPSHOT'
+  implementation 'com.github.FedorSmirnov89:opt4j:master-SNAPSHOT'
   // dependency to opendse
-  implementation 'com.github.FedorSmirnov89:opendse:-SNAPSHOT'
+  implementation 'com.github.FedorSmirnov89:opendse:master-SNAPSHOT'
 
   // gson to define the format of the exchanged messages
   implementation 'com.google.code.gson:gson:2.8.6'
