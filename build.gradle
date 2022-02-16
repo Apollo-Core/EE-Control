@@ -35,7 +35,7 @@ dependencies {
     implementation 'com.github.Apollo-Core:EE-Enactables:master-SNAPSHOT'
     implementation 'com.github.Apollo-Core:SC-Core:main-SNAPSHOT'
   }
-  
+
   // Apollo test dependencies
   testImplementation('com.github.Apollo-Core:EE-IO:main-SNAPSHOT')
 
@@ -67,15 +67,17 @@ java {
 
 publishing {
   publications {
-      maven(MavenPublication) {
+    maven(MavenPublication) {
       from components.java
-      }
+    }
   }
 }
 
-wrapper {
-  gradleVersion = "6.8.3"
-  distributionType = Wrapper.DistributionType.ALL
+if (rootProject == project) {
+  wrapper {
+    gradleVersion = "6.8.3"
+    distributionType = Wrapper.DistributionType.ALL
+  }
 }
 
 jacocoTestReport {
