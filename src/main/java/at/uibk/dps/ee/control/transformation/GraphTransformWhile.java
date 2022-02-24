@@ -128,20 +128,11 @@ public class GraphTransformWhile implements GraphTransform {
    */
   protected void processInEdge(final Dependency originalInEdge, final EnactmentGraph graph,
       final String whileId, final String originalWhileStart) {
-    final Task whileNode = graph.getVertex(whileId);
-    final String originalWhileStartRef =
-        PropertyServiceData.getOriginalWhileStartAnnotation(whileNode);
-    final Task originalData = graph.getSource(originalInEdge);
-    final boolean dataIsReplicated =
-        graph.containsVertex(getReplicaId(originalData, originalWhileStart));
     final Task replicaSrc = getReplicaSrc(originalInEdge, graph, whileId, originalWhileStart);
     final Task replicaDst = findReplica(graph.getDest(originalInEdge), graph, originalWhileStart);
     final Dependency replica =
         addDependencyReplica(replicaSrc, replicaDst, originalInEdge, graph, whileId);
-    if (PropertyServiceDependency.isAnnotatedForGivenWhile(replica, originalWhileStartRef)) {
-      PropertyServiceDependency.removeWhileInputReference(replica, originalWhileStartRef);
-    }
-    if (dataIsReplicated && !PropertyServiceDependency.doesPointToPreviousIteration(replica)) {
+    if (!PropertyServiceData.isDataAvailable(replicaSrc)) {
       PropertyServiceDependency.resetTransmission(replica);
     }
   }
