@@ -1,6 +1,8 @@
 package at.uibk.dps.ee.control.transformation;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
@@ -21,6 +23,10 @@ import net.sf.opendse.model.Task;
  */
 public class GraphTransformAggregation implements GraphTransform {
 
+  /**
+   * List of already managed tasks.
+   */
+  private static List<Task> managedTasks;
 
   @Override
   public void modifyEnactmentGraph(final EnactmentGraph graph, final Task taskNode) {
@@ -56,13 +62,21 @@ public class GraphTransformAggregation implements GraphTransform {
     final Set<Dependency> offspringDependencies = new HashSet<>();
     final Task distributionNode = dNodes.iterator().next();
     final Task startNode = distributionNode;
-    recSweepReproducedGraphSection(graph, startNode, offspringTasks, offspringDependencies, scope);
-    // add the original edges (vertices added automatically)
-    offspringDependencies
-        .forEach(dependency -> addOriginalEdge(graph, dependency, scope, distributionNode));
-    // remove the offsprings
-    offspringDependencies.forEach(dependency -> graph.removeEdge(dependency));
-    offspringTasks.forEach(task -> graph.removeVertex(task));
+
+    if(managedTasks == null) {
+      managedTasks = new ArrayList<>();
+    }
+
+    if(!managedTasks.contains(startNode)) {
+      recSweepReproducedGraphSection(graph, startNode, offspringTasks, offspringDependencies, scope);
+      // add the original edges (vertices added automatically)
+      offspringDependencies
+          .forEach(dependency -> addOriginalEdge(graph, dependency, scope, distributionNode));
+      // remove the offsprings
+      offspringDependencies.forEach(dependency -> graph.removeEdge(dependency));
+      offspringTasks.forEach(task -> graph.removeVertex(task));
+      managedTasks.add(startNode);
+    }
   }
 
   /**
