@@ -9,6 +9,7 @@ import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollection
 import at.uibk.dps.ee.model.properties.PropertyServiceReproduction;
 import at.uibk.dps.ee.model.properties.PropertyServiceFunctionDataFlowCollections.OperationType;
 import edu.uci.ics.jung.graph.util.EdgeType;
+import net.sf.opendse.model.Attributes;
 import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
 
@@ -46,6 +47,7 @@ public class GraphTransformAggregation implements GraphTransform {
     // Calculate the number of aggregations in this scope
     if(aggregationsPerScope == 0){
       for(Task t: graph.getVertices()) {
+        // TODO use constants instead of plain text
         if(t.getAttributeNames().contains("OperationType") && "Aggregation".equals(t.getAttribute("OperationType"))
             && t.getAttributeNames().contains("Scope") && t.getAttribute("Scope").equals(scope)) {
             aggregationsPerScope++;
