@@ -1,8 +1,6 @@
 package at.uibk.dps.ee.control.transformation;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import at.uibk.dps.ee.model.graph.EnactmentGraph;
@@ -24,9 +22,9 @@ import net.sf.opendse.model.Task;
 public class GraphTransformAggregation implements GraphTransform {
 
   /**
-   * List of already managed tasks.
+   * Contains the total number of aggregations for a specific scope.
    */
-  private static List<Task> managedTasks;
+  private int aggregationsPerScope = 0;
 
   @Override
   public void modifyEnactmentGraph(final EnactmentGraph graph, final Task taskNode) {
@@ -44,38 +42,52 @@ public class GraphTransformAggregation implements GraphTransform {
   public void revertDistributionReproduction(final EnactmentGraph graph,
       final Task aggregationNode) {
     final String scope = PropertyServiceFunctionDataFlowCollections.getScope(aggregationNode);
-    if (!readyForRevert(graph, scope)) {
-      return;
-    }
-    // find the distribution node
-    final Set<Task> dNodes = graph.getVertices().stream()
-        .filter(task -> PropertyServiceFunctionDataFlowCollections.isDistributionNode(task)
-            && PropertyServiceFunctionDataFlowCollections.getScope(task).equals(scope))
-        .collect(Collectors.toSet());
-    final boolean moreThanOneDistNode = dNodes.size() > 1;
-    if (moreThanOneDistNode) {
-      throw new IllegalArgumentException("Multiple distribution nodes with the scope " + scope);
+
+    // Calculate the number of aggregations in this scope
+    if(aggregationsPerScope == 0){
+      for(Task t: graph.getVertices()) {
+        if(t.getAttributeNames().contains("OperationType") && "Aggregation".equals(t.getAttribute("OperationType"))
+            && t.getAttributeNames().contains("Scope") && t.getAttribute("Scope").equals(scope)) {
+            aggregationsPerScope++;
+        }
+      }
     }
 
-    // sweep the graph to find the reproduced and the original elements
-    final Set<Task> offspringTasks = new HashSet<>();
-    final Set<Dependency> offspringDependencies = new HashSet<>();
-    final Task distributionNode = dNodes.iterator().next();
-    final Task startNode = distributionNode;
+    // Check if last aggregation
+    if(aggregationsPerScope == 1){
 
-    if(managedTasks == null) {
-      managedTasks = new ArrayList<>();
-    }
+      if (!readyForRevert(graph, scope)) {
+        return;
+      }
+      // find the distribution node
+      final Set<Task> dNodes = graph.getVertices().stream()
+          .filter(task -> PropertyServiceFunctionDataFlowCollections.isDistributionNode(task)
+              && PropertyServiceFunctionDataFlowCollections.getScope(task).equals(scope))
+          .collect(Collectors.toSet());
+      final boolean moreThanOneDistNode = dNodes.size() > 1;
+      if (moreThanOneDistNode) {
+        throw new IllegalArgumentException("Multiple distribution nodes with the scope " + scope);
+      }
 
-    if(!managedTasks.contains(startNode)) {
+      // sweep the graph to find the reproduced and the original elements
+      final Set<Task> offspringTasks = new HashSet<>();
+      final Set<Dependency> offspringDependencies = new HashSet<>();
+      final Task distributionNode = dNodes.iterator().next();
+      final Task startNode = distributionNode;
+
       recSweepReproducedGraphSection(graph, startNode, offspringTasks, offspringDependencies, scope);
       // add the original edges (vertices added automatically)
+
       offspringDependencies
           .forEach(dependency -> addOriginalEdge(graph, dependency, scope, distributionNode));
+
       // remove the offsprings
       offspringDependencies.forEach(dependency -> graph.removeEdge(dependency));
       offspringTasks.forEach(task -> graph.removeVertex(task));
-      managedTasks.add(startNode);
+    } else {
+
+      // Not the last task in aggregation
+      aggregationsPerScope--;
     }
   }
 
