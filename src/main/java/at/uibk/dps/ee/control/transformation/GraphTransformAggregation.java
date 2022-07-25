@@ -13,6 +13,7 @@ import net.sf.opendse.model.Attributes;
 import net.sf.opendse.model.Dependency;
 import net.sf.opendse.model.Task;
 
+
 /**
  * The {@link GraphTransformAggregation} collapses the graph to revert the
  * reproduction performed by the {@link GraphTransformDistribution}. It is used
@@ -47,9 +48,9 @@ public class GraphTransformAggregation implements GraphTransform {
     // Calculate the number of aggregations in this scope
     if(aggregationsPerScope == 0){
       for(Task t: graph.getVertices()) {
-        // TODO use constants instead of plain text
-        if(t.getAttributeNames().contains("OperationType") && "Aggregation".equals(t.getAttribute("OperationType"))
-            && t.getAttributeNames().contains("Scope") && t.getAttribute("Scope").equals(scope)) {
+        if(PropertyServiceFunctionDataFlowCollections.isAggregationNode(t) && 
+		PropertyServiceFunctionDataFlowCollections.getOperationType(t).equals(OperationType.Aggregation) && 
+		PropertyServiceFunctionDataFlowCollections.getScope(t).equals(scope)){
             aggregationsPerScope++;
         }
       }
@@ -82,12 +83,10 @@ public class GraphTransformAggregation implements GraphTransform {
 
       offspringDependencies
           .forEach(dependency -> addOriginalEdge(graph, dependency, scope, distributionNode));
-
       // remove the offsprings
       offspringDependencies.forEach(dependency -> graph.removeEdge(dependency));
       offspringTasks.forEach(task -> graph.removeVertex(task));
     } else {
-
       // Not the last task in aggregation
       aggregationsPerScope--;
     }
