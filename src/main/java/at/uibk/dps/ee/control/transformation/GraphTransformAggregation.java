@@ -48,7 +48,9 @@ public class GraphTransformAggregation implements GraphTransform {
     // Calculate the number of aggregations in this scope
     if(aggregationsPerScope == 0){
       for(Task t: graph.getVertices()) {
-        if(PropertyServiceFunctionDataFlowCollections.isAggregationNode(t) && PropertyServiceFunctionDataFlowCollections.getOperationType(t).equals(OperationType.Aggregation) && PropertyServiceFunctionDataFlowCollections.getScope(t).equals(scope)){
+        if(PropertyServiceFunctionDataFlowCollections.isAggregationNode(t) && 
+		PropertyServiceFunctionDataFlowCollections.getOperationType(t).equals(OperationType.Aggregation) && 
+		PropertyServiceFunctionDataFlowCollections.getScope(t).equals(scope)){
             aggregationsPerScope++;
         }
       }
